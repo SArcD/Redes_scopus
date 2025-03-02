@@ -216,7 +216,7 @@ Además, se generarán las siguientes gráficas:
 
 
 if uploaded_file:
-    df = load_data(uploaded_file)
+    #df = load_data(uploaded_file)
 
     # Input para apellido del autor
     author_last_name = st.text_input("Ingrese el apellido del autor")
