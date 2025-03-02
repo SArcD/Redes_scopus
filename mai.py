@@ -90,3 +90,27 @@ if uploaded_file:
 
             csv = aggregated_data.to_csv(index=False).encode('utf-8')
             st.download_button("Descargar CSV", csv, "aggregated_author_data.csv", "text/csv")
+
+
+##############################################################
+
+st.markdown("""
+## Análisis de Datos por Autor
+
+El siguiente código muestra algunos datos por autor. Al correrlo:
+
+1. **Ingrese el apellido del autor**. Se desplegarán todos los autores que compartan apellido. En muchos casos, se mostrará más de un nombre por ID debido a que en ocasiones el nombre con el que se firma el artículo varía.
+2. **Ingrese el ID del autor** para ver los datos asociados a ese ID.
+
+El tipo de información que se desplegará será:
+- **Autores asociados con el ID**
+- **Total de citas asociadas**
+- **Total de artículos en los que participa el ID**
+- **Año más antiguo de publicación**
+- **Año más reciente de publicación**
+
+Además, se generarán las siguientes gráficas:
+- **Total de publicaciones vs. tiempo**
+- **Total de citas vs. tiempo**
+- **Gráfico de barras con las principales editoriales en las que publica el autor**
+""")
