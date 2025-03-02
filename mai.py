@@ -2,8 +2,10 @@ import streamlit as st
 import pandas as pd
 import re
 
+# Función para procesar los datos y guardarlos en caché
+@st.cache_data
 def process_author_data(df):
-    df.columns = df.columns.str.strip().str.replace(" ", "_")  # Reemplazar espacios en los nombres de columnas
+    df.columns = df.columns.str.strip().str.replace(" ", "_")  
 
     if "Author_full_names" not in df.columns or "Author(s)_ID" not in df.columns:
         st.error("Las columnas necesarias ('Author_full_names' y 'Author(s)_ID') no se encontraron en el archivo.")
@@ -45,6 +47,8 @@ def process_author_data(df):
 
     return df, first_author_count, authors_per_article
 
+# Función para agregar datos y guardarlos en caché
+@st.cache_data
 def aggregate_author_data(df, first_author_count, authors_per_article):
     if "Author(s)_ID" not in df.columns or "Cited_by" not in df.columns:
         st.error("No se encontraron las columnas necesarias en el archivo.")
@@ -75,9 +79,11 @@ def aggregate_author_data(df, first_author_count, authors_per_article):
 
     return aggregated_data
 
+# Interfaz en Streamlit
 st.title("Análisis de Autores en Scopus")
 
 uploaded_file = st.file_uploader("Sube un archivo CSV", type=["csv"])
+
 if uploaded_file:
     df = pd.read_csv(uploaded_file, encoding='utf-8')
     df, first_author_count, authors_per_article = process_author_data(df)
@@ -91,9 +97,7 @@ if uploaded_file:
             csv = aggregated_data.to_csv(index=False).encode('utf-8')
             st.download_button("Descargar CSV", csv, "aggregated_author_data.csv", "text/csv")
 
-
-##############################################################
-
+# Sección Markdown explicativa
 st.markdown("""
 ## Análisis de Datos por Autor
 
