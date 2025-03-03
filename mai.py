@@ -441,7 +441,7 @@ elif pagina == "Análisis por autor":
 
 
 file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
-#author_last_name = input("Ingrese el apellido del autor: ")
+author_last_name = author_last_name
 #available_authors = get_author_options(file_path, author_last_name)
 
     if available_authors:
