@@ -246,11 +246,9 @@ elif pagina == "Análisis por autor":
         ax.set_xticklabels(year_counts.index, rotation=45)
         st.pyplot(fig)
 
-# Interfaz en Streamlit
-#st.title("Análisis de Autores en Scopus")
 
     uploaded_file = st.file_uploader("Suba un archivo CSV", type=["csv"])
-
+    file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
     # Función para cargar y almacenar el DataFrame en caché
     @st.cache_data
     def load_data(file):
