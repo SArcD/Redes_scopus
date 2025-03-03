@@ -94,6 +94,11 @@ elif pagina == "Análisis por base":
 
     st.title("Análisis de Autores en Scopus")
 
+
+    import streamlit as st
+    import pandas as pd
+
+
     #uploaded_file = st.file_uploader("Sube un archivo CSV", type=["csv"])
     if uploaded_file:
         df = pd.read_csv(uploaded_file, encoding='utf-8')
@@ -162,6 +167,14 @@ elif pagina == "Análisis por autor":
 #def load_data(file):
 #    return pd.read_csv(file, encoding='utf-8')
 
+    @st.cache_data
+    def load_data(file):
+        df = pd.read_csv(file, encoding='utf-8')
+        return df
+
+    
+
+    
     # Función para obtener autores por apellido
     @st.cache_data
     def get_author_options(df, author_last_name):
@@ -241,7 +254,7 @@ elif pagina == "Análisis por autor":
         fig, ax = plt.subplots(figsize=(10, 5))
         year_counts.plot(kind='bar', color='blue', ax=ax)
         ax.set_xlabel("Año de publicación")
-        ax.set_ylabel("Número de publicaciones")
+        ax.set_ylabel("Numero de publicaciones")
         ax.set_title(f"Publicaciones por año - ID {selected_id}")
         ax.set_xticklabels(year_counts.index, rotation=45)
         st.pyplot(fig)
@@ -250,41 +263,88 @@ elif pagina == "Análisis por autor":
     uploaded_file = st.file_uploader("Suba un archivo CSV", type=["csv"])
     file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
     # Función para cargar y almacenar el DataFrame en caché
-    @st.cache_data
-    def load_data(file):
-        return pd.read_csv(file, encoding='utf-8')
+    #@st.cache_data
+    #def load_data(file):
+    #    return pd.read_csv(file, encoding='utf-8')
 
 
-    def get_total_citations(file_path, selected_id):
-        df = pd.read_csv(file_path, encoding='utf-8')
-        if "Author(s) ID" not in df.columns or "Cited by" not in df.columns:
-            print("No se encontraron las columnas necesarias en el archivo.")
-            return 0
+    #def get_total_citations(file_path, selected_id):
+    #    #df = pd.read_csv(file_path, encoding='utf-8')
+    #    df = load_data(uploaded_file) 
+    #    if "Author(s) ID" not in df.columns or "Cited by" not in df.columns:
+    #        print("No se encontraron las columnas necesarias en el archivo.")
+    #        return 0
 
         df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
         total_citations = df_filtered["Cited by"].fillna(0).astype(int).sum()
 
         return total_citations
 
-    def get_total_articles(file_path, selected_id):
-        df = pd.read_csv(file_path, encoding='utf-8')
-        if "Author(s) ID" not in df.columns:
-            print("No se encontraron las columnas necesarias en el archivo.")
+    def get_total_citations(df, selected_id):
+        """Calcula el total de citas asociadas a un ID de autor en el DataFrame."""
+        if "Author(s) ID" not in df.columns or "Cited by" not in df.columns:
+            st.error("❌ No se encontraron las columnas necesarias en el archivo.")
             return 0
 
-        df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
-        total_articles = df_filtered.shape[0]
+    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+    total_citations = df_filtered["Cited by"].fillna(0).astype(int).sum()
+
+    return total_citations
+
+    
+    #def get_total_articles(file_path, selected_id):
+    #    df = pd.read_csv(file_path, encoding='utf-8')
+    #    if "Author(s) ID" not in df.columns:
+    #        print("No se encontraron las columnas necesarias en el archivo.")
+    #        return 0
+
+   #     df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+   #     total_articles = df_filtered.shape[0]
 
         return total_articles
 
-    def get_publication_years(file_path, selected_id):
-        df = pd.read_csv(file_path, encoding='utf-8')
+    def get_total_articles(df, selected_id):
+        """Calcula el total de artículos en los que participa un ID de autor."""
+        if "Author(s) ID" not in df.columns:
+            st.error("❌ No se encontró la columna 'Author(s) ID' en el archivo.")
+            return 0
+
+    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+    total_articles = df_filtered.shape[0]
+
+    return total_articles
+
+
+
+    #def get_publication_years(file_path, selected_id):
+    #    df = pd.read_csv(file_path, encoding='utf-8')
+    #    if "Author(s) ID" not in df.columns or "Year" not in df.columns:
+    #        print("No se encontraron las columnas necesarias en el archivo.")
+    #        return None, None, None, None
+
+    #    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+    #    years = df_filtered["Year"].dropna().astype(int)
+    #    if years.empty:
+    #        return None, None, None, None
+
+    #    min_year = years.min()
+    #    max_year = years.max()
+    #    year_counts = years.value_counts().sort_index()
+
+    #    # Total de citas por año
+    #    citations_per_year = df_filtered.groupby("Year")["Cited by"].sum().fillna(0).astype(int)
+
+    #    return min_year, max_year, year_counts, citations_per_year
+
+    def get_publication_years(df, selected_id):
+        """Obtiene el rango de años de publicación y el número de publicaciones/citas por año de un autor."""
         if "Author(s) ID" not in df.columns or "Year" not in df.columns:
-            print("No se encontraron las columnas necesarias en el archivo.")
+            st.error("❌ No se encontraron las columnas necesarias en el archivo.")
             return None, None, None, None
 
         df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
         years = df_filtered["Year"].dropna().astype(int)
+
         if years.empty:
             return None, None, None, None
 
@@ -293,23 +353,50 @@ elif pagina == "Análisis por autor":
         year_counts = years.value_counts().sort_index()
 
         # Total de citas por año
-        citations_per_year = df_filtered.groupby("Year")["Cited by"].sum().fillna(0).astype(int)
+        if "Cited by" in df_filtered.columns:
+            citations_per_year = df_filtered.groupby("Year")["Cited by"].sum().fillna(0).astype(int)
+        else:
+            citations_per_year = None
 
         return min_year, max_year, year_counts, citations_per_year
 
-    def get_publisher_info(file_path, selected_id):
-        df = pd.read_csv(file_path, encoding='utf-8')
-        if "Author(s) ID" not in df.columns or "Publisher" not in df.columns or "Cited by" not in df.columns:
-            print("No se encontraron las columnas necesarias en el archivo.")
+
+#    def get_publisher_info(file_path, selected_id):
+#        df = pd.read_csv(file_path, encoding='utf-8')
+#        if "Author(s) ID" not in df.columns or "Publisher" not in df.columns or "Cited by" not in df.columns:
+#            print("No se encontraron las columnas necesarias en el archivo.")
+#            return None
+
+#        df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+#        publisher_stats = df_filtered.groupby("Publisher").agg(
+#            num_articles=("Title", "count"),
+#            total_citations=("Cited by", "sum")
+#        ).reset_index()
+
+#        return publisher_stats
+
+    def get_publisher_info(df, selected_id):
+        """Obtiene información sobre las editoriales donde ha publicado un autor."""
+        required_columns = ["Author(s) ID", "Publisher", "Cited by", "Title"]
+
+        # Verificar que todas las columnas necesarias existen
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            st.error(f"❌ No se encontraron las columnas necesarias en el archivo: {', '.join(missing_columns)}")
             return None
 
+        # Filtrar los artículos en los que ha participado el autor
         df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+
+        # Agrupar por editorial y calcular número de artículos y citas
         publisher_stats = df_filtered.groupby("Publisher").agg(
             num_articles=("Title", "count"),
             total_citations=("Cited by", "sum")
         ).reset_index()
 
         return publisher_stats
+
+
 
     def plot_publications(year_counts, selected_id):
         if year_counts is not None and not year_counts.empty:
@@ -400,10 +487,12 @@ elif pagina == "Análisis por autor":
                     
                     print(f"Autores con ID {selected_id}: {', '.join(matching_authors)}")
 
-                    total_citations = get_total_citations(file_path, selected_id)
+                    #total_citations = get_total_citations(file_path, selected_id)
+                    total_citations = get_total_citations(df, selected_id)
                     print(f"Total de citas asociadas a ID {selected_id}: {total_citations}")
 
-                    total_articles = get_total_articles(file_path, selected_id)
+                    #total_articles = get_total_articles(file_path, selected_id)
+                    total_articles = get_total_articles(df, selected_id)
                     print(f"Total de artículos en los que participa ID {selected_id}: {total_articles}")
 
                     min_year, max_year, year_counts, citations_per_year = get_publication_years(file_path, selected_id)
@@ -415,7 +504,8 @@ elif pagina == "Análisis por autor":
                     else:
                         print("No se encontraron años de publicación para este autor.")
 
-                    publisher_info = get_publisher_info(file_path, selected_id)
+                    #publisher_info = get_publisher_info(file_path, selected_id)
+                    publisher_info = get_publisher_info(df, selected_id)
                     if publisher_info is not None and not publisher_info.empty:
                         print("Editoriales en las que ha publicado este ID:")
                         #display(publisher_info)
@@ -427,94 +517,94 @@ elif pagina == "Análisis por autor":
         else:
             st.warning("No se encontraron coincidencias para ese apellido.")
 
-    def get_author_options(file_path, author_last_name):
-        df = pd.read_csv(file_path, encoding='utf-8')
-        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
-            print("No se encontraron las columnas necesarias en el archivo.")
-            return {}
+    #def get_author_options(file_path, author_last_name):
+    #    df = pd.read_csv(file_path, encoding='utf-8')
+    #    if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+    #        print("No se encontraron las columnas necesarias en el archivo.")
+    #        return {}
 
-        author_dict = {}
-        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
-            authors = row["Authors"].split(";")
-            ids = str(row["Author(s) ID"]).split(";")
-            for author, author_id in zip(authors, ids):
-                author = author.strip()
-                if author_last_name.lower() in author.lower():
-                    author_dict.setdefault(author_id.strip(), []).append(author)
+    #    author_dict = {}
+    #    for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+    #        authors = row["Authors"].split(";")
+    #        ids = str(row["Author(s) ID"]).split(";")
+    #        for author, author_id in zip(authors, ids):
+    #            author = author.strip()
+    #            if author_last_name.lower() in author.lower():
+    #                author_dict.setdefault(author_id.strip(), []).append(author)
 
-        return author_dict
+    #    return author_dict
 
-    def get_authors_by_id(file_path, selected_id):
-        df = pd.read_csv(file_path, encoding='utf-8')
-        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
-            print("No se encontraron las columnas necesarias en el archivo.")
-            return []
+    #def get_authors_by_id(file_path, selected_id):
+    #    df = pd.read_csv(file_path, encoding='utf-8')
+    #    if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+    #        print("No se encontraron las columnas necesarias en el archivo.")
+    #        return []
 
-        matching_authors = set()
-        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
-            authors = row["Authors"].split(";")
-            ids = str(row["Author(s) ID"]).split(";")
-            for author, author_id in zip(authors, ids):
-                if author_id.strip() == selected_id:
-                    matching_authors.add(author.strip())
+    #    matching_authors = set()
+    #    for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+    #        authors = row["Authors"].split(";")
+    #        ids = str(row["Author(s) ID"]).split(";")
+    #        for author, author_id in zip(authors, ids):
+    #            if author_id.strip() == selected_id:
+    #                matching_authors.add(author.strip())
 
-        return list(matching_authors)
+    #    return list(matching_authors)
 
-    def get_total_citations(file_path, selected_id):
-        df = pd.read_csv(file_path, encoding='utf-8')
-        if "Author(s) ID" not in df.columns or "Cited by" not in df.columns:
-            print("No se encontraron las columnas necesarias en el archivo.")
-            return 0
+    #def get_total_citations(file_path, selected_id):
+    #    df = pd.read_csv(file_path, encoding='utf-8')
+    #    if "Author(s) ID" not in df.columns or "Cited by" not in df.columns:
+    #        print("No se encontraron las columnas necesarias en el archivo.")
+    #        return 0#
 
-        df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
-        total_citations = df_filtered["Cited by"].fillna(0).astype(int).sum()
+    #    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+    #    total_citations = df_filtered["Cited by"].fillna(0).astype(int).sum()
 
-        return total_citations
+    #    return total_citations
 
-    def get_total_articles(file_path, selected_id):
-        df = pd.read_csv(file_path, encoding='utf-8')
-        if "Author(s) ID" not in df.columns:
-            print("No se encontraron las columnas necesarias en el archivo.")
-            return 0
+    #def get_total_articles(file_path, selected_id):
+    #    df = pd.read_csv(file_path, encoding='utf-8')
+    #    if "Author(s) ID" not in df.columns:
+    #        print("No se encontraron las columnas necesarias en el archivo.")
+    #        return 0
 
-        df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
-        total_articles = df_filtered.shape[0]
+    #    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+    #    total_articles = df_filtered.shape[0]
 
-        return total_articles
+    #    return total_articles
 
-    def get_publication_years(file_path, selected_id):
-        df = pd.read_csv(file_path, encoding='utf-8')
-        if "Author(s) ID" not in df.columns or "Year" not in df.columns:
-            print("No se encontraron las columnas necesarias en el archivo.")
-            return None, None, None, None
+    #def get_publication_years(file_path, selected_id):
+    #    df = pd.read_csv(file_path, encoding='utf-8')
+    #    if "Author(s) ID" not in df.columns or "Year" not in df.columns:
+    #        print("No se encontraron las columnas necesarias en el archivo.")
+    #        return None, None, None, None
 
-        df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
-        years = df_filtered["Year"].dropna().astype(int)
-        if years.empty:
-            return None, None, None, None
+    #    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+    #    years = df_filtered["Year"].dropna().astype(int)
+    #    if years.empty:
+    #        return None, None, None, None
 
-        min_year = years.min()
-        max_year = years.max()
-        year_counts = years.value_counts().sort_index()
+    #    min_year = years.min()
+    #    max_year = years.max()
+    #    year_counts = years.value_counts().sort_index()
 
-        # Total de citas por año
-        citations_per_year = df_filtered.groupby("Year")["Cited by"].sum().fillna(0).astype(int)
+    #    # Total de citas por año
+    #    citations_per_year = df_filtered.groupby("Year")["Cited by"].sum().fillna(0).astype(int)
 
-        return min_year, max_year, year_counts, citations_per_year
+    #    return min_year, max_year, year_counts, citations_per_year
 
-    def get_publisher_info(file_path, selected_id):
-        df = pd.read_csv(file_path, encoding='utf-8')
-        if "Author(s) ID" not in df.columns or "Publisher" not in df.columns or "Cited by" not in df.columns:
-            print("No se encontraron las columnas necesarias en el archivo.")
-            return None
+    #def get_publisher_info(file_path, selected_id):
+    #    df = pd.read_csv(file_path, encoding='utf-8')
+    #    if "Author(s) ID" not in df.columns or "Publisher" not in df.columns or "Cited by" not in df.columns:
+    #        print("No se encontraron las columnas necesarias en el archivo.")
+    #        return None
 
-        df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
-        publisher_stats = df_filtered.groupby("Publisher").agg(
-            num_articles=("Title", "count"),
-            total_citations=("Cited by", "sum")
-        ).reset_index()
+    #    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+    #    publisher_stats = df_filtered.groupby("Publisher").agg(
+    #        num_articles=("Title", "count"),
+    #        total_citations=("Cited by", "sum")
+    #    ).reset_index()
 
-        return publisher_stats
+    #    return publisher_stats
 
     def plot_publications(year_counts, selected_id):
         if year_counts is not None and not year_counts.empty:
