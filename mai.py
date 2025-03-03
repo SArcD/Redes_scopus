@@ -648,11 +648,11 @@ elif pagina == "Análisis por autor":
         df_heatmap = pd.DataFrame(list(data_dict.items()), columns=["Coautor_ID", ylabel])
         df_heatmap = df_heatmap.sort_values(by=ylabel, ascending=False).head(20)
 
-        fig, ax = plt.subplots(figsize=(12, 6))
-        sns.heatmap(df_heatmap.set_index("Coautor_ID").T, annot=True, cmap=cmap, cbar=True, linewidths=0.5, ax=ax)
+        fig, ax = plt.subplots(figsize=(14, 6))
+        sns.heatmap(df_heatmap.set_index("Coautor_ID").T, annot=True, fmt=.0f", cmap=cmap, cbar=True, linewidths=0.5, ax=ax)
         ax.set_title(title)
         ax.set_xlabel("Coautores")
-        ax.set_ylabel(ylabel)
+        ax.set_ylabel("")
 
         st.pyplot(fig)
 
