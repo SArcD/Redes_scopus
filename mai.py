@@ -94,7 +94,7 @@ elif pagina == "Análisis por base":
 
     st.title("Análisis de Autores en Scopus")
 
-    uploaded_file = st.file_uploader("Sube un archivo CSV", type=["csv"])
+    #uploaded_file = st.file_uploader("Sube un archivo CSV", type=["csv"])
     if uploaded_file:
         df = pd.read_csv(uploaded_file, encoding='utf-8')
         df, first_author_count, authors_per_article = process_author_data(df)
@@ -246,7 +246,7 @@ elif pagina == "Análisis por autor":
         ax.set_xticklabels(year_counts.index, rotation=45)
         st.pyplot(fig)
 
-
+    @st.cache_data
     uploaded_file = st.file_uploader("Suba un archivo CSV", type=["csv"])
     file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
     # Función para cargar y almacenar el DataFrame en caché
@@ -659,7 +659,7 @@ elif pagina == "Análisis por autor":
     # **Interfaz en Streamlit**
     st.title("Análisis de Redes de Colaboración y Citas Académicas")
 
-    uploaded_file = st.file_uploader("Cargue el archivo CSV con los datos de autores", type=["csv"])
+    #uploaded_file = st.file_uploader("Cargue el archivo CSV con los datos de autores", type=["csv"])
 
     if uploaded_file:
         df = process_author_data(uploaded_file)
@@ -797,7 +797,7 @@ elif pagina == "Análisis por autor":
     # **Interfaz en Streamlit**
     st.title("Análisis de Multidisciplinariedad en Publicaciones")
 
-    uploaded_file = st.file_uploader("Cargua archivo CSV con los datos de autores", type=["csv"])
+    #uploaded_file = st.file_uploader("Cargua archivo CSV con los datos de autores", type=["csv"])
 
     if uploaded_file:
         df = process_author_data(uploaded_file)
@@ -932,7 +932,7 @@ elif pagina == "Análisis por autor":
     # Aplicación principal de Streamlit
     st.title("Análisis de Multidisciplinariedad en Publicaciones")
 
-    uploaded_file = st.file_uploader("Archivo CSV con los datos de autores", type=["csv"])
+    #uploaded_file = st.file_uploader("Archivo CSV con los datos de autores", type=["csv"])
 
     if uploaded_file:
         df = pd.read_csv(uploaded_file, encoding='utf-8')
@@ -1074,7 +1074,7 @@ elif pagina == "Análisis por autor":
     # Streamlit Application
     st.title("Análisis de Clustering y Árboles de Decisión")
 
-    uploaded_file = st.file_uploader("Sube el archivo CSV de Scopus", type="csv")
+    #uploaded_file = st.file_uploader("Sube el archivo CSV de Scopus", type="csv")
 
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file, encoding='utf-8')
