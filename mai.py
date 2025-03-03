@@ -338,6 +338,7 @@ elif pagina == "Análisis por autor":
 
     def get_publication_years(df, selected_id):
         """Obtiene el rango de años de publicación y el número de publicaciones/citas por año de un autor."""
+        df = load_data(uploaded_file)
         if "Author(s) ID" not in df.columns or "Year" not in df.columns:
             st.error("❌ No se encontraron las columnas necesarias en el archivo.")
             return None, None, None, None
