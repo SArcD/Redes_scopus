@@ -785,7 +785,8 @@ elif pagina == "Análisis por autor":
 
     # Función para procesar el archivo y obtener los datos de autores
     def process_author_data(file):
-        df = pd.read_csv(file, encoding='utf-8')
+        #df = pd.read_csv(file, encoding='utf-8')
+        df = load_data(uploaded_file)
         df.columns = df.columns.str.strip().str.replace(" ", "_")  # Reemplazar espacios en nombres de columnas
 
         required_columns = ["Author_full_names", "Author(s)_ID", "Title"]
@@ -892,7 +893,7 @@ elif pagina == "Análisis por autor":
     #uploaded_file
     if uploaded_file:
         df = load_data(uploaded_file)
-        df = process_author_data(df)
+        #df = process_author_data(df)
     
         if df is not None:
             st.success("Datos cargados exitosamente.")
