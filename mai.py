@@ -462,35 +462,6 @@ elif pagina == "Análisis por autor":
             plt.show()
 
 
-
-
-    file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
-    #file_path = "scopusUdeC con financiamiento 17 feb-2.csv
-    author_last_name = st.text_input("Ingrese el apellido del autor")
-
-    available_authors = get_author_options(file_path, author_last_name)
-
-    if available_authors:
-        print("Autores encontrados:")
-        for author_id, authors in available_authors.items():
-            print(f"ID: {author_id} - Nombres: {', '.join(authors)}")
-
-        selected_id = input("Ingres el ID del autor para ver todos los nombres asociados: ")
-        matching_authors = get_authors_by_id(file_path, selected_id)
-
-        if matching_authors:
-
-        
-        else:
-                print("No se encontraron editoriales para este autor.")
-        else:
-            print("No se encontraron autores con ese ID.")
-    else:
-        print("No se encontraron coincidencias para ese apellido.")
-
-
-
-
     
 
 elif pagina == "Equipo de trabajo":
