@@ -892,7 +892,7 @@ elif pagina == "Análisis por autor":
     #uploaded_file
     if uploaded_file:
         df = load_data(uploaded_file)
-        df = process_author_data(uploaded_file)
+        #df = process_author_data(uploaded_file)
     
         if df is not None:
             st.success("Datos cargados exitosamente.")
