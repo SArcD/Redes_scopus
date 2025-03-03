@@ -1252,7 +1252,7 @@ elif pagina == "Análisis por autor":
     # --- Interfaz en Streamlit ---
     st.title("🔬 Análisis de Redes de Colaboración en Publicaciones Científicas")
 
-    uploaded_file = st.file_uploader("📂 Sube el archivo CSV con los datos de Scopus", type=["csv"])
+    #uploaded_file = st.file_uploader("📂 Sube el archivo CSV con los datos de Scopus", type=["csv"])
 
     if uploaded_file:
         df = pd.read_csv(uploaded_file, encoding='utf-8')
