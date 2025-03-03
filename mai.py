@@ -109,6 +109,19 @@ elif pagina == "Análisis por base":
                 st.download_button("Descargar CSV", csv, "aggregated_author_data.csv", "text/csv")
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     
 
 
@@ -283,6 +296,193 @@ elif pagina == "Análisis por autor":
                 st.warning("No se encontraron autores con ese ID.")
         else:
             st.warning("No se encontraron coincidencias para ese apellido.")
+
+#def get_author_options(file_path, author_last_name):
+#    df = pd.read_csv(file_path, encoding='utf-8')
+#    if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+#        print("No se encontraron las columnas necesarias en el archivo.")
+#        return {}
+
+#    author_dict = {}
+#    for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+#        authors = row["Authors"].split(";")
+#        ids = str(row["Author(s) ID"]).split(";")
+#        for author, author_id in zip(authors, ids):
+#            author = author.strip()
+#            if author_last_name.lower() in author.lower():
+#                author_dict.setdefault(author_id.strip(), []).append(author)
+
+#    return author_dict
+
+#def get_authors_by_id(file_path, selected_id):
+#    df = pd.read_csv(file_path, encoding='utf-8')
+#    if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+#        print("No se encontraron las columnas necesarias en el archivo.")
+#        return []
+
+#    matching_authors = set()
+#    for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+#        authors = row["Authors"].split(";")
+#        ids = str(row["Author(s) ID"]).split(";")
+#        for author, author_id in zip(authors, ids):
+#            if author_id.strip() == selected_id:
+#                matching_authors.add(author.strip())
+
+#    return list(matching_authors)
+
+    def get_total_citations(file_path, selected_id):
+        df = pd.read_csv(file_path, encoding='utf-8')
+        if "Author(s) ID" not in df.columns or "Cited by" not in df.columns:
+            print("No se encontraron las columnas necesarias en el archivo.")
+            return 0
+
+        df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+        total_citations = df_filtered["Cited by"].fillna(0).astype(int).sum()
+
+        return total_citations
+
+    def get_total_articles(file_path, selected_id):
+        df = pd.read_csv(file_path, encoding='utf-8')
+        if "Author(s) ID" not in df.columns:
+            print("No se encontraron las columnas necesarias en el archivo.")
+            return 0
+
+        df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+        total_articles = df_filtered.shape[0]
+
+        return total_articles
+
+    def get_publication_years(file_path, selected_id):
+        df = pd.read_csv(file_path, encoding='utf-8')
+        if "Author(s) ID" not in df.columns or "Year" not in df.columns:
+            print("No se encontraron las columnas necesarias en el archivo.")
+            return None, None, None, None
+
+        df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+        years = df_filtered["Year"].dropna().astype(int)
+        if years.empty:
+            return None, None, None, None
+
+        min_year = years.min()
+        max_year = years.max()
+        year_counts = years.value_counts().sort_index()
+
+        # Total de citas por año
+        citations_per_year = df_filtered.groupby("Year")["Cited by"].sum().fillna(0).astype(int)
+
+        return min_year, max_year, year_counts, citations_per_year
+
+    def get_publisher_info(file_path, selected_id):
+        df = pd.read_csv(file_path, encoding='utf-8')
+        if "Author(s) ID" not in df.columns or "Publisher" not in df.columns or "Cited by" not in df.columns:
+            print("No se encontraron las columnas necesarias en el archivo.")
+            return None
+
+        df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+        publisher_stats = df_filtered.groupby("Publisher").agg(
+            num_articles=("Title", "count"),
+            total_citations=("Cited by", "sum")
+        ).reset_index()
+
+        return publisher_stats
+
+    def plot_publications(year_counts, selected_id):
+        plt.figure(figsize=(10, 5))
+        year_counts.plot(kind='bar', color='blue')
+        plt.xlabel("Año de publicación")
+        plt.ylabel("Número de publicaciones")
+        plt.title(f"Publicaciones por año - ID {selected_id}")
+        plt.xticks(rotation=45)
+        plt.show()
+
+    def plot_citations_per_year(citations_per_year, selected_id):
+        plt.figure(figsize=(10, 5))
+        citations_per_year.plot(kind='bar', color='red')
+        plt.xlabel("Año")
+        plt.ylabel("Total de citas")
+        plt.title(f"Citas por año - ID {selected_id}")
+        plt.xticks(rotation=45)
+        plt.show()
+
+
+    def plot_publisher_info(publisher_info, selected_id):
+        if publisher_info is not None and not publisher_info.empty:
+            publisher_info = publisher_info.sort_values(by="num_articles", ascending=False).head(10)
+
+            fig, ax1 = plt.subplots(figsize=(22, 8))  # Aumentamos tamaño para mejor visibilidad
+
+            # Barras para número de artículos
+            bars = ax1.bar(publisher_info["Publisher"], publisher_info["num_articles"], label="Número de artículos", alpha=0.7)
+            ax1.set_xlabel("Editorial")
+            ax1.set_ylabel("Número de artículos", color="blue")
+            ax1.tick_params(axis="y", labelcolor="blue")
+
+            # Línea para número de citas
+            ax2 = ax1.twinx()
+            ax2.plot(publisher_info["Publisher"], publisher_info["total_citations"], marker="o", linestyle="dashed", color="red", label="Total de citas")
+            ax2.set_ylabel("Total de citas", color="red")
+            ax2.tick_params(axis="y", labelcolor="red")
+
+            plt.title(f"Principales editoriales donde publica ID {selected_id}")
+
+            # Forzar la rotación de etiquetas en el eje X
+            labels = publisher_info["Publisher"].tolist()
+            ax1.set_xticks(range(len(labels)))  # Asegurar ticks correctos
+            ax1.set_xticklabels(labels, rotation=45, ha="right", fontsize=12)  # Girar correctamente
+
+            # Ajustar margen inferior
+            plt.subplots_adjust(bottom=0.35)
+
+            # Forzar actualización de gráfico antes de mostrarlo
+            plt.draw()
+            plt.show()
+
+
+
+
+#file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
+#author_last_name = input("Ingrese el apellido del autor: ")
+#available_authors = get_author_options(file_path, author_last_name)
+
+    if available_authors:
+        print("Autores encontrados:")
+        for author_id, authors in available_authors.items():
+            print(f"ID: {author_id} - Nombres: {', '.join(authors)}")
+
+        #selected_id = input("Ingrese el ID del autor para ver todos los nombres asociados: ")
+        #matching_authors = get_authors_by_id(file_path, selected_id)
+
+        if matching_authors:
+            print(f"Autores con ID {selected_id}: {', '.join(matching_authors)}")
+
+            total_citations = get_total_citations(file_path, selected_id)
+            print(f"Total de citas asociadas a ID {selected_id}: {total_citations}")
+
+            total_articles = get_total_articles(file_path, selected_id)
+            print(f"Total de artículos en los que participa ID {selected_id}: {total_articles}")
+
+            min_year, max_year, year_counts, citations_per_year = get_publication_years(file_path, selected_id)
+            if min_year and max_year:
+                print(f"Año más antiguo de publicación: {min_year}")
+                print(f"Año más reciente de publicación: {max_year}")
+                plot_publications(year_counts, selected_id)
+                plot_citations_per_year(citations_per_year, selected_id)
+            else:
+                print("No se encontraron años de publicación para este autor.")
+
+            publisher_info = get_publisher_info(file_path, selected_id)
+            if publisher_info is not None and not publisher_info.empty:
+                print("Editoriales en las que ha publicado este ID:")
+                display(publisher_info)
+                plot_publisher_info(publisher_info, selected_id)
+            else:
+                print("No se encontraron editoriales para este autor.")
+        else:
+            print("No se encontraron autores con ese ID.")
+    else:
+        print("No se encontraron coincidencias para ese apellido.")
+
+
 
 
     
