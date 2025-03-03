@@ -568,6 +568,103 @@ elif pagina == "Análisis por autor":
             # Mostrar gráfico en Streamlit
             st.pyplot(fig)
 
+    import streamlit as st
+    import pandas as pd
+    import re
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+
+    def process_author_data(file):
+        df = pd.read_csv(file, encoding='utf-8')
+        df.columns = df.columns.str.strip().str.replace(" ", "_")  # Reemplazar espacios en nombres de columnas
+
+        # Verificar la existencia de las columnas necesarias
+        if "Author_full_names" not in df.columns or "Author(s)_ID" not in df.columns:
+            st.error("No se encontraron las columnas necesarias ('Author_full_names' y 'Author(s)_ID').")
+            return None
+
+        # Crear un diccionario con nombres completos y sus IDs
+        author_id_map = {}
+        for row in df.dropna(subset=["Author_full_names"]).itertuples(index=False):
+            author_entries = getattr(row, "Author_full_names").split(";")
+            for entry in author_entries:
+                match = re.match(r"(.*) \((\d+)\)", entry.strip())
+                if match:
+                    name, author_id = match.groups()
+                    author_id = str(author_id)  # Convertir a string
+                    author_id_map.setdefault(author_id, []).append(name)
+
+        # Asignar el nombre más frecuente a cada ID
+        author_name_map = {id_: max(set(names), key=names.count) for id_, names in author_id_map.items()}
+
+        # Expandir filas con múltiples IDs
+        df = df.assign(**{"Author(s)_ID": df["Author(s)_ID"].str.split(";")}).explode("Author(s)_ID")
+        df["Author(s)_ID"] = df["Author(s)_ID"].str.strip()
+
+        # Mapear nombres a los IDs de autores
+        df["Authors"] = df["Author(s)_ID"].map(author_name_map)
+        return df
+
+    def build_author_collaboration_matrix(df, selected_author_id):
+        if "Author(s)_ID" not in df.columns:
+            st.error("No se encontró la columna 'Author(s)_ID' en el archivo.")
+            return None
+
+        # Filtrar los artículos en los que ha participado el autor seleccionado
+        df_filtered = df[df["Author(s)_ID"] == selected_author_id]
+
+        # Obtener todos los coautores y contar sus colaboraciones
+        collaboration_counts = {}
+        for _, row in df_filtered.iterrows():
+            coauthors = df[df["Title"] == row["Title"]]["Author(s)_ID"].unique()
+            for coauthor in coauthors:
+                if coauthor != selected_author_id:
+                    collaboration_counts[coauthor] = collaboration_counts.get(coauthor, 0) + 1
+
+        return collaboration_counts
+
+    def plot_heatmap(collaboration_counts, selected_author_id):
+        if not collaboration_counts:
+            st.warning("No hay suficientes datos para generar un mapa de calor.")
+            return
+
+        # Convertir datos a DataFrame
+        df_collab = pd.DataFrame(list(collaboration_counts.items()), columns=["Coautor_ID", "Publicaciones_Conjuntas"])
+        df_collab = df_collab.sort_values(by="Publicaciones_Conjuntas", ascending=False).head(20)  # Mostrar los 20 más relevantes
+
+        fig, ax = plt.subplots(figsize=(12, 6))
+        sns.heatmap(df_collab.set_index("Coautor_ID").T, annot=True, cmap="Blues", cbar=True, linewidths=0.5, ax=ax)
+        ax.set_title(f"Colaboraciones más frecuentes con {selected_author_id}")
+        ax.set_xlabel("Coautores")
+        ax.set_ylabel("Número de Publicaciones Conjuntas")
+
+        st.pyplot(fig)
+
+    # Interfaz en Streamlit
+    st.title("Análisis de Redes de Colaboración Académica")
+
+    uploaded_file = st.file_uploader("Cargue el archivo CSV con los datos de autores", type=["csv"])
+
+    if uploaded_file:
+        df = process_author_data(uploaded_file)
+    
+        if df is not None:
+            st.success("Datos cargados exitosamente.")
+        
+            # Selección de autor
+            unique_authors = df["Author(s)_ID"].dropna().unique().tolist()
+            selected_author_id = st.selectbox("Seleccione un ID de autor:", unique_authors)
+
+            if selected_author_id:
+                collaboration_counts = build_author_collaboration_matrix(df, selected_author_id)
+                if collaboration_counts:
+                    plot_heatmap(collaboration_counts, selected_author_id)
+                else:
+                    st.warning("No se encontraron colaboraciones para este autor.")
+
+
+
+
     
 
 elif pagina == "Equipo de trabajo":
