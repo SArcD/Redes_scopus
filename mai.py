@@ -649,7 +649,7 @@ elif pagina == "Análisis por autor":
         df_heatmap = df_heatmap.sort_values(by=ylabel, ascending=False).head(20)
 
         fig, ax = plt.subplots(figsize=(14, 6))
-        sns.heatmap(df_heatmap.set_index("Coautor_ID").T, annot=True, fmt=.0f", cmap=cmap, cbar=True, linewidths=0.5, ax=ax)
+        sns.heatmap(df_heatmap.set_index("Coautor_ID").T, annot=True, fmt=".0f", cmap=cmap, cbar=True, linewidths=0.5, ax=ax)
         ax.set_title(title)
         ax.set_xlabel("Coautores")
         ax.set_ylabel("")
