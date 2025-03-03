@@ -1053,7 +1053,7 @@ elif pagina == "Análisis por autor":
     # Ensamblado con Bagging
     def train_bagging_classifier(tfidf_matrix, labels):
         base_clf = DecisionTreeClassifier(random_state=42)
-        bagging_clf = BaggingClassifier(base_estimator=base_clf, n_estimators=100, random_state=42)
+        bagging_clf = BaggingClassifier(estimator=base_clf, n_estimators=100, random_state=42)
         bagging_clf.fit(tfidf_matrix.toarray(), labels)
         return bagging_clf
 
