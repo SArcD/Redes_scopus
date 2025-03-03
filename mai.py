@@ -681,6 +681,156 @@ elif pagina == "Análisis por autor":
                 # **Mapa de citas (Citas compartidas entre coautores)**
                 citation_counts = build_author_citation_matrix(df, selected_author_id)
                 plot_heatmap(citation_counts, f"Citas recibidas por colaboraciones con {selected_author_id}", "Total Citas", cmap="Reds")
+################################################################################################################
+
+    import streamlit as st
+    import pandas as pd
+    import re
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from wordcloud import WordCloud, STOPWORDS
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from scipy.spatial.distance import cosine
+
+    # Función para procesar el archivo y obtener los datos de autores
+    def process_author_data(file):
+        df = pd.read_csv(file, encoding='utf-8')
+        df.columns = df.columns.str.strip().str.replace(" ", "_")  # Reemplazar espacios en nombres de columnas
+
+        required_columns = ["Author_full_names", "Author(s)_ID", "Title"]
+        if not all(col in df.columns for col in required_columns):
+            st.error(f"Faltan columnas necesarias: {', '.join(required_columns)}")
+            return None
+
+        # Crear diccionario de nombres completos e IDs
+        author_id_map = {}
+        for row in df.dropna(subset=["Author_full_names"]).itertuples(index=False):
+            author_entries = getattr(row, "Author_full_names").split(";")
+            for entry in author_entries:
+                match = re.match(r"(.*) \((\d+)\)", entry.strip())
+                if match:
+                    name, author_id = match.groups()
+                    author_id = str(author_id)
+                    author_id_map.setdefault(author_id, []).append(name)
+
+        # Asignar el nombre más frecuente a cada ID
+        author_name_map = {id_: max(set(names), key=names.count) for id_, names in author_id_map.items()}
+
+        # Expandir filas con múltiples IDs
+        df = df.assign(**{"Author(s)_ID": df["Author(s)_ID"].str.split(";")}).explode("Author(s)_ID")
+        df["Author(s)_ID"] = df["Author(s)_ID"].str.strip()
+
+        # Mapear nombres a los IDs de autores
+        df["Authors"] = df["Author(s)_ID"].map(author_name_map)
+        return df
+
+    # Extraer títulos de un autor específico
+    def extract_author_titles(df, selected_author_id):
+        return df[df["Author(s)_ID"] == selected_author_id]["Title"].dropna().tolist()
+
+    # Generar nube de palabras
+    def generate_wordcloud(text, selected_author_id):
+        if not text:
+            st.warning("No hay títulos de publicaciones disponibles para generar la nube de palabras.")
+            return
+
+        stopwords = set(STOPWORDS)
+        stopwords.update([
+        "study", "analysis", "using", "approach", "model", "method", "based", "review", "system",
+        "estudio", "análisis", "uso", "enfoque", "modelo", "método", "basado", "revisión", "sistema",
+        "effect", "impact", "influence", "role", "characteristics", "performance",
+        "efecto", "impacto", "influencia", "rol", "características", "desempeño",
+        "case", "cases", "example", "examples", "context",
+        "caso", "casos", "ejemplo", "ejemplos", "contexto",
+        "comparison", "relation", "relationship", "association", "between",
+        "comparación", "relación", "asociación", "entre", "de", "en", "y", "con"
+        ])
+
+        wordcloud = WordCloud(
+        width=800, height=400,
+        background_color='white',
+        colormap='coolwarm',
+        stopwords=stopwords
+        ).generate(" ".join(text))
+
+        fig, ax = plt.subplots(figsize=(10, 5))
+        ax.imshow(wordcloud, interpolation='bilinear')
+        ax.axis("off")
+        ax.set_title(f"Temas centrales en las publicaciones de {selected_author_id}", fontsize=14)
+
+        st.pyplot(fig)
+
+    # Calcular diversidad léxica (Shannon y Simpson)
+    def compute_lexical_diversity(titles):
+        words = " ".join(titles).split()
+        if not words:
+            st.warning("No hay palabras suficientes para calcular la diversidad léxica.")
+            return None, None
+
+        unique_words = set(words)
+
+        # Índice de Shannon
+        shannon_entropy = -sum((words.count(word) / len(words)) * np.log2(words.count(word) / len(words)) for word in unique_words)
+
+        # Índice de Simpson
+        simpson_index = sum((words.count(word) / len(words)) ** 2 for word in unique_words)
+
+        return shannon_entropy, simpson_index
+
+    # Calcular similitud temática con TF-IDF
+    def topic_clustering(titles):
+        if not titles:
+            st.warning("No hay títulos suficientes para calcular similitud temática.")
+            return None
+
+        vectorizer = TfidfVectorizer(stop_words='english')
+        tfidf_matrix = vectorizer.fit_transform(titles)
+
+        # Si solo hay un título, la similitud no se puede calcular
+        if tfidf_matrix.shape[0] < 2:
+            st.warning("Se necesita más de un título para calcular similitud temática.")
+            return None
+
+        similarity_matrix = cosine(tfidf_matrix.toarray().mean(axis=0), tfidf_matrix.toarray().mean(axis=0))
+        return 1 - similarity_matrix
+
+    # **Interfaz en Streamlit**
+    st.title("Análisis de Multidisciplinariedad en Publicaciones")
+
+    uploaded_file = st.file_uploader("Cargue el archivo CSV con los datos de autores", type=["csv"])
+
+    if uploaded_file:
+        df = process_author_data(uploaded_file)
+    
+        if df is not None:
+            st.success("Datos cargados exitosamente.")
+
+            # Selección de autor
+            unique_authors = df["Author(s)_ID"].dropna().unique().tolist()
+            selected_author_id = st.selectbox("Seleccione un ID de autor:", unique_authors)
+
+            if selected_author_id:
+                st.subheader(f"Análisis de publicaciones del autor: {selected_author_id}")
+
+                # Obtener títulos del autor
+                author_titles = extract_author_titles(df, selected_author_id)
+
+                # **Generar nube de palabras**
+                st.subheader("Nube de palabras de títulos de publicaciones")
+                generate_wordcloud(author_titles, selected_author_id)
+
+                # **Calcular diversidad léxica**
+                st.subheader("Diversidad Léxica")
+                shannon_entropy, simpson_index = compute_lexical_diversity(author_titles)
+                if shannon_entropy and simpson_index:
+                    st.write(f"**Índice de Shannon:** {shannon_entropy:.4f}")
+                    st.write(f"**Índice de Simpson:** {simpson_index:.4f}")
+
+                # **Calcular similitud temática**
+                st.subheader("Similitud Temática entre Títulos")
+                similarity_score = topic_clustering(author_titles)
+                if similarity_score:
+                    st.write(f"**Similitud Temática Promedio:** {similarity_score:.4f}")
 
 
 
