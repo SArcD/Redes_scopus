@@ -1129,6 +1129,168 @@ elif pagina == "Análisis por autor":
                     st.warning(f"No se encontraron títulos para el autor ID: {selected_author_id}")
 
 
+########################################################################################################################################
+
+    import streamlit as st
+    import pandas as pd
+    import itertools
+    import networkx as nx
+    import plotly.graph_objects as go
+    from collections import Counter
+
+    # --- Obtener opciones de autores basadas en el apellido ---
+    def get_author_options(df, author_last_name):
+        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+            st.error("No se encontraron las columnas necesarias en el archivo.")
+            return {}
+
+        author_dict = {}
+        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+            authors = row["Authors"].split(";")
+            ids = str(row["Author(s) ID"]).split(";")
+            for author, author_id in zip(authors, ids):
+                author = author.strip()
+                author_id = author_id.strip()
+                if author_last_name.lower() in author.lower():
+                    author_dict.setdefault(author_id, []).append(author)
+
+        return author_dict
+
+    # --- Crear mapeo global ID -> Nombre más común de todos los autores ---
+    def create_id_to_name_mapping(df):
+        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+            st.error("No se encontraron las columnas necesarias en el archivo.")
+            return {}
+
+        id_to_name = {}
+        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+            authors = row["Authors"].split(";")
+            ids = str(row["Author(s) ID"]).split(";")
+            for author, author_id in zip(authors, ids):
+                author = author.strip()
+                author_id = author_id.strip()
+                id_to_name.setdefault(author_id, []).append(author)
+
+        return {author_id: Counter(names).most_common(1)[0][0] for author_id, names in id_to_name.items()}
+
+    # --- Generar red de colaboración basada en ID y Año ---
+    def generate_network_graph(df_filtered, selected_author_id, id_to_name, selected_year=None):
+        if selected_year:
+            df_year = df_filtered[df_filtered["Year"] == selected_year]
+        else:
+            df_year = df_filtered  # Si no hay año seleccionado, usamos todo el dataset.
+
+        if df_year.empty:
+            st.warning(f"⚠️ No hay colaboraciones registradas.")
+            return
+
+        collaboration_pairs = []
+        all_authors = set()
+
+        for authors, ids in zip(df_year["Authors"], df_year["Author(s) ID"]):
+            author_list = [author.strip() for author in authors.split(";") if author]
+            id_list = [author_id.strip() for author_id in str(ids).split(";") if author_id]
+            all_authors.update(id_list)
+            pairs = list(itertools.combinations(id_list, 2))
+            collaboration_pairs.extend(pairs)
+
+        collab_df = pd.DataFrame(collaboration_pairs, columns=["Author1", "Author2"])
+        collab_df = collab_df[collab_df["Author1"] != collab_df["Author2"]]
+        edge_weights = collab_df.value_counts().reset_index(name="Count")
+
+        G = nx.Graph()
+        G.add_nodes_from(all_authors)
+
+        for _, row in edge_weights.iterrows():
+            G.add_edge(row["Author1"], row["Author2"], weight=row["Count"])
+
+        pos = nx.spring_layout(G, k=0.5)
+
+        edge_traces = []
+        for u, v in G.edges():
+            if u in pos and v in pos:
+                edge_traces.append(go.Scatter(
+                    x=[pos[u][0], pos[v][0], None],
+                    y=[pos[u][1], pos[v][1], None],
+                    line=dict(width=G[u][v]['weight'] * 0.5, color='black'),
+                    mode='lines',
+                    hoverinfo='none'
+                ))
+
+        node_x, node_y, node_color, node_texts = [], [], [], []
+
+        for node in G.nodes():
+            x, y = pos[node]
+            node_x.append(x)
+            node_y.append(y)
+            node_color.append('red' if node == selected_author_id else 'blue')
+            most_common_name = id_to_name.get(node, "Nombre no disponible")
+            node_texts.append(f"ID: {node}<br>Nombre: {most_common_name}")
+
+        node_trace = go.Scatter(
+            x=node_x, y=node_y,
+            mode='markers',
+            marker=dict(size=14, color=node_color),
+            text=node_texts,
+            hoverinfo='text'
+        )
+
+        title_text = f'Red de colaboración de {selected_author_id}'
+        if selected_year:
+            title_text += f' en {selected_year}'
+
+        fig = go.Figure(data=edge_traces + [node_trace],
+                        layout=go.Layout(
+                            title=title_text,
+                            showlegend=False, hovermode='closest',
+                            xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),
+                            yaxis=dict(showgrid=False, zeroline=False, constrain="domain")
+                        ))
+    
+        st.plotly_chart(fig)
+
+    # --- Interfaz en Streamlit ---
+    st.title("🔬 Análisis de Redes de Colaboración en Publicaciones Científicas")
+
+    uploaded_file = st.file_uploader("📂 Sube el archivo CSV con los datos de Scopus", type=["csv"])
+
+    if uploaded_file:
+        df = pd.read_csv(uploaded_file, encoding='utf-8')
+        id_to_name = create_id_to_name_mapping(df)
+
+        author_last_name = st.text_input("🔎 Ingresa el apellido del autor:")
+    
+        if author_last_name:
+            available_authors = get_author_options(df, author_last_name)
+
+            if available_authors:
+                st.subheader("📋 Autores encontrados:")
+                for author_id, authors in available_authors.items():
+                    most_common_name = Counter(authors).most_common(1)[0][0]
+                    st.write(f"📌 **ID:** {author_id} - **Nombres:** {', '.join(authors)} (Más usado: {most_common_name})")
+
+                selected_id = st.selectbox("🎯 Selecciona el ID del autor:", list(available_authors.keys()))
+
+                if selected_id:
+                    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+                    years = sorted(df_filtered["Year"].dropna().unique())
+
+                    if years:
+                        selected_year = st.selectbox("📅 Selecciona el año de colaboración:", ["Todos los años"] + years)
+
+                        if st.button("Generar Red de Colaboración"):
+                            if selected_year == "Todos los años":
+                                for year in years:
+                                    st.subheader(f"📊 Red de colaboración en {year}")
+                                    generate_network_graph(df_filtered, selected_id, id_to_name, year)
+                            else:
+                                generate_network_graph(df_filtered, selected_id, id_to_name, selected_year)
+                    else:
+                        st.warning("⚠️ No se encontraron publicaciones con años registrados.")
+            else:
+                st.warning("⚠️ No se encontraron coincidencias para ese apellido.")
+
+
 
     
     
