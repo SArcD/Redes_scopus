@@ -246,7 +246,7 @@ elif pagina == "Análisis por autor":
         ax.set_xticklabels(year_counts.index, rotation=45)
         st.pyplot(fig)
 
-    @st.cache_data
+    #@st.cache_data
     uploaded_file = st.file_uploader("Suba un archivo CSV", type=["csv"])
     file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
     # Función para cargar y almacenar el DataFrame en caché
