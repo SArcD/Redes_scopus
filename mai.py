@@ -301,7 +301,7 @@ elif pagina == "Análisis por autor":
    #     df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
    #     total_articles = df_filtered.shape[0]
 
-        return total_articles
+   #     return total_articles
 
     def get_total_articles(df, selected_id):
         """Calcula el total de artículos en los que participa un ID de autor."""
