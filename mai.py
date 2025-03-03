@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import re
 
+@st.cache_data
 def process_author_data(df):
     df.columns = df.columns.str.strip().str.replace(" ", "_")  # Reemplazar espacios en los nombres de columnas
 
@@ -45,6 +46,7 @@ def process_author_data(df):
 
     return df, first_author_count, authors_per_article
 
+@st.cache_data
 def aggregate_author_data(df, first_author_count, authors_per_article):
     if "Author(s)_ID" not in df.columns or "Cited_by" not in df.columns:
         st.error("No se encontraron las columnas necesarias en el archivo.")
