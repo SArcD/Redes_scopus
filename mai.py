@@ -568,6 +568,7 @@ elif pagina == "Análisis por autor":
             # Mostrar gráfico en Streamlit
             st.pyplot(fig)
 
+
     import streamlit as st
     import pandas as pd
     import re
@@ -579,8 +580,9 @@ elif pagina == "Análisis por autor":
         df.columns = df.columns.str.strip().str.replace(" ", "_")  # Reemplazar espacios en nombres de columnas
 
         # Verificar la existencia de las columnas necesarias
-        if "Author_full_names" not in df.columns or "Author(s)_ID" not in df.columns:
-            st.error("No se encontraron las columnas necesarias ('Author_full_names' y 'Author(s)_ID').")
+        required_columns = ["Author_full_names", "Author(s)_ID", "Cited_by"]
+        if not all(col in df.columns for col in required_columns):
+            st.error(f"Faltan columnas necesarias en el archivo: {', '.join(required_columns)}")
             return None
 
         # Crear un diccionario con nombres completos y sus IDs
@@ -610,10 +612,8 @@ elif pagina == "Análisis por autor":
             st.error("No se encontró la columna 'Author(s)_ID' en el archivo.")
             return None
 
-        # Filtrar los artículos en los que ha participado el autor seleccionado
         df_filtered = df[df["Author(s)_ID"] == selected_author_id]
 
-        # Obtener todos los coautores y contar sus colaboraciones
         collaboration_counts = {}
         for _, row in df_filtered.iterrows():
             coauthors = df[df["Title"] == row["Title"]]["Author(s)_ID"].unique()
@@ -623,25 +623,41 @@ elif pagina == "Análisis por autor":
 
         return collaboration_counts
 
-    def plot_heatmap(collaboration_counts, selected_author_id):
-        if not collaboration_counts:
-            st.warning("No hay suficientes datos para generar un mapa de calor.")
+    def build_author_citation_matrix(df, selected_author_id):
+        if "Author(s)_ID" not in df.columns or "Cited_by" not in df.columns:
+            st.error("No se encontraron las columnas necesarias en el archivo.")
+            return None
+
+        df_filtered = df[df["Author(s)_ID"] == selected_author_id]
+
+        citation_counts = {}
+        for _, row in df_filtered.iterrows():
+            coauthors = df[df["Title"] == row["Title"]]["Author(s)_ID"].unique()
+            citations = row["Cited_by"] if not pd.isna(row["Cited_by"]) else 0
+            for coauthor in coauthors:
+                if coauthor != selected_author_id:
+                    citation_counts[coauthor] = citation_counts.get(coauthor, 0) + citations
+
+        return citation_counts
+
+    def plot_heatmap(data_dict, title, ylabel, cmap="Blues"):
+        if not data_dict:
+            st.warning(f"No hay suficientes datos para generar {title}.")
             return
 
-        # Convertir datos a DataFrame
-        df_collab = pd.DataFrame(list(collaboration_counts.items()), columns=["Coautor_ID", "Publicaciones_Conjuntas"])
-        df_collab = df_collab.sort_values(by="Publicaciones_Conjuntas", ascending=False).head(20)  # Mostrar los 20 más relevantes
+        df_heatmap = pd.DataFrame(list(data_dict.items()), columns=["Coautor_ID", ylabel])
+        df_heatmap = df_heatmap.sort_values(by=ylabel, ascending=False).head(20)
 
         fig, ax = plt.subplots(figsize=(12, 6))
-        sns.heatmap(df_collab.set_index("Coautor_ID").T, annot=True, cmap="Blues", cbar=True, linewidths=0.5, ax=ax)
-        ax.set_title(f"Colaboraciones más frecuentes con {selected_author_id}")
+        sns.heatmap(df_heatmap.set_index("Coautor_ID").T, annot=True, cmap=cmap, cbar=True, linewidths=0.5, ax=ax)
+        ax.set_title(title)
         ax.set_xlabel("Coautores")
-        ax.set_ylabel("Número de Publicaciones Conjuntas")
+        ax.set_ylabel(ylabel)
 
         st.pyplot(fig)
 
-    # Interfaz en Streamlit
-    st.title("Análisis de Redes de Colaboración Académica")
+    # **Interfaz en Streamlit**
+    st.title("Análisis de Redes de Colaboración y Citas Académicas")
 
     uploaded_file = st.file_uploader("Cargue el archivo CSV con los datos de autores", type=["csv"])
 
@@ -650,17 +666,21 @@ elif pagina == "Análisis por autor":
     
         if df is not None:
             st.success("Datos cargados exitosamente.")
-        
+
             # Selección de autor
             unique_authors = df["Author(s)_ID"].dropna().unique().tolist()
             selected_author_id = st.selectbox("Seleccione un ID de autor:", unique_authors)
 
             if selected_author_id:
+                st.subheader(f"Mapas de Calor para el ID: {selected_author_id}")
+
+                # **Mapa de colaboraciones (Publicaciones compartidas)**
                 collaboration_counts = build_author_collaboration_matrix(df, selected_author_id)
-                if collaboration_counts:
-                    plot_heatmap(collaboration_counts, selected_author_id)
-                else:
-                    st.warning("No se encontraron colaboraciones para este autor.")
+                plot_heatmap(collaboration_counts, f"Colaboraciones más frecuentes con {selected_author_id}", "Publicaciones Conjuntas", cmap="Blues")
+
+                # **Mapa de citas (Citas compartidas entre coautores)**
+                citation_counts = build_author_citation_matrix(df, selected_author_id)
+                plot_heatmap(citation_counts, f"Citas recibidas por colaboraciones con {selected_author_id}", "Total Citas", cmap="Reds")
 
 
 
