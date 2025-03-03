@@ -886,11 +886,12 @@ elif pagina == "Análisis por autor":
         return 1 - similarity_matrix
 
     # **Interfaz en Streamlit**
-    st.title("Análisis de Multidisciplinariedad en Publicaciones")
+    st.title("Aálisis de Multidisciplinariedad en Publicaciones")
 
-    uploaded_file = st.file_uploader("Carge un archivo CSV con los datos de autores", type=["csv"])
+    #uploaded_file = st.file_uploader("Carge un archivo CSV con los datos de autores", type=["csv"])
     #uploaded_file
     if uploaded_file:
+        #df = load_data(uploaded_file)
         df = process_author_data(uploaded_file)
     
         if df is not None:
@@ -1023,10 +1024,11 @@ elif pagina == "Análisis por autor":
     # Aplicación principal de Streamlit
     st.title("Análisis de Multidisciplinariedad en Publicaciones")
 
-    uploaded_file = st.file_uploader("Archivo CSV con los datos de autores", type=["csv"])
+    #uploaded_file = st.file_uploader("Archivo CSV con los datos de autores", type=["csv"])
 
     if uploaded_file:
-        df = pd.read_csv(uploaded_file, encoding='utf-8')
+        df=load_data(uploaded_file)
+        #df = pd.read_csv(uploaded_file, encoding='utf-8')
         df = process_author_data(df)
 
         if df is not None:
