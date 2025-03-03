@@ -435,32 +435,32 @@ elif pagina == "Análisis por autor":
 
     def plot_publisher_info(publisher_info, selected_id):
         if publisher_info is not None and not publisher_info.empty:
-        publisher_info = publisher_info.sort_values(by="num_articles", ascending=False).head(10)
+            publisher_info = publisher_info.sort_values(by="num_articles", ascending=False).head(10)
 
-        fig, ax1 = plt.subplots(figsize=(12, 6))  # Ajustar tamaño para mejor visibilidad en Streamlit
+            fig, ax1 = plt.subplots(figsize=(12, 6))  # Ajustar tamaño para mejor visibilidad en Streamlit
 
-        # Barras para número de artículos
-        bars = ax1.bar(publisher_info["Publisher"], publisher_info["num_articles"], label="Número de artículos", alpha=0.7)
-        ax1.set_xlabel("Editorial")
-        ax1.set_ylabel("Número de artículos", color="blue")
-        ax1.tick_params(axis="y", labelcolor="blue")
+            # Barras para número de artículos
+            bars = ax1.bar(publisher_info["Publisher"], publisher_info["num_articles"], label="Número de artículos", alpha=0.7)
+            ax1.set_xlabel("Editorial")
+            ax1.set_ylabel("Número de artículos", color="blue")
+            ax1.tick_params(axis="y", labelcolor="blue")
 
-        # Línea para número de citas
-        ax2 = ax1.twinx()
-        ax2.plot(publisher_info["Publisher"], publisher_info["total_citations"], marker="o", linestyle="dashed", color="red", label="Total de citas")
-        ax2.set_ylabel("Total de citas", color="red")
-        ax2.tick_params(axis="y", labelcolor="red")
+            # Línea para número de citas
+            ax2 = ax1.twinx()
+            ax2.plot(publisher_info["Publisher"], publisher_info["total_citations"], marker="o", linestyle="dashed", color="red", label="Total de citas")
+            ax2.set_ylabel("Total de citas", color="red")
+            ax2.tick_params(axis="y", labelcolor="red")
 
-        plt.title(f"Principales editoriales donde publica ID {selected_id}")
+            plt.title(f"Principales editoriales donde publica ID {selected_id}")
 
-        # Rotar etiquetas en el eje X
-        ax1.set_xticklabels(publisher_info["Publisher"], rotation=45, ha="right", fontsize=10)
+            # Rotar etiquetas en el eje X
+            ax1.set_xticklabels(publisher_info["Publisher"], rotation=45, ha="right", fontsize=10)
 
-        # Ajustar margen inferior
-        plt.tight_layout()
+            # Ajustar margen inferior
+            plt.tight_layout()
 
-        # Mostrar gráfico en Streamlit
-        st.pyplot(fig)
+            # Mostrar gráfico en Streamlit
+            st.pyplot(fig)
 
     
 
