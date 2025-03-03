@@ -214,10 +214,10 @@ def plot_publications(year_counts, selected_id):
 # Interfaz en Streamlit
 #st.title("Análisis de Autores en Scopus")
 
-#uploaded_file = st.file_uploader("Sube un archivo CSV", type=["csv"])
+uploaded_file = st.file_uploader("Suba un archivo CSV", type=["csv"])
 
 #if uploaded_file:
-#df = load_data(uploaded_file)
+df = load_data(uploaded_file)
 
 # Input para apellido del autor
 author_last_name = st.text_input("Ingrese el apellido del autor")
