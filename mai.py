@@ -891,8 +891,8 @@ elif pagina == "Análisis por autor":
 
     #uploaded_file = st.file_uploader("Carge un archivo CSV con los datos de autores", type=["csv"])
     if uploaded_file:
-        df = load_data(uploaded_file)
-        #df = process_author_data(df)
+        #df = load_data(uploaded_file)
+        df = process_author_data(uploaded_file)
         df
         if df is not None:
             st.success("Datos cargados exitosamente.")
