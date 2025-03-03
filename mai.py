@@ -1112,18 +1112,18 @@ elif pagina == "Análisis por autor":
                     st.subheader(f"Precisión promedio con validación cruzada: {scores.mean():.4f}")
 
                     # Entrenar modelos de ensamblado
-                    st.subheader("Ensamblado con Bagging")
-                    bagging_clf = train_bagging_classifier(tfidf_matrix, labels)
-                    st.write("Modelo Bagging entrenado.")
+                    #st.subheader("Ensamblado con Bagging")
+                    #bagging_clf = train_bagging_classifier(tfidf_matrix, labels)
+                    #st.write("Modelo Bagging entrenado.")
 
-                    st.subheader("Ensamblado con XGBoost")
-                    xgb_clf = train_xgboost_classifier(tfidf_matrix, labels)
-                    st.write("Modelo XGBoost entrenado.")
+                    #st.subheader("Ensamblado con XGBoost")
+                    #xgb_clf = train_xgboost_classifier(tfidf_matrix, labels)
+                    #st.write("Modelo XGBoost entrenado.")
 
                     # Selección de características
-                    st.subheader("Selección de Características")
-                    X_selected = feature_selection(tfidf_matrix, labels)
-                    st.write(f"Número de características seleccionadas: {X_selected.shape[1]}")
+                    #st.subheader("Selección de Características")
+                    #X_selected = feature_selection(tfidf_matrix, labels)
+                    #st.write(f"Número de características seleccionadas: {X_selected.shape[1]}")
 
                 else:
                     st.warning(f"No se encontraron títulos para el autor ID: {selected_author_id}")
