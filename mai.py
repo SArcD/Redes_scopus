@@ -309,10 +309,10 @@ elif pagina == "Análisis por autor":
             st.error("❌ No se encontró la columna 'Author(s) ID' en el archivo.")
             return 0
 
-    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
-    total_articles = df_filtered.shape[0]
+        df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+        total_articles = df_filtered.shape[0]
 
-    return total_articles
+        return total_articles
 
 
 
