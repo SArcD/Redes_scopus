@@ -290,6 +290,30 @@ elif pagina == "Análisis por autor":
                     if not author_stats['publisher_info'].empty:
                         st.write("**Editoriales en las que ha publicado este ID:**")
                         st.dataframe(author_stats['publisher_info'])
+                    
+                    
+                    print(f"Autores con ID {selected_id}: {', '.join(matching_authors)}")
+
+                    total_citations = get_total_citations(file_path, selected_id)
+                    print(f"Total de citas asociadas a ID {selected_id}: {total_citations}")
+
+                    total_articles = get_total_articles(file_path, selected_id)
+                    print(f"Total de artículos en los que participa ID {selected_id}: {total_articles}")
+
+                    min_year, max_year, year_counts, citations_per_year = get_publication_years(file_path, selected_id)
+                    if min_year and max_year:
+                        print(f"Año más antiguo de publicación: {min_year}")
+                        print(f"Año más reciente de publicación: {max_year}")
+                        plot_publications(year_counts, selected_id)
+                        plot_citations_per_year(citations_per_year, selected_id)
+                    else:
+                        print("No se encontraron años de publicación para este autor.")
+
+                    publisher_info = get_publisher_info(file_path, selected_id)
+                    if publisher_info is not None and not publisher_info.empty:
+                        print("Editoriales en las que ha publicado este ID:")
+                        display(publisher_info)
+                        plot_publisher_info(publisher_info, selected_id)                  
                     else:
                         st.warning("No se encontraron editoriales para este autor.")
             else:
@@ -455,29 +479,9 @@ elif pagina == "Análisis por autor":
         matching_authors = get_authors_by_id(file_path, selected_id)
 
         if matching_authors:
-            print(f"Autores con ID {selected_id}: {', '.join(matching_authors)}")
 
-            total_citations = get_total_citations(file_path, selected_id)
-            print(f"Total de citas asociadas a ID {selected_id}: {total_citations}")
-
-            total_articles = get_total_articles(file_path, selected_id)
-            print(f"Total de artículos en los que participa ID {selected_id}: {total_articles}")
-
-            min_year, max_year, year_counts, citations_per_year = get_publication_years(file_path, selected_id)
-            if min_year and max_year:
-                print(f"Año más antiguo de publicación: {min_year}")
-                print(f"Año más reciente de publicación: {max_year}")
-                plot_publications(year_counts, selected_id)
-                plot_citations_per_year(citations_per_year, selected_id)
-            else:
-                print("No se encontraron años de publicación para este autor.")
-
-            publisher_info = get_publisher_info(file_path, selected_id)
-            if publisher_info is not None and not publisher_info.empty:
-                print("Editoriales en las que ha publicado este ID:")
-                display(publisher_info)
-                plot_publisher_info(publisher_info, selected_id)
-            else:
+        
+        else:
                 print("No se encontraron editoriales para este autor.")
         else:
             print("No se encontraron autores con ese ID.")
