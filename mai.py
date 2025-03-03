@@ -275,10 +275,10 @@ elif pagina == "Análisis por autor":
     #        print("No se encontraron las columnas necesarias en el archivo.")
     #        return 0
 
-        df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
-        total_citations = df_filtered["Cited by"].fillna(0).astype(int).sum()
+    #    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+    #    total_citations = df_filtered["Cited by"].fillna(0).astype(int).sum()
 
-        return total_citations
+    #    return total_citations
 
     def get_total_citations(df, selected_id):
         """Calcula el total de citas asociadas a un ID de autor en el DataFrame."""
