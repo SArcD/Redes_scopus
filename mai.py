@@ -832,11 +832,147 @@ elif pagina == "Análisis por autor":
                 if similarity_score:
                     st.write(f"**Similitud Temática Promedio:** {similarity_score:.4f}")
 
+#########################################################3333
+
+
+    import streamlit as st
+    import pandas as pd
+    import numpy as np
+    import re
+    import matplotlib.pyplot as plt
+    import plotly.express as px
+    from wordcloud import WordCloud
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.decomposition import PCA
+    from sklearn.cluster import KMeans
+
+    # Procesamiento de datos de autores
+    def process_author_data(df):
+        df.columns = df.columns.str.strip().str.replace(" ", "_")
+        if "Author_full_names" not in df.columns or "Author(s)_ID" not in df.columns or "Title" not in df.columns:
+            st.error("No se encontraron las columnas necesarias en el archivo.")
+            return None
+        df["Author(s)_ID"] = df["Author(s)_ID"].str.split(";")
+        df = df.explode("Author(s)_ID")
+        df["Author(s)_ID"] = df["Author(s)_ID"].str.strip()
+        return df
+
+    # Extracción de títulos por autor
+    def extract_author_titles(df, selected_author_id):
+        return df[df["Author(s)_ID"] == selected_author_id][["Title"]].dropna()
+
+    # Clustering de temas utilizando K-Means
+    def topic_clustering_kmeans(titles_df):
+        titles = titles_df["Title"].tolist()
+        vectorizer = TfidfVectorizer(stop_words='english')
+        tfidf_matrix = vectorizer.fit_transform(titles)
+        num_clusters = min(5, len(titles))  # Máximo 5 clusters o el número de títulos disponibles
+        kmeans = KMeans(n_clusters=num_clusters, random_state=42, n_init=10)
+        labels = kmeans.fit_predict(tfidf_matrix)
+        titles_df["Cluster"] = labels
+        return titles_df, vectorizer, tfidf_matrix, labels, num_clusters
+
+    # Visualización de distribución de temas con PCA
+    def plot_topic_distribution(titles_df, labels, num_clusters):
+        vectorizer = TfidfVectorizer(stop_words='english')
+        tfidf_matrix = vectorizer.fit_transform(titles_df["Title"])
+        pca = PCA(n_components=2)
+        reduced_data = pca.fit_transform(tfidf_matrix.toarray())
+        titles_df["Componente 1"] = reduced_data[:, 0]
+        titles_df["Componente 2"] = reduced_data[:, 1]
+        titles_df["Cluster"] = labels
+        fig = px.scatter(
+            titles_df, x="Componente 1", y="Componente 2", color=titles_df["Cluster"].astype(str),
+            title="Mapa de Similitud Temática (PCA)",
+            hover_data={"Title": True, "Componente 1": False, "Componente 2": False, "Cluster": True},
+            color_discrete_sequence=px.colors.qualitative.Dark24[:num_clusters]
+        )
+        st.plotly_chart(fig)
+
+    # Generación de nubes de palabras por cluster
+    def plot_wordclouds_by_cluster(titles_df, num_clusters):
+        for cluster in range(num_clusters):
+            titles_in_cluster = titles_df[titles_df["Cluster"] == cluster]["Title"].tolist()
+            text = " ".join(titles_in_cluster)
+            wordcloud = WordCloud(width=800, height=400, background_color="white", colormap="Dark2").generate(text)
+            fig, ax = plt.subplots(figsize=(8, 4))
+            ax.imshow(wordcloud, interpolation="bilinear")
+            ax.axis("off")
+            ax.set_title(f"Nube de Palabras - Cluster {cluster}")
+            st.pyplot(fig)
+
+    # Distribución de clusters (histograma)
+    def plot_cluster_distribution(titles_df, num_clusters):
+        df_clusters = pd.DataFrame({"Cluster": titles_df["Cluster"]})
+        fig = px.histogram(df_clusters, x="Cluster", nbins=num_clusters, color="Cluster",
+                       color_discrete_sequence=px.colors.qualitative.Dark24[:num_clusters])
+        fig.update_layout(title="Distribución de Temas (Clusters K-Means)",
+                      xaxis_title="Cluster",
+                      yaxis_title="Número de Artículos",
+                      bargap=0.2)
+        st.plotly_chart(fig)
+
+    # Cálculo de diversidad léxica
+    def compute_lexical_diversity(titles_df):
+        words = " ".join(titles_df["Title"]).split()
+        unique_words = set(words)
+        shannon_entropy = -sum((words.count(word) / len(words)) * np.log2(words.count(word) / len(words)) for word in unique_words)
+        simpson_index = sum((words.count(word) / len(words)) ** 2 for word in unique_words)
+        return shannon_entropy, simpson_index
+
+    # Gráfico de diversidad léxica
+    def plot_diversity_metrics(shannon_entropy, simpson_index):
+        df_diversity = pd.DataFrame({"Índice": ["Shannon", "Simpson"], "Valor": [shannon_entropy, simpson_index]})
+        fig = px.bar(df_diversity, x="Índice", y="Valor", color="Índice",
+                 title="Índices de Diversidad Léxica",
+                 color_discrete_sequence=px.colors.qualitative.Dark24[:2])
+        fig.update_layout(yaxis_title="Valor de Diversidad")
+        st.plotly_chart(fig)
+
+    # Aplicación principal de Streamlit
+    st.title("Análisis de Multidisciplinariedad en Publicaciones")
+
+    uploaded_file = st.file_uploader("Archivo CSV con los datos de autores", type=["csv"])
+
+    if uploaded_file:
+        df = pd.read_csv(uploaded_file, encoding='utf-8')
+        df = process_author_data(df)
+
+        if df is not None:
+            st.success("Datos cargados exitosamente.")
+
+            unique_authors = df["Author(s)_ID"].dropna().unique().tolist()
+            selected_author_id = st.selectbox("Selecciona un ID:", unique_authors)
+
+            if selected_author_id:
+                st.subheader(f"Análisis de publicaciones del autor: {selected_author_id}")
+
+                author_titles_df = extract_author_titles(df, selected_author_id)
+
+                if not author_titles_df.empty:
+                    clustered_df, vectorizer, tfidf_matrix, labels, num_clusters = topic_clustering_kmeans(author_titles_df)
+
+                    st.subheader("Mapa de Similitud Temática (PCA)")
+                    plot_topic_distribution(clustered_df, labels, num_clusters)
+
+                    st.subheader("Distribución de Temas (Clusters K-Means)")
+                    plot_cluster_distribution(clustered_df, num_clusters)
+
+                    st.subheader("Nubes de Palabras por Cluster")
+                    plot_wordclouds_by_cluster(clustered_df, num_clusters)
+
+                    st.subheader("Índices de Diversidad Léxica")
+                    shannon_entropy, simpson_index = compute_lexical_diversity(clustered_df)
+                    plot_diversity_metrics(shannon_entropy, simpson_index)
+                else:
+                    st.warning(f"No se encontraron títulos para el autor ID: {selected_author_id}")
+
+
 
 
 
     
-
+    
 elif pagina == "Equipo de trabajo":
     st.title("Configuración")
     st.write("Aquí puedes ajustar los parámetros de la aplicación.")
