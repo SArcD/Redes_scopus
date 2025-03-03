@@ -261,7 +261,7 @@ elif pagina == "Análisis por autor":
     df = load_data(uploaded_file)
 
     # Input para apellido del autor
-    author_last_name = st.text_input("Ingrese el apellido del autor")
+    author_last_name = st.text_input("Ingresa el apellido del autor")
 
     if author_last_name:
         available_authors = get_author_options(df, author_last_name)
@@ -442,7 +442,8 @@ elif pagina == "Análisis por autor":
 
     file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
     #file_path = "scopusUdeC con financiamiento 17 feb-2.csv
-    author_last_name = author_last_name
+    author_last_name = st.text_input("Ingrese el apellido del autor")
+
     available_authors = get_author_options(file_path, author_last_name)
 
     if available_authors:
