@@ -968,6 +968,165 @@ elif pagina == "Análisis por autor":
                     st.warning(f"No se encontraron títulos para el autor ID: {selected_author_id}")
 
 
+    import streamlit as st
+    import pandas as pd
+    import numpy as np
+    import re
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import plotly.express as px
+    from wordcloud import WordCloud
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.cluster import KMeans
+    from sklearn.tree import DecisionTreeClassifier
+    from sklearn import tree
+    from sklearn.model_selection import GridSearchCV, cross_val_score
+    from sklearn.feature_selection import SelectFromModel
+    from sklearn.ensemble import BaggingClassifier
+    from xgboost import XGBClassifier
+
+    # Función para procesar los datos de autores
+    def process_author_data(df):
+        df.columns = df.columns.str.strip().str.replace(" ", "_")
+        if "Author_full_names" not in df.columns or "Author(s)_ID" not in df.columns or "Title" not in df.columns:
+            st.error("No se encontraron las columnas necesarias en el archivo.")
+            return None
+        df["Author(s)_ID"] = df["Author(s)_ID"].str.split(";")
+        df = df.explode("Author(s)_ID")
+        df["Author(s)_ID"] = df["Author(s)_ID"].str.strip()
+        return df
+
+    # Extraer títulos de un autor específico
+    def extract_author_titles(df, selected_author_id):
+        return df[df["Author(s)_ID"] == selected_author_id][["Title", "Cited_by"]].dropna()
+
+    # Clustering de artículos mediante K-Means
+    def topic_clustering_kmeans(df, titles):
+        vectorizer = TfidfVectorizer(stop_words='english')
+        tfidf_matrix = vectorizer.fit_transform(titles)
+        num_clusters = min(5, len(titles))  # Máximo 5 clusters
+        kmeans = KMeans(n_clusters=num_clusters, random_state=42, n_init=10)
+        labels = kmeans.fit_predict(tfidf_matrix)
+
+        df_clustered = df.copy()
+        df_clustered["Cluster"] = labels
+
+        # Asignar nombres a los clusters
+        terms = np.array(vectorizer.get_feature_names_out())
+        cluster_names = {}
+        for i in range(num_clusters):
+            cluster_center = kmeans.cluster_centers_[i]
+            top_terms = terms[np.argsort(cluster_center)[-3:]]  # Top 3 palabras clave
+            cluster_names[i] = " - ".join(top_terms)
+
+        df_clustered["Cluster Name"] = df_clustered["Cluster"].map(cluster_names)
+        df_clustered["Cited_by"] = pd.to_numeric(df_clustered["Cited_by"], errors='coerce').fillna(0)
+
+        return tfidf_matrix, labels, vectorizer, cluster_names, df_clustered
+
+    # Ajuste de hiperparámetros y entrenamiento del árbol de decisión
+    def train_decision_tree(tfidf_matrix, labels):
+        param_grid = {
+            'max_depth': [3, 5, 10, None],
+            'min_samples_split': [2, 5, 10],
+            'min_samples_leaf': [1, 2, 4],
+            'ccp_alpha': [0.0, 0.01, 0.1]
+        }
+
+        clf = DecisionTreeClassifier(random_state=42)
+        grid_search = GridSearchCV(clf, param_grid, cv=5, scoring='accuracy')
+        grid_search.fit(tfidf_matrix.toarray(), labels)
+
+        best_clf = grid_search.best_estimator_
+        best_params = grid_search.best_params_
+        return best_clf, best_params
+
+    # Visualización del árbol de decisión
+    def plot_decision_tree(clf, vectorizer, cluster_names):
+        fig, ax = plt.subplots(figsize=(12, 6))
+        tree.plot_tree(clf, feature_names=vectorizer.get_feature_names_out(),
+                   class_names=[cluster_names[i] for i in set(clf.classes_)],
+                   filled=True, rounded=True, ax=ax)
+        plt.title("Árbol de Decisión para Clasificación de Artículos")
+        st.pyplot(fig)
+
+    # Ensamblado con Bagging
+    def train_bagging_classifier(tfidf_matrix, labels):
+        base_clf = DecisionTreeClassifier(random_state=42)
+        bagging_clf = BaggingClassifier(base_estimator=base_clf, n_estimators=100, random_state=42)
+        bagging_clf.fit(tfidf_matrix.toarray(), labels)
+        return bagging_clf
+
+    # Ensamblado con XGBoost
+    def train_xgboost_classifier(tfidf_matrix, labels):
+        xgb_clf = XGBClassifier(random_state=42, n_estimators=100, learning_rate=0.1, max_depth=5)
+        xgb_clf.fit(tfidf_matrix.toarray(), labels)
+        return xgb_clf
+
+    # Selección de características
+    def feature_selection(tfidf_matrix, labels):
+        clf = DecisionTreeClassifier(random_state=42)
+        clf.fit(tfidf_matrix.toarray(), labels)
+        selector = SelectFromModel(clf, prefit=True)
+        X_selected = selector.transform(tfidf_matrix.toarray())
+        return X_selected
+
+    # Streamlit Application
+    st.title("Análisis de Clustering y Árboles de Decisión")
+
+    uploaded_file = st.file_uploader("Sube el archivo CSV de Scopus", type="csv")
+
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file, encoding='utf-8')
+        df = process_author_data(df)
+
+        if df is not None:
+            st.success("Datos cargados exitosamente.")
+
+            author_ids = df["Author(s)_ID"].unique().tolist()
+            selected_author_id = st.selectbox("Selecciona el ID del autor para analizar", author_ids)
+
+            if selected_author_id:
+                st.subheader(f"Análisis de publicaciones del autor: {selected_author_id}")
+
+                author_data = extract_author_titles(df, selected_author_id)
+
+                if not author_data.empty:
+                    tfidf_matrix, labels, vectorizer, cluster_names, df_clustered = topic_clustering_kmeans(author_data, author_data["Title"].tolist())
+
+                    st.subheader("Palabras clave por cluster:")
+                    for cluster, keywords in cluster_names.items():
+                        st.write(f"**Cluster {cluster}:** {keywords}")
+
+                    st.subheader("Número de citas por cluster:")
+                    citations_by_cluster = df_clustered.groupby("Cluster Name")["Cited_by"].sum()
+                    st.bar_chart(citations_by_cluster)
+
+                    # Entrenar árbol de decisión con hiperparámetros óptimos
+                    best_clf, best_params = train_decision_tree(tfidf_matrix, labels)
+                    st.subheader(f"Árbol de Decisión con hiperparámetros optimizados: {best_params}")
+                    plot_decision_tree(best_clf, vectorizer, cluster_names)
+
+                    # Evaluación con validación cruzada
+                    scores = cross_val_score(best_clf, tfidf_matrix.toarray(), labels, cv=5, scoring='accuracy')
+                    st.subheader(f"Precisión promedio con validación cruzada: {scores.mean():.4f}")
+
+                    # Entrenar modelos de ensamblado
+                    st.subheader("Ensamblado con Bagging")
+                    bagging_clf = train_bagging_classifier(tfidf_matrix, labels)
+                    st.write("Modelo Bagging entrenado.")
+
+                    st.subheader("Ensamblado con XGBoost")
+                    xgb_clf = train_xgboost_classifier(tfidf_matrix, labels)
+                    st.write("Modelo XGBoost entrenado.")
+
+                    # Selección de características
+                    st.subheader("Selección de Características")
+                    X_selected = feature_selection(tfidf_matrix, labels)
+                    st.write(f"Número de características seleccionadas: {X_selected.shape[1]}")
+
+                else:
+                    st.warning(f"No se encontraron títulos para el autor ID: {selected_author_id}")
 
 
 
