@@ -297,38 +297,38 @@ elif pagina == "Análisis por autor":
         else:
             st.warning("No se encontraron coincidencias para ese apellido.")
 
-#def get_author_options(file_path, author_last_name):
-#    df = pd.read_csv(file_path, encoding='utf-8')
-#    if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
-#        print("No se encontraron las columnas necesarias en el archivo.")
-#        return {}
+def get_author_options(file_path, author_last_name):
+    df = pd.read_csv(file_path, encoding='utf-8')
+    if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+        print("No se encontraron las columnas necesarias en el archivo.")
+        return {}
 
-#    author_dict = {}
-#    for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
-#        authors = row["Authors"].split(";")
-#        ids = str(row["Author(s) ID"]).split(";")
-#        for author, author_id in zip(authors, ids):
-#            author = author.strip()
-#            if author_last_name.lower() in author.lower():
-#                author_dict.setdefault(author_id.strip(), []).append(author)
+    author_dict = {}
+    for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+        authors = row["Authors"].split(";")
+        ids = str(row["Author(s) ID"]).split(";")
+        for author, author_id in zip(authors, ids):
+            author = author.strip()
+            if author_last_name.lower() in author.lower():
+                author_dict.setdefault(author_id.strip(), []).append(author)
 
-#    return author_dict
+    return author_dict
 
-#def get_authors_by_id(file_path, selected_id):
-#    df = pd.read_csv(file_path, encoding='utf-8')
-#    if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
-#        print("No se encontraron las columnas necesarias en el archivo.")
-#        return []
+def get_authors_by_id(file_path, selected_id):
+    df = pd.read_csv(file_path, encoding='utf-8')
+    if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+        print("No se encontraron las columnas necesarias en el archivo.")
+        return []
 
-#    matching_authors = set()
-#    for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
-#        authors = row["Authors"].split(";")
-#        ids = str(row["Author(s) ID"]).split(";")
-#        for author, author_id in zip(authors, ids):
-#            if author_id.strip() == selected_id:
-#                matching_authors.add(author.strip())
+    matching_authors = set()
+    for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+        authors = row["Authors"].split(";")
+        ids = str(row["Author(s) ID"]).split(";")
+        for author, author_id in zip(authors, ids):
+            if author_id.strip() == selected_id:
+                matching_authors.add(author.strip())
 
-#    return list(matching_authors)
+    return list(matching_authors)
 
     def get_total_citations(file_path, selected_id):
         df = pd.read_csv(file_path, encoding='utf-8')
