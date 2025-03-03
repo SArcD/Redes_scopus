@@ -172,9 +172,7 @@ elif pagina == "Análisis por autor":
         df = pd.read_csv(file, encoding='utf-8')
         return df
 
-    
 
-    
     # Función para obtener autores por apellido
     @st.cache_data
     def get_author_options(df, author_last_name):
@@ -667,7 +665,8 @@ elif pagina == "Análisis por autor":
     import matplotlib.pyplot as plt
 
     def process_author_data(file):
-        df = pd.read_csv(file, encoding='utf-8')
+        #df = pd.read_csv(file, encoding='utf-8')
+        df = load_data(uploaded_file)
         df.columns = df.columns.str.strip().str.replace(" ", "_")  # Reemplazar espacios en nombres de columnas
 
         # Verificar la existencia de las columnas necesarias
@@ -753,6 +752,7 @@ elif pagina == "Análisis por autor":
     #uploaded_file = st.file_uploader("Cargue el archivo CSV con los datos de autores", type=["csv"])
 
     if uploaded_file:
+        #df=load_data(uploaded_file)
         df = process_author_data(uploaded_file)
     
         if df is not None:
