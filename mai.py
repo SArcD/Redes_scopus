@@ -797,8 +797,8 @@ elif pagina == "Análisis por autor":
     # **Interfaz en Streamlit**
     st.title("Análisis de Multidisciplinariedad en Publicaciones")
 
-    #uploaded_file = st.file_uploader("Cargua archivo CSV con los datos de autores", type=["csv"])
-    uploaded_file
+    uploaded_file = st.file_uploader("Cargua archivo CSV con los datos de autores", type=["csv"])
+    #uploaded_file
     if uploaded_file:
         df = process_author_data(uploaded_file)
     
