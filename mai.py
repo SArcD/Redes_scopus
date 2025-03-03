@@ -418,7 +418,7 @@ elif pagina == "Análisis por autor":
                     publisher_info = get_publisher_info(file_path, selected_id)
                     if publisher_info is not None and not publisher_info.empty:
                         print("Editoriales en las que ha publicado este ID:")
-                        display(publisher_info)
+                        #display(publisher_info)
                         plot_publisher_info(publisher_info, selected_id)                  
                     else:
                         st.warning("No se encontraron editoriales para este autor.")
