@@ -216,6 +216,12 @@ def plot_publications(year_counts, selected_id):
 
 uploaded_file = st.file_uploader("Suba un archivo CSV", type=["csv"])
 
+# Función para cargar y almacenar el DataFrame en caché
+@st.cache_data
+def load_data(file):
+    return pd.read_csv(file, encoding='utf-8')
+
+
 #if uploaded_file:
 df = load_data(uploaded_file)
 
