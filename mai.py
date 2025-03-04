@@ -1203,7 +1203,7 @@ elif pagina == "Análisis por autor":
 
                     # Entrenar árbol de decisión con hiperparámetros óptimos
                     best_clf, best_params = train_decision_tree(tfidf_matrix, labels)
-                    st.subheader(f"Árbol de Decisión con hiperparámetros optimizados: {best_params}")
+                    st.subheader(f"Árbol de Decisión con hiperparámetros optimizados")
                     plot_decision_tree(best_clf, vectorizer, cluster_names)
 
                     # Evaluación con validación cruzada
