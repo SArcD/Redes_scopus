@@ -403,7 +403,7 @@ elif pagina == "Análisis por autor":
         - DataFrame con los artículos más citados del autor.
         """
 
-        required_columns = ["Author(s) ID", "Title", "Cited by", "Year", "Publisher"]
+        required_columns = ["Author(s) ID", "Title", "Cited by", "Year", "Source title", "Publisher"]
 
         # Verificar que todas las columnas necesarias existen
         missing_columns = [col for col in required_columns if col not in df.columns]
@@ -420,7 +420,7 @@ elif pagina == "Análisis por autor":
         df_filtered["Year"] = pd.to_numeric(df_filtered["Year"], errors="coerce").fillna(0).astype(int)
 
         # Seleccionar las columnas necesarias
-        top_articles = df_filtered[["Title", "Cited by", "Year", "Publisher"]]
+        top_articles = df_filtered[["Title", "Cited by", "Year", "Source title", "Publisher"]]
 
         # Ordenar por número de citas en orden descendente
         top_articles = top_articles.sort_values(by="Cited by", ascending=False).head(top_n)
