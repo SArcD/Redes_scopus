@@ -162,11 +162,6 @@ elif pagina == "Análisis por autor":
     import re
     import matplotlib.pyplot as plt
 
-# Función para cargar y almacenar el DataFrame en caché
-#@st.cache_data
-#def load_data(file):
-#    return pd.read_csv(file, encoding='utf-8')
-
     @st.cache_data
     def load_data(file):
         df = pd.read_csv(file, encoding='utf-8')
@@ -1354,36 +1349,81 @@ elif pagina == "Análisis por autor":
         st.plotly_chart(fig)
 
     # --- Interfaz en Streamlit ---
+    #st.title("🔬 Análisis de Redes de Colaboración en Publicaciones Científicas")
+
+   # #uploaded_file = st.file_uploader("📂 Sube el archivo CSV con los datos de Scopus", type=["csv"])
+
+    #if uploaded_file:
+    #    df=load_data(uploaded_file)
+    #    #df = pd.read_csv(uploaded_file, encoding='utf-8')
+    #    id_to_name = create_id_to_name_mapping(df)
+
+    #    author_last_name = st.text_input("🔎 Ingresa el apellido del autor:")
+    
+    #    if author_last_name:
+    #        available_authors = get_author_options(df, author_last_name)
+
+    #        if available_authors:
+    #            st.subheader("📋 Autores encontrados:")
+    #            for author_id, authors in available_authors.items():
+    #                most_common_name = Counter(authors).most_common(1)[0][0]
+    #                st.write(f"📌 **ID:** {author_id} - **Nombres:** {', '.join(authors)} (Más usado: {most_common_name})")
+
+    #            selected_id = st.selectbox("🎯 Selecciona el ID del autor:", list(available_authors.keys()))
+
+    #            if selected_id:
+    #                df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+    #                years = sorted(df_filtered["Year"].dropna().unique())
+
+    #                if years:
+    #                    selected_year = st.selectbox("📅 Selecciona el año de colaboración:", ["Todos los años"] + years)
+
+    #                    if st.button("Generar Red de Colaboración"):
+    #                        if selected_year == "Todos los años":
+    #                            for year in years:
+    #                                st.subheader(f"📊 Red de colaboración en {year}")
+    #                                generate_network_graph(df_filtered, selected_id, id_to_name, year)
+    #                        else:
+    #                            generate_network_graph(df_filtered, selected_id, id_to_name, selected_year)
+    #                else:
+    #                    st.warning("⚠️ No se encontraron publicaciones con años registrados.")
+    #        else:
+    #            st.warning("⚠️ No se encontraron coincidencias para ese apellido.")
+
+
+    # --- Interfaz en Streamlit ---
     st.title("🔬 Análisis de Redes de Colaboración en Publicaciones Científicas")
 
-    #uploaded_file = st.file_uploader("📂 Sube el archivo CSV con los datos de Scopus", type=["csv"])
+    uploaded_file = st.file_uploader("📂 Carga un archivo CSV con datos de autores", type=["csv"])
 
     if uploaded_file:
-        df=load_data(uploaded_file)
-        #df = pd.read_csv(uploaded_file, encoding='utf-8')
-        id_to_name = create_id_to_name_mapping(df)
+        df = pd.read_csv(uploaded_file, encoding='utf-8')  # Cargar datos
+        id_to_name = create_id_to_name_mapping(df)  # Crear mapeo ID -> Nombre
 
+        # --- INPUT PARA FILTRAR POR APELLIDO ---
         author_last_name = st.text_input("🔎 Ingresa el apellido del autor:")
-    
+
         if author_last_name:
             available_authors = get_author_options(df, author_last_name)
 
             if available_authors:
-                st.subheader("📋 Autores encontrados:")
-                for author_id, authors in available_authors.items():
-                    most_common_name = Counter(authors).most_common(1)[0][0]
-                    st.write(f"📌 **ID:** {author_id} - **Nombres:** {', '.join(authors)} (Más usado: {most_common_name})")
-
-                selected_id = st.selectbox("🎯 Selecciona el ID del autor:", list(available_authors.keys()))
+                # --- SELECCIÓN DEL AUTOR EN `st.selectbox` ---
+                selected_id = st.selectbox(
+                    "🎯 Selecciona el autor:",
+                    options=list(available_authors.keys()),
+                    format_func=lambda x: f"{available_authors[x]} (ID: {x})"  # Muestra nombre e ID en el menú
+                )
 
                 if selected_id:
                     df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
-                    years = sorted(df_filtered["Year"].dropna().unique())
+                    years = sorted(df_filtered["Year"].dropna().astype(int).unique())
 
+                    # --- SELECCIÓN DEL AÑO ---
                     if years:
                         selected_year = st.selectbox("📅 Selecciona el año de colaboración:", ["Todos los años"] + years)
 
-                        if st.button("Generar Red de Colaboración"):
+                        # --- BOTÓN PARA GENERAR RED ---
+                        if st.button("🔗 Generar Red de Colaboración"):
                             if selected_year == "Todos los años":
                                 for year in years:
                                     st.subheader(f"📊 Red de colaboración en {year}")
