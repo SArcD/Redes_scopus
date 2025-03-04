@@ -540,7 +540,8 @@ elif pagina == "Análisis por autor":
 
                     if top_articles is not None and not top_articles.empty:
                         #st.table(top_articles)
-                        top_articles["Year"] = top_articles["Year"].astype(int)  # Forzar tipo entero sin formato
+                        top_articles["Year"] = top_articles["Year"].astype(str)  # Convertir a string para evitar comas
+                        #top_articles["Year"] = top_articles["Year"].astype(int)  # Forzar tipo entero sin formato
                         st.dataframe(top_articles)
 
                     else:
