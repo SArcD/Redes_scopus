@@ -1394,6 +1394,7 @@ elif pagina == "Análisis por autor":
                         ))
     
         st.plotly_chart(fig)
+        return G
 
 
     # --- Función para calcular métricas de centralidad ---
@@ -1510,9 +1511,12 @@ elif pagina == "Análisis por autor":
                         # --- BOTÓN PARA GENERAR RED ---
                         if st.button("🔗 Generar Red de Colaboración"):
                             if selected_year == "Todos los años":
+                                G_accumulated = nx.Graph()
+
                                 for year in years:
                                     st.subheader(f"📊 Red de colaboración en {year}")
                                     generate_network_graph(df_filtered, selected_id, id_to_name, year)
+                                    G_accumulated.add_edges_from(G.edges())
                             else:
                                 generate_network_graph(df_filtered, selected_id, id_to_name, selected_year)
                             compute_network_metrics(G, selected_id)
