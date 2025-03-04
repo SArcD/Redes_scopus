@@ -1395,6 +1395,43 @@ elif pagina == "Análisis por autor":
     
         st.plotly_chart(fig)
 
+
+    # --- Función para calcular métricas de centralidad ---
+    def compute_network_metrics(G, selected_id):
+        """Calcula métricas de centralidad para la red"""
+        centrality_degree = nx.degree_centrality(G)
+        centrality_betweenness = nx.betweenness_centrality(G)
+        centrality_eigenvector = nx.eigenvector_centrality(G, max_iter=1000)
+
+        # Ordenar los nodos por centralidad
+        top_degree = sorted(centrality_degree.items(), key=lambda x: x[1], reverse=True)[:10]
+        top_betweenness = sorted(centrality_betweenness.items(), key=lambda x: x[1], reverse=True)[:10]
+        top_eigenvector = sorted(centrality_eigenvector.items(), key=lambda x: x[1], reverse=True)[:10]
+
+        st.subheader("📊 Métricas de Centralidad")
+    
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.write("🔹 **Grado (Conexiones directas)**")
+            for node, value in top_degree:
+                st.write(f"{node}: {value:.4f}")
+
+        with col2:
+            st.write("🔹 **Intermediación (Puente en la red)**")
+            for node, value in top_betweenness:
+                st.write(f"{node}: {value:.4f}")
+
+        with col3:
+            st.write("🔹 **Eigenvector (Influencia en la red)**")
+            for node, value in top_eigenvector:
+                st.write(f"{node}: {value:.4f}")
+
+        st.write(f"📌 **El autor `{selected_id}` tiene:**")
+        st.write(f"   🔸 Grado: {centrality_degree.get(selected_id, 0):.4f}")
+        st.write(f"   🔸 Intermediación: {centrality_betweenness.get(selected_id, 0):.4f}")
+        st.write(f"   🔸 Eigenvector: {centrality_eigenvector.get(selected_id, 0):.4f}")
+
+    
     # --- Interfaz en Streamlit ---
     #st.title("🔬 Análisis de Redes de Colaboración en Publicaciones Científicas")
 
@@ -1478,6 +1515,7 @@ elif pagina == "Análisis por autor":
                                     generate_network_graph(df_filtered, selected_id, id_to_name, year)
                             else:
                                 generate_network_graph(df_filtered, selected_id, id_to_name, selected_year)
+                            compute_network_metrics(G, selected_id)
                     else:
                         st.warning("⚠️ No se encontraron publicaciones con años registrados.")
             else:
