@@ -1394,10 +1394,11 @@ elif pagina == "Análisis por autor":
     # --- Interfaz en Streamlit ---
     st.title("🔬 Análisis de Redes de Colaboración en Publicaciones Científicas")
 
-    uploaded_file = st.file_uploader("📂 Carga un archivo CSV con datos de autores", type=["csv"])
+    #uploaded_file = st.file_uploader("📂 Carga un archivo CSV con datos de autores", type=["csv"])
 
     if uploaded_file:
-        df = pd.read_csv(uploaded_file, encoding='utf-8')  # Cargar datos
+        df=load_data(uploaded_file)
+        #df = pd.read_csv(uploaded_file, encoding='utf-8')  # Cargar datos
         id_to_name = create_id_to_name_mapping(df)  # Crear mapeo ID -> Nombre
 
         # --- INPUT PARA FILTRAR POR APELLIDO ---
