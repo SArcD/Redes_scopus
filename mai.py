@@ -1320,82 +1320,142 @@ elif pagina == "Análisis por autor":
         return {author_id: Counter(names).most_common(1)[0][0] for author_id, names in id_to_name.items()}
 
     # --- Generar red de colaboración basada en ID y Año ---
-    def generate_network_graph(df_filtered, selected_author_id, id_to_name, selected_year=None):
-        if selected_year:
-            df_year = df_filtered[df_filtered["Year"] == selected_year]
-        else:
-            df_year = df_filtered  # Si no hay año seleccionado, usamos todo el dataset.
+    #def generate_network_graph(df_filtered, selected_author_id, id_to_name, selected_year=None):
+   #     if selected_year:
+   #         df_year = df_filtered[df_filtered["Year"] == selected_year]
+   #     else:
+   #         df_year = df_filtered  # Si no hay año seleccionado, usamos todo el dataset.
 
-        if df_year.empty:
-            st.warning(f"⚠️ No hay colaboraciones registradas.")
-            return
+  #      if df_year.empty:
+  #          st.warning(f"⚠️ No hay colaboraciones registradas.")
+  #          return
 
-        collaboration_pairs = []
-        all_authors = set()
+ #       collaboration_pairs = []
+ #       all_authors = set()
 
-        for authors, ids in zip(df_year["Authors"], df_year["Author(s) ID"]):
-            author_list = [author.strip() for author in authors.split(";") if author]
-            id_list = [author_id.strip() for author_id in str(ids).split(";") if author_id]
-            all_authors.update(id_list)
-            pairs = list(itertools.combinations(id_list, 2))
-            collaboration_pairs.extend(pairs)
+#        for authors, ids in zip(df_year["Authors"], df_year["Author(s) ID"]):
+#            author_list = [author.strip() for author in authors.split(";") if author]
+#            id_list = [author_id.strip() for author_id in str(ids).split(";") if author_id]
+#            all_authors.update(id_list)
+#            pairs = list(itertools.combinations(id_list, 2))
+#            collaboration_pairs.extend(pairs)
 
-        collab_df = pd.DataFrame(collaboration_pairs, columns=["Author1", "Author2"])
-        collab_df = collab_df[collab_df["Author1"] != collab_df["Author2"]]
-        edge_weights = collab_df.value_counts().reset_index(name="Count")
+#        collab_df = pd.DataFrame(collaboration_pairs, columns=["Author1", "Author2"])
+#        collab_df = collab_df[collab_df["Author1"] != collab_df["Author2"]]
+#        edge_weights = collab_df.value_counts().reset_index(name="Count")
+
+#        G = nx.Graph()
+#        G.add_nodes_from(all_authors)
+
+#        for _, row in edge_weights.iterrows():
+#            G.add_edge(row["Author1"], row["Author2"], weight=row["Count"])
+
+#        pos = nx.spring_layout(G, k=0.5)
+
+#        edge_traces = []
+#        for u, v in G.edges():
+#            if u in pos and v in pos:
+#                edge_traces.append(go.Scatter(
+#                    x=[pos[u][0], pos[v][0], None],
+#                    y=[pos[u][1], pos[v][1], None],
+#                    line=dict(width=G[u][v]['weight'] * 0.5, color='black'),
+#                    mode='lines',
+#                    hoverinfo='none'
+#                ))
+
+#        node_x, node_y, node_color, node_texts = [], [], [], []
+
+#        for node in G.nodes():
+#            x, y = pos[node]
+#            node_x.append(x)
+#            node_y.append(y)
+#            node_color.append('red' if node == selected_author_id else 'blue')
+#            most_common_name = id_to_name.get(node, "Nombre no disponible")
+#            node_texts.append(f"ID: {node}<br>Nombre: {most_common_name}")
+
+#        node_trace = go.Scatter(
+#            x=node_x, y=node_y,
+#            mode='markers',
+#            marker=dict(size=14, color=node_color),
+#            text=node_texts,
+#            hoverinfo='text'
+#        )
+
+#        title_text = f'Red de colaboración de {selected_author_id}'
+#        if selected_year:
+#            title_text += f' en {selected_year}'
+
+#        fig = go.Figure(data=edge_traces + [node_trace],
+#                        layout=go.Layout(
+#                            title=title_text,
+#                            showlegend=False, hovermode='closest',
+#                            xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),
+#                            yaxis=dict(showgrid=False, zeroline=False, constrain="domain")
+#                        ))
+    
+#        st.plotly_chart(fig)
+#        return G
+
+
+    def generate_network_graph(df_filtered, selected_id, id_to_name, year=None, accumulated=False):
+        """Genera una red de colaboración para un año específico o acumulada"""
+        if year:
+        df_filtered = df_filtered[df_filtered["Year"] == year]
 
         G = nx.Graph()
-        G.add_nodes_from(all_authors)
 
-        for _, row in edge_weights.iterrows():
-            G.add_edge(row["Author1"], row["Author2"], weight=row["Count"])
+        # Construir la red con los coautores
+        for _, row in df_filtered.iterrows():
+            authors = str(row["Author(s)_ID"]).split(";")
+            authors = [a.strip() for a in authors if a]
 
-        pos = nx.spring_layout(G, k=0.5)
+            for i in range(len(authors)):
+                for j in range(i + 1, len(authors)):
+                    G.add_edge(authors[i], authors[j])
 
-        edge_traces = []
-        for u, v in G.edges():
-            if u in pos and v in pos:
-                edge_traces.append(go.Scatter(
-                    x=[pos[u][0], pos[v][0], None],
-                    y=[pos[u][1], pos[v][1], None],
-                    line=dict(width=G[u][v]['weight'] * 0.5, color='black'),
-                    mode='lines',
-                    hoverinfo='none'
-                ))
+        # Definir colores y tamaños de nodos
+        node_color = ["red" if node == selected_id else "blue" for node in G.nodes()]
+        node_size = [G.degree(node) * 50 for node in G.nodes()]
 
-        node_x, node_y, node_color, node_texts = [], [], [], []
+        # Posiciones de nodos con layout de NetworkX
+        pos = nx.spring_layout(G, seed=42)
+
+        # Crear trazas para la red en Plotly
+        edge_trace = go.Scatter(
+            x=[], y=[], line=dict(width=1, color="gray"),
+            hoverinfo="none", mode="lines"
+        )
+        for edge in G.edges():
+            x0, y0 = pos[edge[0]]
+            x1, y1 = pos[edge[1]]
+            edge_trace.x += (x0, x1, None)
+            edge_trace.y += (y0, y1, None)
+
+        node_trace = go.Scatter(
+            x=[], y=[], mode="markers+text",
+            text=[], marker=dict(size=node_size, color=node_color, opacity=0.8),
+            hoverinfo="text"
+        )
 
         for node in G.nodes():
             x, y = pos[node]
-            node_x.append(x)
-            node_y.append(y)
-            node_color.append('red' if node == selected_author_id else 'blue')
-            most_common_name = id_to_name.get(node, "Nombre no disponible")
-            node_texts.append(f"ID: {node}<br>Nombre: {most_common_name}")
+            node_trace.x += (x,)
+            node_trace.y += (y,)
+            node_trace.text += (f"{id_to_name.get(node, 'Desconocido')} ({node})",)
 
-        node_trace = go.Scatter(
-            x=node_x, y=node_y,
-            mode='markers',
-            marker=dict(size=14, color=node_color),
-            text=node_texts,
-            hoverinfo='text'
+        # Crear la figura interactiva en Plotly
+        fig = go.Figure(data=[edge_trace, node_trace])
+        fig.update_layout(
+            title=f"Red de Colaboración en {year if year else 'Todos los Años'}",
+            showlegend=False, hovermode="closest",
+            xaxis=dict(showgrid=False, zeroline=False), 
+            yaxis=dict(showgrid=False, zeroline=False)
         )
-
-        title_text = f'Red de colaboración de {selected_author_id}'
-        if selected_year:
-            title_text += f' en {selected_year}'
-
-        fig = go.Figure(data=edge_traces + [node_trace],
-                        layout=go.Layout(
-                            title=title_text,
-                            showlegend=False, hovermode='closest',
-                            xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),
-                            yaxis=dict(showgrid=False, zeroline=False, constrain="domain")
-                        ))
-    
         st.plotly_chart(fig)
+
         return G
 
+    
 
     # --- Función para calcular métricas de centralidad ---
     def compute_network_metrics(G, selected_id):
@@ -1514,7 +1574,7 @@ elif pagina == "Análisis por autor":
                                 G_accumulated = nx.Graph()
                                 for year in years:
                                     st.subheader(f"📊 Red de colaboración en {year}")
-                                    G = generate_network_graph(df_filtered, selected_id, id_to_name, year)
+                                    G = generate_network_graph(df_filtered, selected_id, id_to_name, accumulated=True)
                                     G_accumulated.add_edges_from(G.edges())
                                 st.subheader("🔄 Evolución de la Red Acumulada")
                                 generate_network_graph(df_filtered, selected_id, id_to_name, accumulated=True)
