@@ -539,7 +539,8 @@ elif pagina == "Análisis por autor":
                     top_articles = get_top_cited_articles(df, selected_id, top_n=10)
 
                     if top_articles is not None and not top_articles.empty:
-                        st.dataframe(top_articles)
+                        st.table(top_articles)
+                        #st.dataframe(top_articles)
                         top_articles["Year"] = top_articles["Year"].astype(int)  # Forzar tipo entero sin formato
 
                     else:
