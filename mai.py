@@ -1424,7 +1424,7 @@ elif pagina == "Análisis por autor":
     # --- Interfaz en Streamlit ---
     st.title("🔬 Análisis de Redes de Colaboración en Publicaciones Científicas")
 
-#uploaded_file = st.file_uploader("📂 Carga un archivo CSV con datos de autores", type=["csv"])
+    uploaded_file = st.file_uploader("📂 Carga un archivo CSV con datos de autores", type=["csv"])
 
     if uploaded_file:
         df = load_data(uploaded_file)
