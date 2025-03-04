@@ -1402,7 +1402,7 @@ elif pagina == "Análisis por autor":
         id_to_name = create_id_to_name_mapping(df)  # Crear mapeo ID -> Nombre
 
         # --- INPUT PARA FILTRAR POR APELLIDO ---
-        author_last_name = st.text_input("🔎 Ingresa el apellido del autor:")
+        #author_last_name = st.text_input("🔎 Ingresa el apellido del autor:")
 
         if author_last_name:
             available_authors = get_author_options(df, author_last_name)
