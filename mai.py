@@ -882,11 +882,19 @@ elif pagina == "Análisis por autor":
 
     # --- INTERFAZ EN STREAMLIT ---
     st.title("📊 Análisis de Multidisciplinariedad en Publicaciones")
+    import streamlit as st
+    import pandas as pd
 
-    uploaded_file = st.file_uploader("📂 Carga un archivo CSV con los datos de autores", type=["csv"])
+    @st.cache_data
+    def load_data(file):
+        df = pd.read_csv(file, encoding='utf-8')
+        return df
+
+    #uploaded_file = st.file_uploader("📂 Carga un archivo CSV con los datos de autores", type=["csv"])
 
     if uploaded_file:
-        df = pd.read_csv(uploaded_file, encoding='utf-8')  # Cargar archivo CSV
+        df = load_data(uploaded_file)
+        #df = pd.read_csv(uploaded_file, encoding='utf-8')  # Cargar archivo CSV
         df = process_author_data(df)  # Procesar datos
 
         if df is not None and not df.empty:
