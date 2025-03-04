@@ -1174,10 +1174,12 @@ elif pagina == "Análisis por autor":
     # Streamlit Application
     st.title("Análisis de Clustering y Árboles de Decisión")
 
-    uploaded_file = st.file_uploader("Sube el archivo CSV de Scopus", type="csv")
+    #uploaded_file = st.file_uploader("Sube el archivo CSV de Scopus", type="csv")
 
     if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file, encoding='utf-8')
+        df = load_data(uploaded_file)
+
+        #df = pd.read_csv(uploaded_file, encoding='utf-8')
         df = process_author_data(df)
 
         if df is not None:
