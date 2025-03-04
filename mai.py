@@ -1400,7 +1400,7 @@ elif pagina == "Análisis por autor":
     def generate_network_graph(df_filtered, selected_id, id_to_name, year=None, accumulated=False):
         """Genera una red de colaboración para un año específico o acumulada"""
         if year:
-        df_filtered = df_filtered[df_filtered["Year"] == year]
+            df_filtered = df_filtered[df_filtered["Year"] == year]
 
         G = nx.Graph()
 
