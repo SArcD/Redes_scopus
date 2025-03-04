@@ -390,6 +390,43 @@ elif pagina == "Análisis por autor":
 
         return publisher_stats
 
+    def get_top_cited_articles(df, selected_id, top_n=10):
+        """
+        Obtiene los artículos más citados de un autor, incluyendo título, número de citas, año y editorial.
+
+        Parámetros:
+        - df: DataFrame con los datos de publicaciones.
+        - selected_id: ID del autor.
+        - top_n: Número de artículos a mostrar (por defecto, 10).
+
+        Retorna:
+        - DataFrame con los artículos más citados del autor.
+        """
+
+        required_columns = ["Author(s) ID", "Title", "Cited by", "Year", "Publisher"]
+
+        # Verificar que todas las columnas necesarias existen
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            st.error(f"❌ No se encontraron las columnas necesarias en el archivo: {', '.join(missing_columns)}")
+            return None
+
+        # Filtrar los artículos en los que ha participado el autor
+        df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+
+        # Asegurar que "Cited by" y "Year" sean valores numéricos
+        df_filtered["Cited by"] = pd.to_numeric(df_filtered["Cited by"], errors="coerce").fillna(0).astype(int)
+        df_filtered["Year"] = pd.to_numeric(df_filtered["Year"], errors="coerce")
+
+        # Seleccionar las columnas necesarias
+        top_articles = df_filtered[["Title", "Cited by", "Year", "Publisher"]]
+
+        # Ordenar por número de citas en orden descendente
+        top_articles = top_articles.sort_values(by="Cited by", ascending=False).head(top_n)
+
+        return top_articles
+
+
 
 
     def plot_publications(year_counts, selected_id):
@@ -472,7 +509,7 @@ elif pagina == "Análisis por autor":
                     if author_stats['min_year'] and author_stats['max_year']:
                         st.write(f"**Año más antiguo de publicación:** {author_stats['min_year']}")
                         st.write(f"**Año más reciente de publicación:** {author_stats['max_year']}")
-                        plot_publications(author_stats['year_counts'], selected_id)
+                        #plot_publications(author_stats['year_counts'], selected_id)
 
                     if not author_stats['publisher_info'].empty:
                         st.write("**Editoriales en las que ha publicado este ID:**")
@@ -498,7 +535,12 @@ elif pagina == "Análisis por autor":
                     else:
                         print("No se encontraron años de publicación para este autor.")
 
-                    #publisher_info = get_publisher_info(file_path, selected_id)
+                    top_articles = get_top_cited_articles(df, selected_id, top_n=10)
+
+                    if top_articles is not None and not top_articles.empty:
+                        st.dataframe(top_articles)
+                    else:
+                        st.warning("⚠️ No se encontraron artículos con citas registradas para este autor.")
                     publisher_info = get_publisher_info(df, selected_id)
                     if publisher_info is not None and not publisher_info.empty:
                         print("Editoriales en las que ha publicado este ID:")
