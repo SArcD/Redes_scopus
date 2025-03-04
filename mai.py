@@ -1446,7 +1446,7 @@ elif pagina == "Análisis por autor":
     uploaded_file = st.file_uploader("📂 Carga un archivo CSV con datos de autores", type=["csv"])
 
     if uploaded_file:
-        df = load_data(uploaded_file)
+        #df = load_data(uploaded_file)
         id_to_name = create_id_to_name_mapping(df)
 
         # --- INPUT PARA FILTRAR POR APELLIDO ---
