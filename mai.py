@@ -1456,15 +1456,20 @@ elif pagina == "Análisis por autor":
             available_authors = {id_: name for id_, name in id_to_name.items() if author_last_name.lower() in name.lower()}
 
             if available_authors:
-                selected_id = st.selectbox(
-                    "🎯 Selecciona el autor:",
-                    options=list(available_authors.keys()),
-                    format_func=lambda x: f"{available_authors[x]} (ID: {x})"
-                )
+                selected_id = selected_id
+                #selected_id = st.selectbox(
+                #    "🎯 Selecciona el autor:",
+                #    options=list(available_authors.keys()),
+                #    format_func=lambda x: f"{available_authors[x]} (ID: {x})"
+                #)
 
                 if selected_id:
                     df_filtered = df[df["Author(s)_ID"].str.contains(selected_id, na=False, case=False)]
                     years = sorted(df_filtered["Year"].dropna().astype(int).unique())
+                #if selected_id:
+                #    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+                #    years = sorted(df_filtered["Year"].dropna().astype(int).unique())
+
 
                     # --- SELECCIÓN DEL AÑO ---
                     if years:
