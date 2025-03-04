@@ -540,6 +540,8 @@ elif pagina == "Análisis por autor":
 
                     if top_articles is not None and not top_articles.empty:
                         st.dataframe(top_articles)
+                        top_articles["Year"] = top_articles["Year"].astype(int)  # Forzar tipo entero sin formato
+
                     else:
                         st.warning("⚠️ No se encontraron artículos con citas registradas para este autor.")
                     publisher_info = get_publisher_info(df, selected_id)
