@@ -761,7 +761,9 @@ elif pagina == "Análisis por autor":
             # Selección de autor
             unique_authors = df["Author(s)_ID"].dropna().unique().tolist()
             selected_author_id = st.selectbox("Seleccione un ID de autor:", unique_authors)
+            st.session_state["selected_author_id"] = selected_author_id
 
+            
             if selected_author_id:
                 st.subheader(f"Mapas de Calor para el ID: {selected_author_id}")
 
@@ -902,7 +904,7 @@ elif pagina == "Análisis por autor":
 
             # Selección de autor
             unique_authors = df["Author(s)_ID"].dropna().unique().tolist()
-            selected_author_id = st.selectbox("🔍 Selecciona un ID de autor:", unique_authors)
+            #selected_author_id = st.selectbox("🔍 Selecciona un ID de autor:", unique_authors)
 
             if selected_author_id:
                 st.subheader(f"📖 Análisis de publicaciones del autor: {selected_author_id}")
@@ -1042,7 +1044,7 @@ elif pagina == "Análisis por autor":
             st.success("Datos cargados exitosamente.")
 
             unique_authors = df["Author(s)_ID"].dropna().unique().tolist()
-            selected_author_id = st.selectbox("Selecciona un ID:", unique_authors)
+            #selected_author_id = st.selectbox("Selecciona un ID:", unique_authors)
 
             if selected_author_id:
                 st.subheader(f"Análisis de publicaciones del autor: {selected_author_id}")
@@ -1186,7 +1188,7 @@ elif pagina == "Análisis por autor":
             st.success("Datos cargados exitosamente.")
 
             author_ids = df["Author(s)_ID"].unique().tolist()
-            selected_author_id = st.selectbox("Selecciona el ID del autor para analizar", author_ids)
+            #selected_author_id = st.selectbox("Selecciona el ID del autor para analizar", author_ids)
 
             if selected_author_id:
                 st.subheader(f"Análisis de publicaciones del autor: {selected_author_id}")
