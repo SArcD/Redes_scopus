@@ -1512,13 +1512,14 @@ elif pagina == "Análisis por autor":
                         if st.button("🔗 Generar Red de Colaboración"):
                             if selected_year == "Todos los años":
                                 G_accumulated = nx.Graph()
-
                                 for year in years:
                                     st.subheader(f"📊 Red de colaboración en {year}")
-                                    generate_network_graph(df_filtered, selected_id, id_to_name, year)
+                                    G = generate_network_graph(df_filtered, selected_id, id_to_name, year)
                                     G_accumulated.add_edges_from(G.edges())
+                                st.subheader("🔄 Evolución de la Red Acumulada")
+                                generate_network_graph(df_filtered, selected_id, id_to_name, accumulated=True)
                             else:
-                                generate_network_graph(df_filtered, selected_id, id_to_name, selected_year)
+                                G = generate_network_graph(df_filtered, selected_id, id_to_name, selected_year)
                             compute_network_metrics(G, selected_id)
                     else:
                         st.warning("⚠️ No se encontraron publicaciones con años registrados.")
