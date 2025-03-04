@@ -1317,16 +1317,35 @@ elif pagina == "Análisis por autor":
 #    return df
 
     # --- Función para crear el mapeo de IDs a nombres de autores ---
-    def create_id_to_name_mapping(df):
-        id_to_name = {}
-        for _, row in df.dropna(subset=["Authors", "Author(s)_ID"]).iterrows():
-            authors = row["Authors"].split(";")
-            ids = str(row["Author(s)_ID"]).split(";")
-            for author, author_id in zip(authors, ids):
-                author_id = author_id.strip()
-                id_to_name[author_id] = author.strip()
-        return id_to_name
+    #def create_id_to_name_mapping(df):
+    #    id_to_name = {}
+    #    for _, row in df.dropna(subset=["Authors", "Author(s)_ID"]).iterrows():
+    #        authors = row["Authors"].split(";")
+    #        ids = str(row["Author(s)_ID"]).split(";")
+    #        for author, author_id in zip(authors, ids):
+    #            author_id = author_id.strip()
+    #            id_to_name[author_id] = author.strip()
+    #    return id_to_name
 
+    # --- FUNCIÓN PARA CREAR MAPEO ID -> NOMBRE ---
+    def create_id_to_name_mapping(df):
+        """ Crea un diccionario {ID: Nombre más común del autor}. """
+        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+            return {}
+
+        id_to_name = {}
+        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+            authors = row["Authors"].split(";")
+            ids = str(row["Author(s) ID"]).split(";")
+            for author, author_id in zip(authors, ids):
+                author = author.strip()
+                author_id = author_id.strip()
+                id_to_name.setdefault(author_id, []).append(author)
+
+        return {author_id: Counter(names).most_common(1)[0][0] for author_id, names in id_to_name.items()}
+
+
+    
     # --- Función para generar la red de colaboración ---
     def generate_network_graph(df_filtered, selected_id, id_to_name, year=None, accumulated=False):
         """Genera una red de colaboración para un año específico o acumulada"""
