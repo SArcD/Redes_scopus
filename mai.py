@@ -416,7 +416,8 @@ elif pagina == "Análisis por autor":
 
         # Asegurar que "Cited by" y "Year" sean valores numéricos
         df_filtered["Cited by"] = pd.to_numeric(df_filtered["Cited by"], errors="coerce").fillna(0).astype(int)
-        df_filtered["Year"] = pd.to_numeric(df_filtered["Year"], errors="coerce")
+        #df_filtered["Year"] = pd.to_numeric(df_filtered["Year"], errors="coerce")
+        df_filtered["Year"] = pd.to_numeric(df_filtered["Year"], errors="coerce").fillna(0).astype(int)
 
         # Seleccionar las columnas necesarias
         top_articles = df_filtered[["Title", "Cited by", "Year", "Publisher"]]
