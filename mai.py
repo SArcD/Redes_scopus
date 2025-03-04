@@ -1409,11 +1409,11 @@ elif pagina == "Análisis por autor":
 
             if available_authors:
                 # --- SELECCIÓN DEL AUTOR EN `st.selectbox` ---
-                selected_id = st.selectbox(
-                    "🎯 Selecciona el autor:",
-                    options=list(available_authors.keys()),
-                    format_func=lambda x: f"{available_authors[x]} (ID: {x})"  # Muestra nombre e ID en el menú
-                )
+                #selected_id = st.selectbox(
+                #    "🎯 Selecciona el autor:",
+                #    options=list(available_authors.keys()),
+                #    format_func=lambda x: f"{available_authors[x]} (ID: {x})"  # Muestra nombre e ID en el menú
+                #)
 
                 if selected_id:
                     df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
