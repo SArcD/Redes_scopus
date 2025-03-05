@@ -1617,6 +1617,19 @@ elif pagina == "Análisis por autor":
         if st.button("📊 Analizar Evolución"):
             visualize_evolution(df_filtered, selected_id, id_to_name)
 
+    import plotly.io as pio    
+    with open("red_colaboracion.html", "rb") as file:
+        btn = st.download_button(
+            label="📥 Descargar Animación",
+            data=file,
+            file_name="red_colaboracion.html",
+            mime="text/html"
+        )
+
+# Guardar la animación en MP4
+pio.write_html(fig, "red_colaboracion.html")
+
+
     
     
 elif pagina == "Equipo de trabajo":
