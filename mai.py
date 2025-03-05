@@ -1477,10 +1477,12 @@ elif pagina == "Análisis por autor":
 
 #######################################################################################
 
+    import streamlit as st
     import pandas as pd
+    import itertools
     import networkx as nx
     import plotly.graph_objects as go
-    import streamlit as st
+    from collections import Counter
 
     # --- FUNCIÓN PARA OBTENER AUTORES POR APELLIDO ---
     def get_author_options(df, author_last_name):
@@ -1500,448 +1502,145 @@ elif pagina == "Análisis por autor":
 
         return {author_id: Counter(names).most_common(1)[0][0] for author_id, names in author_dict.items()}
 
+    # --- FUNCIÓN PARA CREAR MAPEO ID -> NOMBRE ---
+    def create_id_to_name_mapping(df):
+        """Crea un diccionario {ID: Nombre más común del autor}."""
+        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+            return {}
 
-    
-    def compute_network_metrics(G, selected_id):
-        """Calcula métricas de centralidad para la red de colaboración."""
-        if selected_id not in G:
-            return {
-                "Grado": 0,
-                "Intermediación": 0,
-                "Eigenvector": 0,
-                "Tamaño de la red": len(G.nodes),
-                "Conexiones Directas": 0
-            }
+        id_to_name = {}
+        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+            authors = row["Authors"].split(";")
+            ids = str(row["Author(s) ID"]).split(";")
+            for author, author_id in zip(authors, ids):
+                author = author.strip()
+                author_id = author_id.strip()
+                id_to_name.setdefault(author_id, []).append(author)
 
-        degree_centrality = nx.degree_centrality(G)
-        betweenness_centrality = nx.betweenness_centrality(G)
-        eigenvector_centrality = nx.eigenvector_centrality(G, max_iter=1000)
+        return {author_id: Counter(names).most_common(1)[0][0] for author_id, names in id_to_name.items()}
 
-        return {
-            "Grado": degree_centrality.get(selected_id, 0),
-            "Intermediación": betweenness_centrality.get(selected_id, 0),
-            "Eigenvector": eigenvector_centrality.get(selected_id, 0),
-            "Tamaño de la red": len(G.nodes),
-            "Conexiones Directas": len(G[selected_id])
-        }
+    # --- FUNCIÓN PARA GENERAR RED DE COLABORACIÓN ---
+    def visualize_collaboration_network(df, selected_author_id, id_to_name, selected_year):
+        """Genera una red de colaboración en Plotly con relación de aspecto equilibrada."""
 
-#    def generate_network_graph(df, selected_id, id_to_name, year):
-#        """Genera la red de colaboración de un autor en un año específico."""
-#        df_filtered = df[df["Year"] == year]
-#        G = nx.Graph()
+        # Si se elige "Todos los años", generar redes para cada año individualmente
+        if selected_year == "Todos los años":
+            years = sorted(df["Year"].dropna().astype(int).unique())
+            for year in years:
+                st.subheader(f"🔗 Red de colaboración en {year}")
+                visualize_collaboration_network(df[df["Year"] == year], selected_author_id, id_to_name, year)
+            return
 
-#        # Construcción de la red
-#        for _, row in df_filtered.iterrows():
-#            coauthors = row["Author(s) ID"].split(";")
-#            coauthors = [a.strip() for a in coauthors if a]
-#            for i in range(len(coauthors)):
-#                for j in range(i + 1, len(coauthors)):
-#                    G.add_edge(coauthors[i], coauthors[j])
+        # Filtrar el DataFrame por el año seleccionado
+        df_filtered = df[df["Year"] == selected_year]
 
-#        pos = nx.spring_layout(G, seed=42, k=0.5)  # Controla la distribución
+        if df_filtered.empty:
+            st.warning(f"No se encontraron publicaciones para el autor con ID: {selected_author_id}")
+            return
 
-#        edge_trace = go.Scatter(
-#            x=[], y=[], mode="lines", line=dict(width=1.5, color="black"),
-#            hoverinfo="none"
-#        )
-#        for edge in G.edges():
-#            x0, y0 = pos[edge[0]]
-#            x1, y1 = pos[edge[1]]
-#            edge_trace.x += (x0, x1, None)
-#            edge_trace.y += (y0, y1, None)
-
-#        node_x, node_y, node_color, node_texts = [], [], [], []
-#        for node in G.nodes():
-#            x, y = pos[node]
-#            node_x.append(x)
-#            node_y.append(y)
-#            node_color.append("red" if node == selected_id else "blue")
-
-#            # Mostrar ID y Nombre al pasar el cursor
-#            node_name = id_to_name.get(node, "Desconocido")
-#            node_texts.append(f"ID: {node}<br>Nombre: {node_name}")
-
-#        node_trace = go.Scatter(
-#            x=node_x, y=node_y,
-#            mode="markers", marker=dict(size=12, color=node_color, opacity=0.8),
-#            text=node_texts, hoverinfo="text"
- #       )
-
- #       fig = go.Figure(data=[edge_trace, node_trace],
- #           layout=go.Layout(
- #               title=f"Red de colaboración en {year}",
- #               showlegend=False, hovermode="closest",
- #               xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),
- #               yaxis=dict(showgrid=False, zeroline=False, constrain="domain"),
- #           )
- #       )
- #       return fig, G
-
-
-    def generate_network_graph(df, selected_id, id_to_name, year, fixed_pos=None):
-        """Genera la red de colaboración de un autor en un año específico."""
-
-        df_filtered = df[df["Year"] == year]
+        # Crear la red de colaboración
         G = nx.Graph()
-
-        # Construcción de la red
         for _, row in df_filtered.iterrows():
             coauthors = row["Author(s) ID"].split(";")
-            coauthors = [a.strip() for a in coauthors if a]
+            coauthors = [author.strip() for author in coauthors if author]
+
             for i in range(len(coauthors)):
                 for j in range(i + 1, len(coauthors)):
                     G.add_edge(coauthors[i], coauthors[j])
 
-        # Usa la disposición fija si está definida, sino la genera
-        if fixed_pos is None:
-            pos = nx.spring_layout(G, seed=42, k=0.5)
-        else:
-            pos = {node: fixed_pos.get(node, (0, 0)) for node in G.nodes()}  # Usa posiciones fijas
+        if len(G.nodes) == 0:
+            st.warning("⚠️ No hay colaboraciones registradas en este período.")
+            return
 
+        # Ajustar la distribución de nodos para evitar estiramiento
+        pos = nx.spring_layout(G, seed=42, scale=1.5)
+
+        # Crear trazas de bordes (edges)
         edge_trace = go.Scatter(
-            x=[], y=[], mode="lines", line=dict(width=1.5, color="black"),
-            hoverinfo="none"
+            x=[], y=[], line=dict(width=1.5, color="black"),  # Bordes negros
+            hoverinfo="none", mode="lines"
         )
+
         for edge in G.edges():
             x0, y0 = pos[edge[0]]
             x1, y1 = pos[edge[1]]
             edge_trace.x += (x0, x1, None)
             edge_trace.y += (y0, y1, None)
+    
+        # Crear trazas de nodos (nodes)
+        node_x = []
+        node_y = []
+        node_color = []
+        node_texts = []
 
-        node_x, node_y, node_color, node_texts = [], [], [], []
         for node in G.nodes():
             x, y = pos[node]
             node_x.append(x)
             node_y.append(y)
-            node_color.append("red" if node == selected_id else "blue")
-
-            # Mostrar ID y Nombre al pasar el cursor
-            node_name = id_to_name.get(node, "Desconocido")
-            node_texts.append(f"ID: {node}<br>Nombre: {node_name}")
+            node_color.append("red" if node == selected_author_id else "blue")  # Autor principal en rojo
+            most_common_name = id_to_name.get(node, "Nombre no disponible")
+            node_texts.append(f"ID: {node}<br>Nombre: {most_common_name}")
 
         node_trace = go.Scatter(
-            x=node_x, y=node_y,
-            mode="markers", marker=dict(size=12, color=node_color, opacity=0.8),
+            x=node_x, y=node_y, mode="markers",
+            marker=dict(size=15, color=node_color, opacity=0.8),
             text=node_texts, hoverinfo="text"
         )
 
-        fig = go.Figure(data=[edge_trace, node_trace],
-            layout=go.Layout(
-                title=f"Red de colaboración en {year}",
-                showlegend=False, hovermode="closest",
-                xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),
-                yaxis=dict(showgrid=False, zeroline=False, constrain="domain"),
-            )
+        # Crear figura en Plotly con relación de aspecto equilibrada
+        fig = go.Figure(data=[edge_trace, node_trace])
+        fig.update_layout(
+            title=f"Red de Colaboración en {selected_year}",
+            showlegend=False, hovermode="closest",
+            autosize=True,  # Ajuste automático del tamaño
+            margin=dict(l=40, r=40, t=50, b=50),  # Márgenes más equilibrados
+            xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),  
+            yaxis=dict(showgrid=False, zeroline=False, constrain="domain")
         )
-        return fig, G
 
-
-    
-    def visualize_evolution(df, selected_id, id_to_name):
-        """Genera la animación de la evolución de la red de colaboración a lo largo de los años."""
-    
-        st.subheader("📊 Evolución del Investigador en la Red")
-        years = sorted(df["Year"].dropna().astype(int).unique())
-        metrics_evolution = []
-        fig_frames = []
-
-        # Construcción de la evolución de la red año por año
-        for year in years:
-            st.write(f"📅 **Red de colaboración en {year}**")
-        
-            # Generar la red de colaboración para ese año
-            fig, G = generate_network_graph(df, selected_id, id_to_name, year)
-            st.plotly_chart(fig)
-
-            # Calcular métricas del investigador en la red
-            metrics = compute_network_metrics(G, selected_id)
-            metrics["Año"] = year
-            metrics_evolution.append(metrics)
-
-            # Agregar frame para animación
-            fig_frames.append(go.Frame(data=fig.data, name=str(year)))
-
-        # Crear una tabla con la evolución de las métricas
-        st.subheader("📈 Evolución de las Métricas del Investigador")
-        metrics_df = pd.DataFrame(metrics_evolution).set_index("Año")
-        st.dataframe(metrics_df)
-
-        # Crear una visualización animada de la evolución de la red
-        st.subheader("🎥 Animación de la Evolución de la Red de Colaboración")
-        fig = go.Figure(
-            data=fig_frames[0].data,
-            layout=go.Layout(
-                title="Evolución de la Red de Colaboración",
-                showlegend=False, hovermode="closest",
-                updatemenus=[{
-                    "buttons": [
-                        {"label": "Play", "method": "animate", "args": [None, {"frame": {"duration": 1000, "redraw": True}}]},
-                        {"label": "Pause", "method": "animate", "args": [[None], {"mode": "immediate", "frame": {"duration": 0}}]}
-                    ],
-                    "direction": "left",
-                    "pad": {"r": 10, "t": 87},
-                    "showactive": True,
-                    "type": "buttons",
-                    "x": 0.1,
-                    "y": -0.2
-                }],
-                xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),
-                yaxis=dict(showgrid=False, zeroline=False, constrain="domain"),
-            ),
-            frames=fig_frames
-        )
+        # Mostrar la gráfica en Streamlit
         st.plotly_chart(fig)
 
-    # --- 🔥 Ejecutar el análisis después del código existente ---
-    #if selected_id:  
-    #    if st.button("📊 Analizar Evolución"):
-    #        visualize_evolution(df_filtered, selected_id, id_to_name)
+    # --- INTERFAZ EN STREAMLIT ---
+    st.title("📊 Análisis de Redes de Colaboración en Publicaciones")
 
-    import streamlit as st
-    import pandas as pd
-    import networkx as nx
-    import plotly.graph_objects as go
-    import imageio
-    import tempfile
-    import os
-    import io
+    uploaded_file = st.file_uploader("📂 Carga un archivo CSV con datos de autores", type=["csv"])
 
+    if uploaded_file:
+        df = pd.read_csv(uploaded_file, encoding='utf-8')  # Cargar datos
+        id_to_name = create_id_to_name_mapping(df)  # Crear mapeo ID -> Nombre
 
-    
-    import streamlit as st
-    import pandas as pd
+        # --- INPUT PARA FILTRAR POR APELLIDO ---
+        author_last_name = st.text_input("🔎 Ingresa el apellido del autor:")
 
-    def interpret_network_metrics(metrics_df, selected_id):
-        """
-        Genera interpretaciones automáticas de los indicadores de red.
-        """
-        st.subheader("📊 Interpretación de Indicadores de Red")
+        if author_last_name:
+            available_authors = get_author_options(df, author_last_name)
 
-        if metrics_df.empty:
-            st.warning("No hay datos de métricas para interpretar.")
-            return
-    
-        # Obtener valores de las métricas del investigador seleccionado
-        metrics_df = metrics_df.sort_index()  # Asegurar orden temporal
-        last_year = metrics_df.index.max()
-        current_metrics = metrics_df.loc[last_year]  # Últimos valores
-        previous_metrics = metrics_df.iloc[-2] if len(metrics_df) > 1 else None
+            if available_authors:
+                # --- SELECCIÓN DEL AUTOR EN `st.selectbox` ---
+                selected_id = st.selectbox(
+                    "🎯 Selecciona el autor:",
+                    options=list(available_authors.keys()),
+                    format_func=lambda x: f"{available_authors[x]} (ID: {x})"  # Muestra nombre e ID en el menú
+                )
 
-        # Valores globales
-        avg_degree = metrics_df["Grado"].mean()
-        max_degree = metrics_df["Grado"].max()
-    
-        avg_betweenness = metrics_df["Intermediación"].mean()
-        max_betweenness = metrics_df["Intermediación"].max()
-    
-        avg_eigenvector = metrics_df["Eigenvector"].mean()
-        max_eigenvector = metrics_df["Eigenvector"].max()
+                if selected_id:
+                    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+                    years = sorted(df_filtered["Year"].dropna().astype(int).unique())
 
-        # Análisis de Grado (Número de Conexiones Directas)
-        if current_metrics["Grado"] > avg_degree:
-            st.write(f"🔹 **Colaboración Activa:** El autor tiene más conexiones ({current_metrics['Grado']:.2f}) que el promedio ({avg_degree:.2f}).")
-        else:
-            st.write(f"🔸 **Colaboración Limitada:** El autor tiene menos conexiones ({current_metrics['Grado']:.2f}) que el promedio ({avg_degree:.2f}).")
+                    # --- SELECCIÓN DEL AÑO ---
+                    if years:
+                        selected_year = st.selectbox("📅 Selecciona el año de colaboración:", ["Todos los años"] + years)
 
-        # Análisis de Intermediación (Betweenness)
-        if current_metrics["Intermediación"] > avg_betweenness:
-            st.write("🔹 **Punto de conexión clave:** El autor actúa como un 'puente' entre investigadores.")
-        else:
-            st.write("🔸 **Menor influencia estructural:** El autor no es un punto clave en la red.")
-
-        # Análisis de Influencia (Eigenvector Centrality)
-        if current_metrics["Eigenvector"] > avg_eigenvector:
-            st.write("🔹 **Alto impacto:** El autor colabora con investigadores influyentes.")
-        else:
-            st.write("🔸 **Influencia limitada:** El autor colabora con investigadores menos conectados.")
-
-        # Evaluación de la Evolución en el Tiempo
-        if previous_metrics is not None:
-            st.subheader("📈 Evolución en el Tiempo")
-
-            for metric in ["Grado", "Intermediación", "Eigenvector"]:
-                change = current_metrics[metric] - previous_metrics[metric]
-                if change > 0:
-                    st.write(f"⬆️ **Aumento en {metric}**: El autor ha mejorado en {metric}.")
-                elif change < 0:
-                    st.write(f"⬇️ **Disminución en {metric}**: El autor ha perdido relevancia en {metric}.")
-                else:
-                    st.write(f"⚖️ **Estabilidad en {metric}**: No hubo cambios en {metric}.")
-
-        st.success("✅ Análisis completado.")
-    
-    #def visualize_evolution(df, selected_id, id_to_name):
-    #    """Genera la animación de la evolución de la red de colaboración y permite descargarla como GIF en Streamlit Cloud."""
-
-#        st.subheader("📊 Evolución del Investigador en la Red")
-#        years = sorted(df["Year"].dropna().astype(int).unique())
-#        metrics_evolution = []
-#        fig_frames = []
-#        image_list = []  # Lista para almacenar imágenes en memoria
-
-#        # Construcción de la evolución de la red año por año
-#        for year in years:
-#            st.write(f"📅 **Red de colaboración en {year}**")
-
-#            # Generar la red de colaboración para ese año
-#            fig, G = generate_network_graph(df, selected_id, id_to_name, year)
-#            st.plotly_chart(fig)
-
-#            # Calcular métricas del investigador en la red
-#            metrics = compute_network_metrics(G, selected_id)
-#            metrics["Año"] = year
-#            metrics_evolution.append(metrics)
-
-#            # Agregar frame para animación
-#            fig_frames.append(go.Frame(data=fig.data, name=str(year)))
-
-#            # Guardar la imagen del frame en memoria
-#            img_bytes = io.BytesIO()
-#            fig.write_image(img_bytes, format="png", width=800, height=600)
-#            image_list.append(imageio.imread(img_bytes.getvalue()))
-
-#        # Crear una tabla con la evolución de las métricas
-#        st.subheader("📈 Evolución de las Métricas del Investigador")
-#        metrics_df = pd.DataFrame(metrics_evolution).set_index("Año")
-#        st.dataframe(metrics_df)
-
-#        interpret_network_metrics(metrics_df, selected_id)
-
-#        # Crear una visualización animada de la evolución de la red
-#        st.subheader("🎥 Animación de la Evolución de la Red de Colaboración")
-#        fig = go.Figure(
-#            data=fig_frames[0].data,  # Inicia con el primer frame
-#            layout=go.Layout(
-#                title="Evolución de la Red de Colaboración",
-#                showlegend=False,
-#                hovermode="closest",
-#                width=800,
-#                height=600,
-#                margin=dict(l=50, r=50, t=50, b=50),
-#                updatemenus=[{
-#                    "buttons": [
-#                        {"label": "Play", "method": "animate", "args": [None, {"frame": {"duration": 1000, "redraw": True}, "fromcurrent": True}]},
-#                        {"label": "Pause", "method": "animate", "args": [[None], {"mode": "immediate", "frame": {"duration": 0}}]}
-#                    ],
-#                    "direction": "left",
-#                    "pad": {"r": 10, "t": 87},
-#                    "showactive": True,
-#                    "type": "buttons",
-#                    "x": 0.1,
-#                    "y": -0.2
-#                }],
-#                xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),
-#                yaxis=dict(showgrid=False, zeroline=False, constrain="domain"),
-#            ),
-#            frames=fig_frames
-#        )
-#        st.plotly_chart(fig)
-
-#        # **Generar GIF en memoria**
-#        gif_bytes = io.BytesIO()
-#        #imageio.mimsave(gif_bytes, image_list, format="GIF", duration=2.5, loop=0)
-#        imageio.mimsave("red_colaboracion.gif", image_list, fps=0.5)  # ⬅️ Reduce FPS para ralentizar
+                        # --- BOTÓN PARA GENERAR RED ---
+                        if st.button("🔗 Generar Red de Colaboración"):
+                            visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
+                    else:
+                        st.warning("⚠️ No se encontraron publicaciones con años registrados.")
+            else:
+                st.warning("⚠️ No se encontraron coincidencias para ese apellido.")
 
 
-#        # **Botón para descargar el GIF**
-#        st.download_button(
-#            label="📥 Descargawr Animación como GIF",
-#            data=gif_bytes.getvalue(),
-#            file_name="Evolucion_Red_Colaboracion.gif",
-#            mime="image/gif"
-#        )
-
-
-#########################################################################################33
-
-    import streamlit as st
-    import pandas as pd
-    import networkx as nx
-    import plotly.graph_objects as go
-    import imageio
-    import io
-
-    import streamlit as st
-    import pandas as pd
-    import networkx as nx
-    import plotly.graph_objects as go
-    import imageio
-    import tempfile
-    import os
-
-    def visualize_evolution_video(df, selected_id, id_to_name):
-        """Genera un video MP4 de la evolución de la red de colaboración en Streamlit Cloud."""
-
-        st.subheader("📊 Evolución del Investigador en la Red")
-        years = sorted(df["Year"].dropna().astype(int).unique())
-        metrics_evolution = []
-        fig_frames = []
-        image_list = []  # Lista para almacenar imágenes en memoria
-
-        # **Mantener posiciones fijas para todos los años**
-        G_global = nx.Graph()
-        for _, row in df.iterrows():
-            authors = row["Author(s) ID"].split(";")
-            for i in range(len(authors)):
-                for j in range(i + 1, len(authors)):
-                    G_global.add_edge(authors[i].strip(), authors[j].strip())
-
-        fixed_pos = nx.spring_layout(G_global, seed=42)  # 📌 Fija la disposición de los nodos
-
-        # Construcción de la evolución de la red año por año
-        for year in years:
-            st.write(f"📅 **Red de colaboración en {year}**")
-
-            # Generar la red de colaboración para ese año con el año en el título
-            #fig, G = generate_network_graph(df, selected_id, id_to_name, year, fixed_pos)
-            fig, G = generate_network_graph(df, selected_id, id_to_name, year, fixed_pos)
-            fig.update_layout(title=f"Red de Colaboración - Año {year}")  # ⬅️ Agrega el año en el título
-            st.plotly_chart(fig)
-
-            # Calcular métricas del investigador en la red
-            metrics = compute_network_metrics(G, selected_id)
-            metrics["Año"] = year
-            metrics_evolution.append(metrics)
-
-            # Agregar frame para animación
-            fig_frames.append(go.Frame(data=fig.data, name=str(year)))
-
-            # Guardar la imagen del frame en memoria
-            temp_img_path = tempfile.NamedTemporaryFile(delete=False, suffix=".png").name
-            fig.write_image(temp_img_path, format="png", width=800, height=600)
-            image_list.append(imageio.imread(temp_img_path))
-
-        # Crear una tabla con la evolución de las métricas
-        st.subheader("📈 Evolución de las Métricas del Investigador")
-        metrics_df = pd.DataFrame(metrics_evolution).set_index("Año")
-        st.dataframe(metrics_df)
-
-        interpret_network_metrics(metrics_df, selected_id)
-
-        # **Generar un video MP4 en un archivo temporal**
-        st.subheader("🎥 Animación en Video de la Evolución de la Red")
-        temp_video_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
-        imageio.mimsave(temp_video_path, image_list, format="mp4", fps=1)  # ⬅️ Exportar video con 1 FPS
-
-        # **Botón para descargar el video**
-        with open(temp_video_path, "rb") as file:
-            video_bytes = file.read()
-
-        st.download_button(
-            label="📥 Descargar Animación como Video",
-            data=video_bytes,
-            file_name="Evolucion_Red_Colaboracion.mp4",
-            mime="video/mp4"
-        )
-
-        # **Eliminar el archivo temporal después de la descarga**
-        os.remove(temp_video_path)
-
-# --- 🔥 Ejecutar el análisis después del código existente ---
-selected_id = st.selectbox("Seleccion del ID del autor:", list(author_options.keys()))
-if selected_id:  
-    if st.button("📊 Analizar Evolución"):
-        visualize_evolution_video(df_filtered, selected_id, id_to_name)
 
 
 elif pagina == "Equipo de trabajo":
