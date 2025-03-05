@@ -1479,6 +1479,52 @@ elif pagina == "Análisis por autor":
 
     # --- 🔥 ANÁLISIS DE EVOLUCIÓN DEL INVESTIGADOR (SE EJECUTA DESPUÉS DEL CÓDIGO EXISTENTE) ---
 
+    def generate_network_graph(df_filtered, selected_id, id_to_name, selected_year):
+        """Genera una red de colaboración para un año específico."""
+        df_filtered = df_filtered[df_filtered["Year"] == selected_year] if selected_year != "Todos los años" else df_filtered
+
+        G = nx.Graph()
+        for _, row in df_filtered.iterrows():
+            coauthors = row["Author(s) ID"].split(";")
+            for i in range(len(coauthors)):
+                for j in range(i + 1, len(coauthors)):
+                    G.add_edge(coauthors[i], coauthors[j])
+
+        pos = nx.spring_layout(G, k=0.5)
+        edge_trace = go.Scatter(
+            x=[], y=[], mode="lines", line=dict(width=1.5, color="black"),
+            hoverinfo="none"
+        )
+        for edge in G.edges():
+            x0, y0 = pos[edge[0]]
+            x1, y1 = pos[edge[1]]
+            edge_trace.x += (x0, x1, None)
+            edge_trace.y += (y0, y1, None)
+
+        node_x, node_y, node_color, node_texts = [], [], [], []
+        for node in G.nodes():
+            x, y = pos[node]
+            node_x.append(x)
+            node_y.append(y)
+            node_color.append('red' if node == selected_id else 'blue')
+            most_common_name = id_to_name.get(node, "Desconocido")
+            node_texts.append(f"ID: {node}<br>Nombre: {most_common_name}")
+
+        node_trace = go.Scatter(
+            x=node_x, y=node_y, mode="markers", marker=dict(size=15, color=node_color, opacity=0.8),
+            text=node_texts, hoverinfo="text"
+        )
+
+        fig = go.Figure(data=[edge_trace, node_trace], layout=go.Layout(
+            title=f'Red de colaboración de {selected_id} en {selected_year}',
+            showlegend=False, hovermode='closest',
+            xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),
+            yaxis=dict(showgrid=False, zeroline=False, constrain="domain")
+        ))
+
+        return fig, G
+
+    
     import pandas as pd
     import networkx as nx
     import plotly.graph_objects as go
