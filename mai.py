@@ -1603,7 +1603,7 @@ elif pagina == "Análisis por autor":
                     "showactive": True,
                     "type": "buttons",
                     "x": 0.1,
-                    "y": -0.2"
+                    "y": -0.2
                 }],
                 xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),
                 yaxis=dict(showgrid=False, zeroline=False, constrain="domain"),
