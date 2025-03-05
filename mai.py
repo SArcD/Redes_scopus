@@ -1525,8 +1525,62 @@ elif pagina == "Análisis por autor":
             "Conexiones Directas": len(G[selected_id])
         }
 
-    def generate_network_graph(df, selected_id, id_to_name, year):
+#    def generate_network_graph(df, selected_id, id_to_name, year):
+#        """Genera la red de colaboración de un autor en un año específico."""
+#        df_filtered = df[df["Year"] == year]
+#        G = nx.Graph()
+
+#        # Construcción de la red
+#        for _, row in df_filtered.iterrows():
+#            coauthors = row["Author(s) ID"].split(";")
+#            coauthors = [a.strip() for a in coauthors if a]
+#            for i in range(len(coauthors)):
+#                for j in range(i + 1, len(coauthors)):
+#                    G.add_edge(coauthors[i], coauthors[j])
+
+#        pos = nx.spring_layout(G, seed=42, k=0.5)  # Controla la distribución
+
+#        edge_trace = go.Scatter(
+#            x=[], y=[], mode="lines", line=dict(width=1.5, color="black"),
+#            hoverinfo="none"
+#        )
+#        for edge in G.edges():
+#            x0, y0 = pos[edge[0]]
+#            x1, y1 = pos[edge[1]]
+#            edge_trace.x += (x0, x1, None)
+#            edge_trace.y += (y0, y1, None)
+
+#        node_x, node_y, node_color, node_texts = [], [], [], []
+#        for node in G.nodes():
+#            x, y = pos[node]
+#            node_x.append(x)
+#            node_y.append(y)
+#            node_color.append("red" if node == selected_id else "blue")
+
+#            # Mostrar ID y Nombre al pasar el cursor
+#            node_name = id_to_name.get(node, "Desconocido")
+#            node_texts.append(f"ID: {node}<br>Nombre: {node_name}")
+
+#        node_trace = go.Scatter(
+#            x=node_x, y=node_y,
+#            mode="markers", marker=dict(size=12, color=node_color, opacity=0.8),
+#            text=node_texts, hoverinfo="text"
+ #       )
+
+ #       fig = go.Figure(data=[edge_trace, node_trace],
+ #           layout=go.Layout(
+ #               title=f"Red de colaboración en {year}",
+ #               showlegend=False, hovermode="closest",
+ #               xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),
+ #               yaxis=dict(showgrid=False, zeroline=False, constrain="domain"),
+ #           )
+ #       )
+ #       return fig, G
+
+
+    def generate_network_graph(df, selected_id, id_to_name, year, fixed_pos=None):
         """Genera la red de colaboración de un autor en un año específico."""
+
         df_filtered = df[df["Year"] == year]
         G = nx.Graph()
 
@@ -1538,7 +1592,11 @@ elif pagina == "Análisis por autor":
                 for j in range(i + 1, len(coauthors)):
                     G.add_edge(coauthors[i], coauthors[j])
 
-        pos = nx.spring_layout(G, seed=42, k=0.5)  # Controla la distribución
+        # Usa la disposición fija si está definida, sino la genera
+        if fixed_pos is None:
+            pos = nx.spring_layout(G, seed=42, k=0.5)
+        else:
+            pos = {node: fixed_pos.get(node, (0, 0)) for node in G.nodes()}  # Usa posiciones fijas
 
         edge_trace = go.Scatter(
             x=[], y=[], mode="lines", line=dict(width=1.5, color="black"),
@@ -1577,6 +1635,8 @@ elif pagina == "Análisis por autor":
         )
         return fig, G
 
+
+    
     def visualize_evolution(df, selected_id, id_to_name):
         """Genera la animación de la evolución de la red de colaboración a lo largo de los años."""
     
@@ -1833,6 +1893,7 @@ elif pagina == "Análisis por autor":
             st.write(f"📅 **Red de colaboración en {year}**")
 
             # Generar la red de colaboración para ese año con el año en el título
+            #fig, G = generate_network_graph(df, selected_id, id_to_name, year, fixed_pos)
             fig, G = generate_network_graph(df, selected_id, id_to_name, year, fixed_pos)
             fig.update_layout(title=f"Red de Colaboración - Año {year}")  # ⬅️ Agrega el año en el título
             st.plotly_chart(fig)
