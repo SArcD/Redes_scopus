@@ -1304,28 +1304,12 @@ elif pagina == "Análisis por autor":
 
     import streamlit as st
     import pandas as pd
+    import re
     import networkx as nx
     import matplotlib.pyplot as plt
-    import plotly.graph_objects as go
+    import seaborn as sns
+    import numpy as np
     from collections import Counter
-
-## --- Función para cargar y limpiar datos ---
-#@st.cache_data
-#def load_data(file):
-#    df = pd.read_csv(file, encoding='utf-8')
-#    df.columns = df.columns.str.strip().str.replace(" ", "_")
-#    return df
-
-    # --- Función para crear el mapeo de IDs a nombres de autores ---
-    #def create_id_to_name_mapping(df):
-    #    id_to_name = {}
-    #    for _, row in df.dropna(subset=["Authors", "Author(s)_ID"]).iterrows():
-    #        authors = row["Authors"].split(";")
-    #        ids = str(row["Author(s)_ID"]).split(";")
-    #        for author, author_id in zip(authors, ids):
-    #            author_id = author_id.strip()
-    #            id_to_name[author_id] = author.strip()
-    #    return id_to_name
 
     # --- FUNCIÓN PARA CREAR MAPEO ID -> NOMBRE ---
     def create_id_to_name_mapping(df):
@@ -1344,132 +1328,68 @@ elif pagina == "Análisis por autor":
 
         return {author_id: Counter(names).most_common(1)[0][0] for author_id, names in id_to_name.items()}
 
+    # --- FUNCIÓN PARA OBTENER AUTORES POR APELLIDO ---
+    def get_author_options(df, author_last_name):
+        """ Devuelve un diccionario {ID: Nombre más común} para un apellido dado. """
+        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+            return {}
 
-    
-    # --- Función para generar la red de colaboración ---
-    def generate_network_graph(df_filtered, selected_id, id_to_name, year=None, accumulated=False):
-        """Genera una red de colaboración para un año específico o acumulada"""
-        if year:
-            df_filtered = df_filtered[df_filtered["Year"] == year]
+        author_dict = {}
+        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+            authors = row["Authors"].split(";")
+            ids = str(row["Author(s) ID"]).split(";")
+            for author, author_id in zip(authors, ids):
+                author = author.strip()
+                author_id = author_id.strip()
+                if author_last_name.lower() in author.lower():
+                    author_dict[author_id] = author  # Solo guarda el nombre más frecuente
+
+        return author_dict
+
+    # --- FUNCIÓN PARA GENERAR RED DE COLABORACIÓN ---
+    def generate_network_graph(df, selected_id, id_to_name, selected_year):
+        """ Genera y muestra la red de colaboración del autor en un año específico. """
+        df_filtered = df[df["Year"] == selected_year] if selected_year != "Todos los años" else df
 
         G = nx.Graph()
-
-        # Construir la red con los coautores
         for _, row in df_filtered.iterrows():
-            authors = str(row["Author(s)_ID"]).split(";")
-            authors = [a.strip() for a in authors if a]
+            coauthors = row["Author(s) ID"].split(";")
+            for i in range(len(coauthors)):
+                for j in range(i + 1, len(coauthors)):
+                    G.add_edge(coauthors[i], coauthors[j])
 
-            for i in range(len(authors)):
-                for j in range(i + 1, len(authors)):
-                    G.add_edge(authors[i], authors[j])
+        plt.figure(figsize=(8, 6))
+        pos = nx.spring_layout(G, k=0.5)
+        nx.draw(G, pos, with_labels=True, node_color="skyblue", edge_color="gray", node_size=500, font_size=10)
+        plt.title(f"Red de colaboración de {id_to_name.get(selected_id, 'Autor Desconocido')} ({selected_year})")
+        st.pyplot(plt)
 
-        # Definir colores y tamaños de nodos
-        node_color = ["red" if node == selected_id else "blue" for node in G.nodes()]
-        node_size = [G.degree(node) * 50 for node in G.nodes()]
-
-        # Posiciones de nodos con layout de NetworkX
-        pos = nx.spring_layout(G, seed=42)
-
-        # Crear trazas para la red en Plotly
-        edge_trace = go.Scatter(
-            x=[], y=[], line=dict(width=1, color="gray"),
-            hoverinfo="none", mode="lines"
-        )
-        for edge in G.edges():
-            x0, y0 = pos[edge[0]]
-            x1, y1 = pos[edge[1]]
-            edge_trace.x += (x0, x1, None)
-            edge_trace.y += (y0, y1, None)
-
-        node_trace = go.Scatter(
-            x=[], y=[], mode="markers+text",
-            text=[], marker=dict(size=node_size, color=node_color, opacity=0.8),
-            hoverinfo="text"
-        )
-
-        for node in G.nodes():
-            x, y = pos[node]
-            node_trace.x += (x,)
-            node_trace.y += (y,)
-            node_trace.text += (f"{id_to_name.get(node, 'Desconocido')} ({node})",)
-
-        # Crear la figura interactiva en Plotly
-        fig = go.Figure(data=[edge_trace, node_trace])
-        fig.update_layout(
-            title=f"Red de Colaboración en {year if year else 'Todos los Años'}",
-            showlegend=False, hovermode="closest",
-            xaxis=dict(showgrid=False, zeroline=False), 
-            yaxis=dict(showgrid=False, zeroline=False)
-        )
-        st.plotly_chart(fig)
-
-        return G
-
-    # --- Función para calcular métricas de centralidad ---
-    def compute_network_metrics(G, selected_id):
-        """Calcula métricas de centralidad para la red"""
-        centrality_degree = nx.degree_centrality(G)
-        centrality_betweenness = nx.betweenness_centrality(G)
-        centrality_eigenvector = nx.eigenvector_centrality(G, max_iter=1000)
-
-        # Ordenar los nodos por centralidad
-        top_degree = sorted(centrality_degree.items(), key=lambda x: x[1], reverse=True)[:10]
-        top_betweenness = sorted(centrality_betweenness.items(), key=lambda x: x[1], reverse=True)[:10]
-        top_eigenvector = sorted(centrality_eigenvector.items(), key=lambda x: x[1], reverse=True)[:10]
-
-        st.subheader("📊 Métricas de Centralidad")
-    
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.write("🔹 **Grado (Conexiones directas)**")
-            for node, value in top_degree:
-                st.write(f"{node}: {value:.4f}")
-
-        with col2:
-            st.write("🔹 **Intermediación (Puente en la red)**")
-            for node, value in top_betweenness:
-                st.write(f"{node}: {value:.4f}")
-
-        with col3:
-            st.write("🔹 **Eigenvector (Influencia en la red)**")
-            for node, value in top_eigenvector:
-                st.write(f"{node}: {value:.4f}")
-
-        st.write(f"📌 **El autor `{selected_id}` tiene:**")
-        st.write(f"   🔸 Grado: {centrality_degree.get(selected_id, 0):.4f}")
-        st.write(f"   🔸 Intermediación: {centrality_betweenness.get(selected_id, 0):.4f}")
-        st.write(f"   🔸 Eigenvector: {centrality_eigenvector.get(selected_id, 0):.4f}")
-
-    # --- Interfaz en Streamlit ---
-    st.title("🔬 Análisis de Redes de Colaboración en Publicaciones Científicas")
+    # --- INTERFAZ EN STREAMLIT ---
+    st.title("📊 Análisis de Redes de Colaboración en Publicaciones")
 
     uploaded_file = st.file_uploader("📂 Carga un archivo CSV con datos de autores", type=["csv"])
 
     if uploaded_file:
-        #df = load_data(uploaded_file)
-        id_to_name = create_id_to_name_mapping(df)
+        df = pd.read_csv(uploaded_file, encoding='utf-8')  # Cargar datos
+        id_to_name = create_id_to_name_mapping(df)  # Crear mapeo ID -> Nombre
 
         # --- INPUT PARA FILTRAR POR APELLIDO ---
-        #author_last_name = st.text_input("🔎 Ingresa el apellido del autor:")
+        author_last_name = st.text_input("🔎 Ingresa el apellido del autor:")
 
         if author_last_name:
-            available_authors = {id_: name for id_, name in id_to_name.items() if author_last_name.lower() in name.lower()}
+            available_authors = get_author_options(df, author_last_name)
 
             if available_authors:
-                selected_id = selected_id
-                #selected_id = st.selectbox(
-                #    "🎯 Selecciona el autor:",
-                #    options=list(available_authors.keys()),
-                #    format_func=lambda x: f"{available_authors[x]} (ID: {x})"
-                #)
+                # --- SELECCIÓN DEL AUTOR EN `st.selectbox` ---
+                selected_id = st.selectbox(
+                    "🎯 Selecciona el autor:",
+                    options=list(available_authors.keys()),
+                    format_func=lambda x: f"{available_authors[x]} (ID: {x})"  # Muestra nombre e ID en el menú
+                )
 
                 if selected_id:
-                    df_filtered = df[df["Author(s)_ID"].str.contains(selected_id, na=False, case=False)]
+                    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
                     years = sorted(df_filtered["Year"].dropna().astype(int).unique())
-                #if selected_id:
-                #    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
-                #    years = sorted(df_filtered["Year"].dropna().astype(int).unique())
-
 
                     # --- SELECCIÓN DEL AÑO ---
                     if years:
@@ -1478,22 +1398,16 @@ elif pagina == "Análisis por autor":
                         # --- BOTÓN PARA GENERAR RED ---
                         if st.button("🔗 Generar Red de Colaboración"):
                             if selected_year == "Todos los años":
-                                G_accumulated = nx.Graph()
                                 for year in years:
                                     st.subheader(f"📊 Red de colaboración en {year}")
-                                    G = generate_network_graph(df_filtered, selected_id, id_to_name, year)
-                                    G_accumulated.add_edges_from(G.edges())
-                                st.subheader("🔄 Evolución de la Red Acumulada")
-                                generate_network_graph(df_filtered, selected_id, id_to_name, accumulated=True)
+                                    generate_network_graph(df_filtered, selected_id, id_to_name, year)
                             else:
-                                G = generate_network_graph(df_filtered, selected_id, id_to_name, selected_year)
-
-                            compute_network_metrics(G, selected_id)
-
+                                generate_network_graph(df_filtered, selected_id, id_to_name, selected_year)
                     else:
                         st.warning("⚠️ No se encontraron publicaciones con años registrados.")
             else:
                 st.warning("⚠️ No se encontraron coincidencias para ese apellido.")
+
 
     
     
