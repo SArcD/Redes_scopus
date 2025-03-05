@@ -1413,12 +1413,23 @@ elif pagina == "Análisis por autor":
         )
 
         # Crear figura en Plotly
+        #fig = go.Figure(data=[edge_trace, node_trace])
+        #fig.update_layout(
+        #    title=f"Red de Colaboración en {selected_year}",
+        #    showlegend=False, hovermode="closest",
+        #    xaxis=dict(showgrid=False, zeroline=False), 
+        #    yaxis=dict(showgrid=False, zeroline=False)
+        #)
+
+            # Crear figura en Plotly con relación de aspecto equilibrada
         fig = go.Figure(data=[edge_trace, node_trace])
         fig.update_layout(
             title=f"Red de Colaboración en {selected_year}",
             showlegend=False, hovermode="closest",
-            xaxis=dict(showgrid=False, zeroline=False), 
-            yaxis=dict(showgrid=False, zeroline=False)
+            autosize=True,  # Ajuste automático del tamaño
+            margin=dict(l=40, r=40, t=50, b=50),  # Márgenes más equilibrados
+            xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),  
+            yaxis=dict(showgrid=False, zeroline=False, constrain="domain")
         )
 
         # Mostrar la gráfica en Streamlit
