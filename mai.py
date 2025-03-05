@@ -1617,7 +1617,8 @@ elif pagina == "Análisis por autor":
     #uploaded_file = st.file_uploader("📂 Carga un archivo CSV con datos de autores", type=["csv"])
 
     if uploaded_file:
-        df = pd.read_csv(uploaded_file, encoding='utf-8')
+        df = load_data(uploaded_file)
+        #df = pd.read_csv(uploaded_file, encoding='utf-8')
         id_to_name = create_id_to_name_mapping(df)
 
         #author_last_name = st.text_input("🔎 Ingresa el apellido del autor:")
