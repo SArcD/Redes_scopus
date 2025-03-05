@@ -1614,11 +1614,11 @@ elif pagina == "Análisis por autor":
     # --- INTERFAZ EN STREAMLIT ---
     st.title("📈 Análisis de la Evolución del Investigador en la Red de Colaboración")
 
-    #uploaded_file = st.file_uploader("📂 Carga un archivo CSV con datos de autores", type=["csv"])
+    uploaded_file = st.file_uploader("📂 Archivo CSV con datos de autores", type=["csv"])
 
     if uploaded_file:
-        df = load_data(uploaded_file)
-        #df = pd.read_csv(uploaded_file, encoding='utf-8')
+        #df = load_data(uploaded_file)
+        df = pd.read_csv(uploaded_file, encoding='utf-8')
         id_to_name = create_id_to_name_mapping(df)
 
         #author_last_name = st.text_input("🔎 Ingresa el apellido del autor:")
