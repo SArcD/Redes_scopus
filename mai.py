@@ -1633,7 +1633,7 @@ elif pagina == "Análisis por autor":
                         selected_year = st.selectbox("📅 Año de colaboración:", ["Todos los años"] + years)
 
                         # --- BOTÓN PARA GENERAR RED ---
-                        if st.button("🔗 Generar Red de Colaboración"):
+                        if st.button("🔗 Red de Colaboración"):
                             visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
                     else:
                         st.warning("⚠️ No se encontraron publicaciones con años registrados.")
