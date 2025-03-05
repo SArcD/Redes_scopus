@@ -1304,9 +1304,28 @@ elif pagina == "Análisis por autor":
 
     import streamlit as st
     import pandas as pd
+    import itertools
     import networkx as nx
     import plotly.graph_objects as go
     from collections import Counter
+
+    # --- FUNCIÓN PARA OBTENER OPCIONES DE AUTORES POR APELLIDO ---
+    def get_author_options(df, author_last_name):
+        """Devuelve un diccionario {ID: Nombre más común} para un apellido dado."""
+        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+            return {}
+
+        author_dict = {}
+        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+            authors = row["Authors"].split(";")
+            ids = str(row["Author(s) ID"]).split(";")
+            for author, author_id in zip(authors, ids):
+                author = author.strip()
+                author_id = author_id.strip()
+                if author_last_name.lower() in author.lower():
+                    author_dict.setdefault(author_id, []).append(author)
+
+        return {author_id: Counter(names).most_common(1)[0][0] for author_id, names in author_dict.items()}
 
     # --- FUNCIÓN PARA CREAR MAPEO ID -> NOMBRE ---
     def create_id_to_name_mapping(df):
@@ -1325,38 +1344,30 @@ elif pagina == "Análisis por autor":
 
         return {author_id: Counter(names).most_common(1)[0][0] for author_id, names in id_to_name.items()}
 
-    # --- FUNCIÓN PARA OBTENER AUTORES POR APELLIDO ---
-    def get_author_options(df, author_last_name):
-        """Devuelve un diccionario {ID: Nombre más común} para un apellido dado."""
-        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
-            return {}
-
-        author_dict = {}
-        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
-            authors = row["Authors"].split(";")
-            ids = str(row["Author(s) ID"]).split(";")
-            for author, author_id in zip(authors, ids):
-                author = author.strip()
-                author_id = author_id.strip()
-                if author_last_name.lower() in author.lower():
-                    author_dict[author_id] = author  # Solo guarda el nombre más frecuente
-
-        return author_dict
-
     # --- FUNCIÓN PARA GENERAR RED DE COLABORACIÓN ---
-    def generate_network_graph(df, selected_id, id_to_name, selected_year):
-        """Genera una red de colaboración en Plotly para el autor y año seleccionados."""
+    def visualize_collaboration_network(df, selected_author_id, id_to_name, selected_year):
+        """Genera una red de colaboración en Plotly."""
     
         # Filtrar el DataFrame por el año seleccionado
         df_filtered = df[df["Year"] == selected_year] if selected_year != "Todos los años" else df
+
+        if df_filtered.empty:
+            st.warning(f"No se encontraron publicaciones para el autor con ID: {selected_author_id}")
+            return
 
         # Crear la red de colaboración
         G = nx.Graph()
         for _, row in df_filtered.iterrows():
             coauthors = row["Author(s) ID"].split(";")
+            coauthors = [author.strip() for author in coauthors if author]
+
             for i in range(len(coauthors)):
                 for j in range(i + 1, len(coauthors)):
                     G.add_edge(coauthors[i], coauthors[j])
+
+        if len(G.nodes) == 0:
+            st.warning("⚠️ No hay colaboraciones registradas en este período.")
+            return
 
         # Layout de los nodos
         pos = nx.spring_layout(G, seed=42)
@@ -1383,7 +1394,7 @@ elif pagina == "Análisis por autor":
             x, y = pos[node]
             node_x.append(x)
             node_y.append(y)
-            node_color.append("red" if node == selected_id else "blue")  # Autor principal en rojo
+            node_color.append("red" if node == selected_author_id else "blue")  # Autor principal en rojo
             most_common_name = id_to_name.get(node, "Nombre no disponible")
             node_texts.append(f"📌 **ID:** {node}<br>👤 **Nombre:** {most_common_name}")
 
@@ -1438,12 +1449,11 @@ elif pagina == "Análisis por autor":
 
                         # --- BOTÓN PARA GENERAR RED ---
                         if st.button("🔗 Generar Red de Colaboración"):
-                            generate_network_graph(df_filtered, selected_id, id_to_name, selected_year)
+                            visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
                     else:
                         st.warning("⚠️ No se encontraron publicaciones con años registrados.")
             else:
                 st.warning("⚠️ No se encontraron coincidencias para ese apellido.")
-
 
     
     
