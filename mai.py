@@ -1626,70 +1626,6 @@ elif pagina == "Análisis por autor":
     import os
     import io
 
-    import streamlit as st
-    import pandas as pd
-
-    def interpret_network_metrics(metrics_df, selected_id):
-        """
-        Genera interpretaciones automáticas de los indicadores de red.
-        """
-        st.subheader("📊 Interpretación de Indicadores de Red")
-
-        if metrics_df.empty:
-            st.warning("No hay datos de métricas para interpretar.")
-            return
-    
-        # Obtener valores de las métricas del investigador seleccionado
-        metrics_df = metrics_df.sort_index()  # Asegurar orden temporal
-        last_year = metrics_df.index.max()
-        current_metrics = metrics_df.loc[last_year]  # Últimos valores
-        previous_metrics = metrics_df.iloc[-2] if len(metrics_df) > 1 else None
-
-        # Valores globales
-        avg_degree = metrics_df["Grado"].mean()
-        max_degree = metrics_df["Grado"].max()
-    
-        avg_betweenness = metrics_df["Intermediación"].mean()
-        max_betweenness = metrics_df["Intermediación"].max()
-    
-        avg_eigenvector = metrics_df["Eigenvector"].mean()
-        max_eigenvector = metrics_df["Eigenvector"].max()
-
-        # Análisis de Grado (Número de Conexiones Directas)
-        if current_metrics["Grado"] > avg_degree:
-            st.write(f"🔹 **Colaboración Activa:** El autor tiene más conexiones ({current_metrics['Grado']:.2f}) que el promedio ({avg_degree:.2f}).")
-        else:
-            st.write(f"🔸 **Colaboración Limitada:** El autor tiene menos conexiones ({current_metrics['Grado']:.2f}) que el promedio ({avg_degree:.2f}).")
-
-        # Análisis de Intermediación (Betweenness)
-        if current_metrics["Intermediación"] > avg_betweenness:
-            st.write("🔹 **Punto de conexión clave:** El autor actúa como un 'puente' entre investigadores.")
-        else:
-            st.write("🔸 **Menor influencia estructural:** El autor no es un punto clave en la red.")
-
-        # Análisis de Influencia (Eigenvector Centrality)
-        if current_metrics["Eigenvector"] > avg_eigenvector:
-            st.write("🔹 **Alto impacto:** El autor colabora con investigadores influyentes.")
-        else:
-            st.write("🔸 **Influencia limitada:** El autor colabora con investigadores menos conectados.")
-
-        # Evaluación de la Evolución en el Tiempo
-        if previous_metrics is not None:
-            st.subheader("📈 Evolución en el Tiempo")
-
-            for metric in ["Grado", "Intermediación", "Eigenvector"]:
-                change = current_metrics[metric] - previous_metrics[metric]
-                if change > 0:
-                    st.write(f"⬆️ **Aumento en {metric}**: El autor ha mejorado en {metric}.")
-                elif change < 0:
-                    st.write(f"⬇️ **Disminución en {metric}**: El autor ha perdido relevancia en {metric}.")
-                else:
-                    st.write(f"⚖️ **Estabilidad en {metric}**: No hubo cambios en {metric}.")
-
-        st.success("✅ Análisis completado.")
-
-    # Llamar la función después de calcular métricas en `visualize_evolution()`
-    interpret_network_metrics(metrics_df, selected_id)
 
     
     def visualize_evolution(df, selected_id, id_to_name):
@@ -1775,6 +1711,71 @@ elif pagina == "Análisis por autor":
     if selected_id:  
         if st.button("📊 Analizar Evolución"):
             visualize_evolution(df_filtered, selected_id, id_to_name)
+    
+    import streamlit as st
+    import pandas as pd
+
+    def interpret_network_metrics(metrics_df, selected_id):
+        """
+        Genera interpretaciones automáticas de los indicadores de red.
+        """
+        st.subheader("📊 Interpretación de Indicadores de Red")
+
+        if metrics_df.empty:
+            st.warning("No hay datos de métricas para interpretar.")
+            return
+    
+        # Obtener valores de las métricas del investigador seleccionado
+        metrics_df = metrics_df.sort_index()  # Asegurar orden temporal
+        last_year = metrics_df.index.max()
+        current_metrics = metrics_df.loc[last_year]  # Últimos valores
+        previous_metrics = metrics_df.iloc[-2] if len(metrics_df) > 1 else None
+
+        # Valores globales
+        avg_degree = metrics_df["Grado"].mean()
+        max_degree = metrics_df["Grado"].max()
+    
+        avg_betweenness = metrics_df["Intermediación"].mean()
+        max_betweenness = metrics_df["Intermediación"].max()
+    
+        avg_eigenvector = metrics_df["Eigenvector"].mean()
+        max_eigenvector = metrics_df["Eigenvector"].max()
+
+        # Análisis de Grado (Número de Conexiones Directas)
+        if current_metrics["Grado"] > avg_degree:
+            st.write(f"🔹 **Colaboración Activa:** El autor tiene más conexiones ({current_metrics['Grado']:.2f}) que el promedio ({avg_degree:.2f}).")
+        else:
+            st.write(f"🔸 **Colaboración Limitada:** El autor tiene menos conexiones ({current_metrics['Grado']:.2f}) que el promedio ({avg_degree:.2f}).")
+
+        # Análisis de Intermediación (Betweenness)
+        if current_metrics["Intermediación"] > avg_betweenness:
+            st.write("🔹 **Punto de conexión clave:** El autor actúa como un 'puente' entre investigadores.")
+        else:
+            st.write("🔸 **Menor influencia estructural:** El autor no es un punto clave en la red.")
+
+        # Análisis de Influencia (Eigenvector Centrality)
+        if current_metrics["Eigenvector"] > avg_eigenvector:
+            st.write("🔹 **Alto impacto:** El autor colabora con investigadores influyentes.")
+        else:
+            st.write("🔸 **Influencia limitada:** El autor colabora con investigadores menos conectados.")
+
+        # Evaluación de la Evolución en el Tiempo
+        if previous_metrics is not None:
+            st.subheader("📈 Evolución en el Tiempo")
+
+            for metric in ["Grado", "Intermediación", "Eigenvector"]:
+                change = current_metrics[metric] - previous_metrics[metric]
+                if change > 0:
+                    st.write(f"⬆️ **Aumento en {metric}**: El autor ha mejorado en {metric}.")
+                elif change < 0:
+                    st.write(f"⬇️ **Disminución en {metric}**: El autor ha perdido relevancia en {metric}.")
+                else:
+                    st.write(f"⚖️ **Estabilidad en {metric}**: No hubo cambios en {metric}.")
+
+        st.success("✅ Análisis completado.")
+
+    # Llamar la función después de calcular métricas en `visualize_evolution()`
+    interpret_network_metrics(metrics_df, selected_id)
     
     
 elif pagina == "Equipo de trabajo":
