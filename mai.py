@@ -1786,7 +1786,8 @@ elif pagina == "Análisis por autor":
     import networkx as nx
     import plotly.graph_objects as go
     import imageio
-    import io
+    import tempfile
+    import os
 
     def visualize_evolution_video(df, selected_id, id_to_name):
         """Genera un video MP4 de la evolución de la red de colaboración en Streamlit Cloud."""
@@ -1825,9 +1826,9 @@ elif pagina == "Análisis por autor":
             fig_frames.append(go.Frame(data=fig.data, name=str(year)))
 
             # Guardar la imagen del frame en memoria
-            img_bytes = io.BytesIO()
-            fig.write_image(img_bytes, format="png", width=800, height=600)
-            image_list.append(imageio.imread(img_bytes.getvalue()))
+            temp_img_path = tempfile.NamedTemporaryFile(delete=False, suffix=".png").name
+            fig.write_image(temp_img_path, format="png", width=800, height=600)
+            image_list.append(imageio.imread(temp_img_path))
 
         # Crear una tabla con la evolución de las métricas
         st.subheader("📈 Evolución de las Métricas del Investigador")
@@ -1836,13 +1837,15 @@ elif pagina == "Análisis por autor":
 
         interpret_network_metrics(metrics_df, selected_id)
 
-        # **Generar un video MP4**
+        # **Generar un video MP4 en un archivo temporal**
         st.subheader("🎥 Animación en Video de la Evolución de la Red")
-        video_bytes = io.BytesIO()
-        imageio.mimsave(video_bytes, image_list, format="mp4", fps=1)  # ⬅️ Exportar video con 1 FPS
-        video_bytes.seek(0)
+        temp_video_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
+        imageio.mimsave(temp_video_path, image_list, format="mp4", fps=1)  # ⬅️ Exportar video con 1 FPS
 
         # **Botón para descargar el video**
+        with open(temp_video_path, "rb") as file:
+            video_bytes = file.read()
+
         st.download_button(
             label="📥 Descargar Animación como Video",
             data=video_bytes,
@@ -1850,17 +1853,10 @@ elif pagina == "Análisis por autor":
             mime="video/mp4"
         )
 
+        # **Eliminar el archivo temporal después de la descarga**
+        os.remove(temp_video_path)
 
-    # --- 🔥 Ejecutar el análisis después del código existente ---
-    if selected_id:  
-        if st.button("📊 Analizar Evolución"):
-            visualize_evolution(df_filtered, selected_id, id_to_name)
-    
 
-    # Llamar la función después de calcular métricas en `visualize_evolution()`
-    #interpret_network_metrics(metrics_df, selected_id)
-    
-    
 elif pagina == "Equipo de trabajo":
     st.title("Configuración")
     st.write("Aquí puedes ajustar los parámetros de la aplicación.")
