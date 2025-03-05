@@ -1626,8 +1626,8 @@ elif pagina == "Análisis por autor":
             mime="text/html"
         )
 
-# Guardar la animación en MP4
-pio.write_html(fig, "red_colaboracion.html")
+    # Guardar la animación en MP4
+    pio.write_html(fig, "red_colaboracion.html")
 
 
     
