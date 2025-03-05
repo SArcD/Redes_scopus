@@ -1693,7 +1693,7 @@ elif pagina == "Análisis por autor":
 
         # **Generar GIF en memoria**
         gif_bytes = io.BytesIO()
-        imageio.mimsave(gif_bytes, image_list, format="GIF", duration=1.5, loop=0)
+        imageio.mimsave(gif_bytes, image_list, format="GIF", duration=2.5, loop=0)
 
         # **Botón para descargar el GIF**
         st.download_button(
