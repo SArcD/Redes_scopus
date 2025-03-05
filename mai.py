@@ -1613,9 +1613,9 @@ elif pagina == "Análisis por autor":
         st.plotly_chart(fig)
 
     # --- 🔥 Ejecutar el análisis después del código existente ---
-    if selected_id:  
-        if st.button("📊 Analizar Evolución"):
-            visualize_evolution(df_filtered, selected_id, id_to_name)
+    #if selected_id:  
+    #    if st.button("📊 Analizar Evolución"):
+    #        visualize_evolution(df_filtered, selected_id, id_to_name)
 
     import streamlit as st
     import pandas as pd
@@ -1703,7 +1703,10 @@ elif pagina == "Análisis por autor":
             mime="image/gif"
         )
 
-
+    # --- 🔥 Ejecutar el análisis después del código existente ---
+    if selected_id:  
+        if st.button("📊 Analizar Evolución"):
+            visualize_evolution(df_filtered, selected_id, id_to_name)
     
     
 elif pagina == "Equipo de trabajo":
