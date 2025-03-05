@@ -1514,10 +1514,11 @@ elif pagina == "Análisis por autor":
         for _, row in df_filtered.iterrows():
             coauthors = row["Author(s) ID"].split(";")
             coauthors = [a.strip() for a in coauthors if a]
-            for i, j in nx.utils.pairwise(coauthors):
-                G.add_edge(i, j)
+            for i in range(len(coauthors)):
+                for j in range(i + 1, len(coauthors)):
+                    G.add_edge(coauthors[i], coauthors[j])
 
-        pos = nx.spring_layout(G, seed=42)
+        pos = nx.spring_layout(G, seed=42, k=0.5)  # Controla la distribución
 
         edge_trace = go.Scatter(
             x=[], y=[], mode="lines", line=dict(width=1.5, color="black"),
@@ -1602,8 +1603,8 @@ elif pagina == "Análisis por autor":
                     "showactive": True,
                     "type": "buttons",
                     "x": 0.1,
-                    "y": -0.2
-                    }],
+                    "y": -0.2"
+                }],
                 xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),
                 yaxis=dict(showgrid=False, zeroline=False, constrain="domain"),
             ),
