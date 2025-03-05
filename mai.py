@@ -1693,7 +1693,9 @@ elif pagina == "Análisis por autor":
 
         # **Generar GIF en memoria**
         gif_bytes = io.BytesIO()
-        imageio.mimsave(gif_bytes, image_list, format="GIF", duration=2.5, loop=0)
+        #imageio.mimsave(gif_bytes, image_list, format="GIF", duration=2.5, loop=0)
+        imageio.mimsave("red_colaboracion.gif", frames, fps=0.5)  # ⬅️ Reduce FPS para ralentizar
+
 
         # **Botón para descargar el GIF**
         st.download_button(
