@@ -1482,6 +1482,26 @@ elif pagina == "Análisis por autor":
     import plotly.graph_objects as go
     import streamlit as st
 
+    # --- FUNCIÓN PARA OBTENER AUTORES POR APELLIDO ---
+    def get_author_options(df, author_last_name):
+        """Devuelve un diccionario {ID: Nombre más común} para un apellido dado."""
+        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+            return {}
+
+        author_dict = {}
+        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+            authors = row["Authors"].split(";")
+            ids = str(row["Author(s) ID"]).split(";")
+            for author, author_id in zip(authors, ids):
+                author = author.strip()
+                author_id = author_id.strip()
+                if author_last_name.lower() in author.lower():
+                    author_dict.setdefault(author_id, []).append(author)
+
+        return {author_id: Counter(names).most_common(1)[0][0] for author_id, names in author_dict.items()}
+
+
+    
     def compute_network_metrics(G, selected_id):
         """Calcula métricas de centralidad para la red de colaboración."""
         if selected_id not in G:
