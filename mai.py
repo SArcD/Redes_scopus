@@ -1617,17 +1617,21 @@ elif pagina == "Análisis por autor":
         if st.button("📊 Analizar Evolución"):
             visualize_evolution(df_filtered, selected_id, id_to_name)
 
-    import plotly.io as pio    
-    with open("red_colaboracion.html", "rb") as file:
-        btn = st.download_button(
-            label="📥 Descargar Animación",
-            data=file,
-            file_name="red_colaboracion.html",
-            mime="text/html"
-        )
+    import plotly.io as pio
+    import streamlit as st
 
-    # Guardar la animación en MP4
-    pio.write_html(fig, "red_colaboracion.html")
+    # Guardar la animación en un directorio temporal
+    file_path = "/tmp/red_colaboracion.html"
+    pio.write_html(fig, file_path)
+
+    # Botón de descarga en Streamlit
+    with open(file_path, "rb") as file:
+        btn = st.download_button(
+        label="📥 Descargar Animación",
+        data=file,
+        file_name="red_colaboracion.html",
+        mime="text/html"
+        )
 
 
     
