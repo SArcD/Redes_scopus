@@ -1630,7 +1630,7 @@ elif pagina == "Análisis por autor":
 
                     # --- SELECCIÓN DEL AÑO ---
                     if years:
-                        selected_year = st.selectbox("📅 Selecciona el año de colaboración:", ["Todos los años"] + years)
+                        selected_year = st.selectbox("📅 Año de colaboración:", ["Todos los años"] + years)
 
                         # --- BOTÓN PARA GENERAR RED ---
                         if st.button("🔗 Generar Red de Colaboración"):
