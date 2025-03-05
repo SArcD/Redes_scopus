@@ -1856,6 +1856,11 @@ elif pagina == "Análisis por autor":
         # **Eliminar el archivo temporal después de la descarga**
         os.remove(temp_video_path)
 
+# --- 🔥 Ejecutar el análisis después del código existente ---
+if selected_id:  
+    if st.button("📊 Analizar Evolución"):
+        visualize_evolution_video(df_filtered, selected_id, id_to_name)
+
 
 elif pagina == "Equipo de trabajo":
     st.title("Configuración")
