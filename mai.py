@@ -1781,9 +1781,16 @@ elif pagina == "Análisis por autor":
     import imageio
     import io
 
-    def visualize_evolution(df, selected_id, id_to_name):
-        """Genera la animación de la evolución de la red de colaboración y permite descargarla como GIF en Streamlit Cloud."""
-    
+    import streamlit as st
+    import pandas as pd
+    import networkx as nx
+    import plotly.graph_objects as go
+    import imageio
+    import io
+
+    def visualize_evolution_video(df, selected_id, id_to_name):
+        """Genera un video MP4 de la evolución de la red de colaboración en Streamlit Cloud."""
+
         st.subheader("📊 Evolución del Investigador en la Red")
         years = sorted(df["Year"].dropna().astype(int).unique())
         metrics_evolution = []
@@ -1804,8 +1811,9 @@ elif pagina == "Análisis por autor":
         for year in years:
             st.write(f"📅 **Red de colaboración en {year}**")
 
-            # Generar la red de colaboración para ese año
+            # Generar la red de colaboración para ese año con el año en el título
             fig, G = generate_network_graph(df, selected_id, id_to_name, year, fixed_pos)
+            fig.update_layout(title=f"Red de Colaboración - Año {year}")  # ⬅️ Agrega el año en el título
             st.plotly_chart(fig)
 
             # Calcular métricas del investigador en la red
@@ -1828,54 +1836,19 @@ elif pagina == "Análisis por autor":
 
         interpret_network_metrics(metrics_df, selected_id)
 
-        # Crear una visualización animada de la evolución de la red
-        st.subheader("🎥 Animación de la Evolución de la Red de Colaboración")
-        fig = go.Figure(
-            data=fig_frames[0].data,
-            layout=go.Layout(
-                title="Evolución de la Red de Colaboración",
-                showlegend=False,
-                hovermode="closest",
-                width=800,
-                height=600,
-                updatemenus=[{
-                    "buttons": [
-                        {"label": "Play", "method": "animate", "args": [None, {"frame": {"duration": 4000, "redraw": True}, "fromcurrent": True}]},  # ⬅️ Duración más lenta
-                        {"label": "Pause", "method": "animate", "args": [[None], {"mode": "immediate", "frame": {"duration": 0}}]}
-                    ],
-                    "direction": "left",
-                    "pad": {"r": 10, "t": 87},
-                    "showactive": True,
-                    "type": "buttons",
-                    "x": 0.1,
-                    "y": -0.2
-                }],
-                xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),
-                yaxis=dict(showgrid=False, zeroline=False, constrain="domain"),
-            ),
-            frames=fig_frames
-        )
-        st.plotly_chart(fig)
+        # **Generar un video MP4**
+        st.subheader("🎥 Animación en Video de la Evolución de la Red")
+        video_bytes = io.BytesIO()
+        imageio.mimsave(video_bytes, image_list, format="mp4", fps=1)  # ⬅️ Exportar video con 1 FPS
+        video_bytes.seek(0)
 
-        # **Generar GIF con duración más lenta (1/4 de velocidad)**
-        gif_bytes = io.BytesIO()
-        imageio.mimsave(gif_bytes, image_list, format="GIF", duration=4.0)  # ⬅️ FPS reducido 4 veces
-        gif_bytes.seek(0)
-
-        # **Botón para descargar el GIF**
+        # **Botón para descargar el video**
         st.download_button(
-            label="📥 Descargar Animación como GIF",
-            data=gif_bytes,
-            file_name="Evolucion_Red_Colaboracion.gif",
-            mime="image/gif"
+            label="📥 Descargar Animación como Video",
+            data=video_bytes,
+            file_name="Evolucion_Red_Colaboracion.mp4",
+            mime="video/mp4"
         )
-
-
-
-
-
-
-
 
 
     # --- 🔥 Ejecutar el análisis después del código existente ---
