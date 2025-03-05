@@ -1857,6 +1857,7 @@ elif pagina == "Análisis por autor":
         os.remove(temp_video_path)
 
 # --- 🔥 Ejecutar el análisis después del código existente ---
+selected_id = st.selectbox("Seleccione el ID del autor:", list(author_options.keys()))
 if selected_id:  
     if st.button("📊 Analizar Evolución"):
         visualize_evolution_video(df_filtered, selected_id, id_to_name)
