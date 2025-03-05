@@ -1604,14 +1604,14 @@ elif pagina == "Análisis por autor":
     # --- INTERFAZ EN STREAMLIT ---
     st.title("📊 Análisis de Redes de Colaboración en Publicaciones")
 
-    uploaded_file = st.file_uploader("📂 Carga un archivo CSV con datos de autores", type=["csv"])
+    uploaded_file = st.file_uploader("📂 Cargue un archivo CSV con datos de autores", type=["csv"])
 
     if uploaded_file:
         df = pd.read_csv(uploaded_file, encoding='utf-8')  # Cargar datos
         id_to_name = create_id_to_name_mapping(df)  # Crear mapeo ID -> Nombre
 
         # --- INPUT PARA FILTRAR POR APELLIDO ---
-        author_last_name = st.text_input("🔎 Ingresa el apellido del autor:")
+        author_last_name = st.text_input("🔎 Ingresar el apellido del autor:")
 
         if author_last_name:
             available_authors = get_author_options(df, author_last_name)
@@ -1619,7 +1619,7 @@ elif pagina == "Análisis por autor":
             if available_authors:
                 # --- SELECCIÓN DEL AUTOR EN `st.selectbox` ---
                 selected_id = st.selectbox(
-                    "🎯 Selecciona el autor:",
+                    "🎯 Seleccion del autor:",
                     options=list(available_authors.keys()),
                     format_func=lambda x: f"{available_authors[x]} (ID: {x})"  # Muestra nombre e ID en el menú
                 )
