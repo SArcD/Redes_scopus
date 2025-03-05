@@ -1277,34 +1277,6 @@ elif pagina == "Análisis por autor":
                     st.warning(f"No se encontraron títulos para el autor ID: {selected_author_id}")
 
 
-########################################################################################################################################
-
-#    import streamlit as st
-#    import pandas as pd
-#    import itertools
-#    import networkx as nx
-#    import plotly.graph_objects as go
-#    from collections import Counter
-
-#    # --- Obtener opciones de autores basadas en el apellido ---
-#    def get_author_options(df, author_last_name):
-#        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
-#            st.error("No se encontraron las columnas necesarias en el archivo.")
-#            return {}
-#
-#        author_dict = {}
-#        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
-#            authors = row["Authors"].split(";")
-#            ids = str(row["Author(s) ID"]).split(";")
-#            for author, author_id in zip(authors, ids):
-#                author = author.strip()
-#                author_id = author_id.strip()
-#                if author_last_name.lower() in author.lower():
-#                    author_dict.setdefault(author_id, []).append(author)
-#
-#        return author_dict
-
-
 #######################################################################################
 
     import streamlit as st
@@ -1470,6 +1442,70 @@ elif pagina == "Análisis por autor":
             else:
                 st.warning("⚠️ No se encontraron coincidencias para ese apellido.")
 
+
+####################################################3
+
+    import imageio
+    import tempfile
+    import os
+    import io
+
+
+    def generate_collaboration_gif(df, selected_id, id_to_name):
+        """Genera un GIF mostrando la evolución de la red de colaboración año con año."""
+        st.subheader("🎥 Evolución de la Red de Colaboración (GIF)")
+        years = sorted(df["Year"].dropna().astype(int).unique())
+        image_list = []  # Lista para almacenar imágenes en memoria
+
+        # Crear una red global para fijar las posiciones de los nodos
+        G_global = nx.Graph()
+        for _, row in df.iterrows():
+            coauthors = row["Author(s) ID"].split(";")
+            for i in range(len(coauthors)):
+                for j in range(i + 1, len(coauthors)):
+                    G_global.add_edge(coauthors[i].strip(), coauthors[j].strip())
+    
+        fixed_pos = nx.spring_layout(G_global, seed=42)
+
+        # Generar los grafos año por año y guardarlos como imágenes
+        for year in years:
+            fig, _ = visualize_collaboration_network(df, selected_id, id_to_name, year, fixed_pos)
+        
+            # Guardar la imagen en memoria
+            temp_img_path = tempfile.NamedTemporaryFile(delete=False, suffix=".png").name
+            fig.write_image(temp_img_path, format="png", width=800, height=600)
+            image_list.append(imageio.imread(temp_img_path))
+            os.remove(temp_img_path)
+
+        # Crear un archivo temporal para guardar el GIF
+        temp_gif_path = tempfile.NamedTemporaryFile(delete=False, suffix=".gif").name
+        imageio.mimsave(temp_gif_path, image_list, format="GIF", duration=1.5, loop=0)  # FPS ajustado
+    
+        # Mostrar el GIF en Streamlit
+        st.image(temp_gif_path, caption="Evolución de la Red de Colaboración", use_column_width=True)
+
+        # Permitir la descarga del GIF
+        with open(temp_gif_path, "rb") as file:
+            gif_bytes = file.read()
+        st.download_button(
+            label="📥 Descargar GIF",
+            data=gif_bytes,
+            file_name="Evolucion_Red_Colaboracion.gif",
+            mime="image/gif"
+        )
+    
+        os.remove(temp_gif_path)  # Eliminar el archivo después de la descarga
+
+
+    # 🔥 Integración con la interfaz de Streamlit
+    if selected_id:
+        if st.button("🎥 Generar GIF de Evolución"):
+            generate_collaboration_gif(df_filtered, selected_id, id_to_name)
+
+
+
+
+###################################################
 
 
 
