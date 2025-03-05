@@ -1277,43 +1277,40 @@ elif pagina == "Análisis por autor":
 
 ########################################################################################################################################
 
+#    import streamlit as st
+#    import pandas as pd
+#    import itertools
+#    import networkx as nx
+#    import plotly.graph_objects as go
+#    from collections import Counter
+
+#    # --- Obtener opciones de autores basadas en el apellido ---
+#    def get_author_options(df, author_last_name):
+#        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+#            st.error("No se encontraron las columnas necesarias en el archivo.")
+#            return {}
+#
+#        author_dict = {}
+#        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+#            authors = row["Authors"].split(";")
+#            ids = str(row["Author(s) ID"]).split(";")
+#            for author, author_id in zip(authors, ids):
+#                author = author.strip()
+#                author_id = author_id.strip()
+#                if author_last_name.lower() in author.lower():
+#                    author_dict.setdefault(author_id, []).append(author)
+#
+#        return author_dict
+
     import streamlit as st
     import pandas as pd
-    import itertools
     import networkx as nx
     import plotly.graph_objects as go
     from collections import Counter
 
-    # --- Obtener opciones de autores basadas en el apellido ---
-    def get_author_options(df, author_last_name):
-        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
-            st.error("No se encontraron las columnas necesarias en el archivo.")
-            return {}
-
-        author_dict = {}
-        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
-            authors = row["Authors"].split(";")
-            ids = str(row["Author(s) ID"]).split(";")
-            for author, author_id in zip(authors, ids):
-                author = author.strip()
-                author_id = author_id.strip()
-                if author_last_name.lower() in author.lower():
-                    author_dict.setdefault(author_id, []).append(author)
-
-        return author_dict
-
-    import streamlit as st
-    import pandas as pd
-    import re
-    import networkx as nx
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    import numpy as np
-    from collections import Counter
-
     # --- FUNCIÓN PARA CREAR MAPEO ID -> NOMBRE ---
     def create_id_to_name_mapping(df):
-        """ Crea un diccionario {ID: Nombre más común del autor}. """
+        """Crea un diccionario {ID: Nombre más común del autor}."""
         if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
             return {}
 
@@ -1330,7 +1327,7 @@ elif pagina == "Análisis por autor":
 
     # --- FUNCIÓN PARA OBTENER AUTORES POR APELLIDO ---
     def get_author_options(df, author_last_name):
-        """ Devuelve un diccionario {ID: Nombre más común} para un apellido dado. """
+        """Devuelve un diccionario {ID: Nombre más común} para un apellido dado."""
         if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
             return {}
 
@@ -1348,9 +1345,12 @@ elif pagina == "Análisis por autor":
 
     # --- FUNCIÓN PARA GENERAR RED DE COLABORACIÓN ---
     def generate_network_graph(df, selected_id, id_to_name, selected_year):
-        """ Genera y muestra la red de colaboración del autor en un año específico. """
+        """Genera una red de colaboración en Plotly para el autor y año seleccionados."""
+    
+        # Filtrar el DataFrame por el año seleccionado
         df_filtered = df[df["Year"] == selected_year] if selected_year != "Todos los años" else df
 
+        # Crear la red de colaboración
         G = nx.Graph()
         for _, row in df_filtered.iterrows():
             coauthors = row["Author(s) ID"].split(";")
@@ -1358,11 +1358,52 @@ elif pagina == "Análisis por autor":
                 for j in range(i + 1, len(coauthors)):
                     G.add_edge(coauthors[i], coauthors[j])
 
-        plt.figure(figsize=(8, 6))
-        pos = nx.spring_layout(G, k=0.5)
-        nx.draw(G, pos, with_labels=True, node_color="skyblue", edge_color="gray", node_size=500, font_size=10)
-        plt.title(f"Red de colaboración de {id_to_name.get(selected_id, 'Autor Desconocido')} ({selected_year})")
-        st.pyplot(plt)
+        # Layout de los nodos
+        pos = nx.spring_layout(G, seed=42)
+
+        # Crear trazas de bordes (edges)
+        edge_trace = go.Scatter(
+            x=[], y=[], line=dict(width=1, color="gray"),
+            hoverinfo="none", mode="lines"
+        )
+
+        for edge in G.edges():
+            x0, y0 = pos[edge[0]]
+            x1, y1 = pos[edge[1]]
+            edge_trace.x += (x0, x1, None)
+            edge_trace.y += (y0, y1, None)
+
+        # Crear trazas de nodos (nodes)
+        node_x = []
+        node_y = []
+        node_color = []
+        node_texts = []
+
+        for node in G.nodes():
+            x, y = pos[node]
+            node_x.append(x)
+            node_y.append(y)
+            node_color.append("red" if node == selected_id else "blue")  # Autor principal en rojo
+            most_common_name = id_to_name.get(node, "Nombre no disponible")
+            node_texts.append(f"📌 **ID:** {node}<br>👤 **Nombre:** {most_common_name}")
+
+        node_trace = go.Scatter(
+            x=node_x, y=node_y, mode="markers+text",
+            marker=dict(size=15, color=node_color, opacity=0.8),
+            text=node_texts, hoverinfo="text"
+        )
+
+        # Crear figura en Plotly
+        fig = go.Figure(data=[edge_trace, node_trace])
+        fig.update_layout(
+            title=f"🔗 Red de Colaboración en {selected_year if selected_year != 'Todos los años' else 'Todos los Años'}",
+            showlegend=False, hovermode="closest",
+            xaxis=dict(showgrid=False, zeroline=False), 
+            yaxis=dict(showgrid=False, zeroline=False)
+        )
+
+        # Mostrar la gráfica en Streamlit
+        st.plotly_chart(fig)
 
     # --- INTERFAZ EN STREAMLIT ---
     st.title("📊 Análisis de Redes de Colaboración en Publicaciones")
@@ -1397,12 +1438,7 @@ elif pagina == "Análisis por autor":
 
                         # --- BOTÓN PARA GENERAR RED ---
                         if st.button("🔗 Generar Red de Colaboración"):
-                            if selected_year == "Todos los años":
-                                for year in years:
-                                    st.subheader(f"📊 Red de colaboración en {year}")
-                                    generate_network_graph(df_filtered, selected_id, id_to_name, year)
-                            else:
-                                generate_network_graph(df_filtered, selected_id, id_to_name, selected_year)
+                            generate_network_graph(df_filtered, selected_id, id_to_name, selected_year)
                     else:
                         st.warning("⚠️ No se encontraron publicaciones con años registrados.")
             else:
