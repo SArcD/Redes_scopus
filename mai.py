@@ -1302,12 +1302,12 @@ elif pagina == "Análisis por autor":
 #
 #        return author_dict
 
-import streamlit as st
-import pandas as pd
-import itertools
-import networkx as nx
-import plotly.graph_objects as go
-from collections import Counter
+    import streamlit as st
+    import pandas as pd
+    import itertools
+    import networkx as nx
+    import plotly.graph_objects as go
+    from collections import Counter
 
     # --- FUNCIÓN PARA OBTENER AUTORES POR APELLIDO ---
     def get_author_options(df, author_last_name):
