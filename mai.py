@@ -1469,8 +1469,9 @@ elif pagina == "Análisis por autor":
 
         # Generar los grafos año por año y guardarlos como imágenes
         for year in years:
-            fig, _ = visualize_collaboration_network(df, selected_id, id_to_name, year, fixed_pos)
-        
+            #fig, _ = visualize_collaboration_network(df, selected_id, id_to_name, year, fixed_pos)
+            fig, _ = visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
+
             # Guardar la imagen en memoria
             temp_img_path = tempfile.NamedTemporaryFile(delete=False, suffix=".png").name
             fig.write_image(temp_img_path, format="png", width=800, height=600)
