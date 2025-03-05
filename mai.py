@@ -1302,14 +1302,14 @@ elif pagina == "Análisis por autor":
 #
 #        return author_dict
 
-    import streamlit as st
-    import pandas as pd
-    import itertools
-    import networkx as nx
-    import plotly.graph_objects as go
-    from collections import Counter
+import streamlit as st
+import pandas as pd
+import itertools
+import networkx as nx
+import plotly.graph_objects as go
+from collections import Counter
 
-    # --- FUNCIÓN PARA OBTENER OPCIONES DE AUTORES POR APELLIDO ---
+    # --- FUNCIÓN PARA OBTENER AUTORES POR APELLIDO ---
     def get_author_options(df, author_last_name):
         """Devuelve un diccionario {ID: Nombre más común} para un apellido dado."""
         if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
@@ -1347,9 +1347,17 @@ elif pagina == "Análisis por autor":
     # --- FUNCIÓN PARA GENERAR RED DE COLABORACIÓN ---
     def visualize_collaboration_network(df, selected_author_id, id_to_name, selected_year):
         """Genera una red de colaboración en Plotly."""
-    
+
+        # Si se elige "Todos los años", generar redes para cada año individualmente
+        if selected_year == "Todos los años":
+            years = sorted(df["Year"].dropna().astype(int).unique())
+            for year in years:
+                st.subheader(f"🔗 Red de colaboración en {year}")
+                visualize_collaboration_network(df[df["Year"] == year], selected_author_id, id_to_name, year)
+            return
+
         # Filtrar el DataFrame por el año seleccionado
-        df_filtered = df[df["Year"] == selected_year] if selected_year != "Todos los años" else df
+        df_filtered = df[df["Year"] == selected_year]
 
         if df_filtered.empty:
             st.warning(f"No se encontraron publicaciones para el autor con ID: {selected_author_id}")
@@ -1374,7 +1382,7 @@ elif pagina == "Análisis por autor":
 
         # Crear trazas de bordes (edges)
         edge_trace = go.Scatter(
-            x=[], y=[], line=dict(width=1, color="gray"),
+            x=[], y=[], line=dict(width=1.5, color="black"),  # Bordes negros
             hoverinfo="none", mode="lines"
         )
 
@@ -1396,10 +1404,10 @@ elif pagina == "Análisis por autor":
             node_y.append(y)
             node_color.append("red" if node == selected_author_id else "blue")  # Autor principal en rojo
             most_common_name = id_to_name.get(node, "Nombre no disponible")
-            node_texts.append(f"📌 **ID:** {node}<br>👤 **Nombre:** {most_common_name}")
+            node_texts.append(f"ID: {node}<br>Nombre: {most_common_name}")
 
         node_trace = go.Scatter(
-            x=node_x, y=node_y, mode="markers+text",
+            x=node_x, y=node_y, mode="markers",
             marker=dict(size=15, color=node_color, opacity=0.8),
             text=node_texts, hoverinfo="text"
         )
@@ -1407,7 +1415,7 @@ elif pagina == "Análisis por autor":
         # Crear figura en Plotly
         fig = go.Figure(data=[edge_trace, node_trace])
         fig.update_layout(
-            title=f"🔗 Red de Colaboración en {selected_year if selected_year != 'Todos los años' else 'Todos los Años'}",
+            title=f"Red de Colaboración en {selected_year}",
             showlegend=False, hovermode="closest",
             xaxis=dict(showgrid=False, zeroline=False), 
             yaxis=dict(showgrid=False, zeroline=False)
