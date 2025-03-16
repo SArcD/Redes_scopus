@@ -92,6 +92,71 @@ elif pagina == "Análisis por base":
             # 📂 **Descargar el archivo procesado**
             csv_data = df_processed.to_csv(index=False).encode("utf-8")
             st.download_button("📥 Descargar datos procesados", csv_data, "processed_author_data.csv", "text/csv")
+
+        from collections import Counter
+
+        # 📌 **Funciones para análisis de datos**
+        def count_unique_publishers(publishers):
+            """Cuenta el número de editoriales únicas."""
+            if isinstance(publishers, float) and pd.isna(publishers):
+                return 0
+            return len(set(str(publishers).split(";")))
+
+        def sorted_frequent_publishers(publishers):
+            """Encuentra la(s) editorial(es) más frecuente(s) ordenadas por frecuencia."""
+            if isinstance(publishers, float) and pd.isna(publishers):
+                return ""
+            publisher_list = str(publishers).split(";")
+            counter = Counter(publisher_list)
+            sorted_publishers = sorted(counter.items(), key=lambda x: x[1], reverse=True)
+            return "; ".join(f"{pub} ({count})" for pub, count in sorted_publishers)
+
+        def format_year_counts(years):
+            """Cuenta correctamente el número de publicaciones por año."""
+            if isinstance(years, float) and pd.isna(years):
+                return ""
+            year_list = str(years).split(";")
+            counter = Counter(year_list)
+            sorted_years = sorted(counter.items(), key=lambda x: int(x[0]))
+            return "; ".join(f"{year} ({count})" for year, count in sorted_years)
+
+        # 📊 **Agrupar datos por Autor**
+        df_grouped = df.groupby("Author(s)_ID").agg({
+            "Cited_by": "sum",
+            "Title": "count",  # Contar publicaciones
+            "Source_title": lambda x: len(x.unique()),  # Contar revistas únicas
+            "Funding_Details": lambda x: x.notna().sum(),  # Contar publicaciones financiadas
+            "Year": lambda x: format_year_counts(";".join(map(str, x))),
+            **{col: lambda x: "; ".join(map(str, x.unique())) for col in df.columns if col not in ["Cited_by", "Title", "Source_title", "Funding_Details", "Year", "Author(s)_ID"]}
+        }).reset_index()
+
+        # 📌 Renombrar columnas
+        df_grouped = df_grouped.rename(columns={"Title": "Publications", "Source_title": "Journals", "Funding_Details": "Funded_publications"})
+
+        # 📌 Crear la columna de publicaciones no financiadas
+        df_grouped["Not_funded_publications"] = df_grouped["Publications"] - df_grouped["Funded_publications"]
+
+        # 📌 Aplicar análisis de editoriales
+        if "Publisher" in df.columns:
+            df_grouped["Publisher_Count"] = df_grouped["Publisher"].apply(count_unique_publishers)
+            df_grouped["Most_frequent_publisher"] = df_grouped["Publisher"].apply(sorted_frequent_publishers)
+
+        # 📌 **Eliminar columnas innecesarias**
+        columns_to_drop = ["DOI", "Volume", "Issue", "Art._No.", "Page_start", "Page_end", "Page_count", "Link", "ISBN", "CODEN", "Funding_Texts", "ISSN", "Open_Access", "Publisher"]
+        df_grouped = df_grouped.drop(columns=columns_to_drop, errors="ignore")
+
+        # 📋 **Mostrar resumen de autores**
+        st.write("📋 **Resumen de autores agrupados**")
+        st.dataframe(df_grouped)
+
+        # 📥 **Descargar datos procesados**
+        csv_data = df_grouped.to_csv(index=False).encode("utf-8")
+        st.download_button("📥 Descargar datos agrupados", csv_data, "unified_author_data.csv", "text/csv")
+
+
+
+
+    
     
     else:
         st.info("📂 **Sube un archivo CSV para comenzar**")
