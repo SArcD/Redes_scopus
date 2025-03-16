@@ -18,9 +18,8 @@ if pagina == "Inicio":
 
 ###############################################################################################################################
 elif pagina == "Análisis por base":
-
-    @st.cache_data
-
+    
+#    @st.cache_data
 
     import streamlit as st
     import pandas as pd
