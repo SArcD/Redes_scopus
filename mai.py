@@ -395,16 +395,16 @@ elif pagina == "Análisis por base":
 
 ###########################################################################################
 
-    import streamlit as st
-    import pandas as pd
-    import re
-    import unicodedata
-    from collections import Counter
-    import plotly.express as px
-    import matplotlib.pyplot as plt
-    import moviepy.editor as mpy
-    import os
-    import numpy as np
+        import streamlit as st
+        import pandas as pd
+        import re
+        import unicodedata
+        from collections import Counter
+        import plotly.express as px
+        import matplotlib.pyplot as plt
+        import moviepy.editor as mpy
+        import os
+        import numpy as np
 
 #st.title("📊 Procesamiento y Análisis de Publicaciones Acumuladas")
 
