@@ -10,3 +10,4 @@ xgboost
 dtreeviz
 imageio
 kaleido
+moviepy
