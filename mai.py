@@ -192,7 +192,88 @@ elif pagina == "Análisis por base":
             csv_data = df_grouped.to_csv(index=False).encode("utf-8")
             st.download_button("📥 Descargar datos agrupados", csv_data, "unified_author_data.csv", "text/csv")
 
+#####################################################
 
+        # Filtrar filas donde la columna "Correspondence_Address" contenga variantes de "Universidad de Colima"
+        keywords = ["Colima", "UCOL", "COLIMA", "UdeC", "ucol"]
+        df_ucol = df_grouped[df_grouped["Correspondence_Address"].str.contains('|'.join(keywords), case=False, na=False)]
+
+        #df_ucol
+        # Guardar el resultado en un nuevo archivo CSV
+        #df_ucol.to_csv("author_data_colima.csv", index=False)
+
+        # Filtrar filas donde la columna "Correspondence_Address" contenga variantes de "Universidad de Colima"
+        keywords = ["@ucol"]
+        df_ucol_dir = df_ucol[df_ucol["Correspondence_Address"].str.contains('|'.join(keywords), case=False, na=False)]
+
+        #df_ucol_dir
+        # Guardar el resultado en un nuevo archivo CSV
+        #df_ucol_dir.to_csv("author_data_colima_dir.csv", index=False)
+
+        # Filtrar las filas que NO contienen las palabras clave en la columna 'Correspondence_Address'
+        keywords = ["Colima", "UCOL", "COLIMA", "UdeC", "ucol"]
+        df_not_ucol = df_grouped[~df_grouped["Correspondence_Address"].str.contains('|'.join(keywords), case=False, na=False)]
+
+        # Guardar el resultado en un nuevo archivo CSV
+        #df_not_ucol.to_csv("author_data_not_colima.csv", index=False)
+        #df_not_ucol
+
+
+
+        import unicodedata
+
+        # Función mejorada para normalizar nombres y eliminar iniciales, espacios extra y puntos finales
+        def normalize_name_v2(name):
+            if pd.isna(name):
+                return ""
+            name = name.lower().strip()  # Convertir a minúsculas y quitar espacios extra
+            name = unicodedata.normalize('NFKD', name).encode('ASCII', 'ignore').decode('utf-8')  # Eliminar acentos
+            name = re.sub(r'[-_]', ' ', name)  # Reemplazar guiones y guiones bajos por espacios
+            name = re.sub(r'\s+', ' ', name)  # Reemplazar múltiples espacios por un solo espacio
+            name = re.sub(r'\b([A-Z])\b', '', name, flags=re.IGNORECASE)  # Eliminar iniciales de segundo nombre
+            name = re.sub(r'\.$', '', name)  # Eliminar puntos al final del nombre
+            name = name.strip()  # Quitar espacios extra resultantes
+            return name
+
+        # Aplicar la normalización mejorada a los nombres de autores
+        df_ucol_dir["Normalized_Author_Name"] = df_ucol_dir["Author_full_names"].apply(normalize_name_v2)
+
+        # Función para sumar correctamente las publicaciones por año
+        def sum_year_counts(year_entries):
+            year_count = Counter()
+            for entry in year_entries.dropna():
+                matches = re.findall(r'(\d{4})\s*\((\d+)\)', entry)
+                for year, count in matches:
+                    year_count[year] += int(count)
+            sorted_years = sorted(year_count.items(), key=lambda x: int(x[0]))
+            return "; ".join(f"{year} ({count})" for year, count in sorted_years)
+
+        # Agrupar por el nombre normalizado para fusionar datos de autores con el mismo nombre
+        df_ucol = df_ucol_dir.groupby("Normalized_Author_Name").agg({
+            "Cited_by": "sum",
+            "Publications": "sum",
+            "Journals": "sum",
+            "Funded_publications": "sum",
+            "Not_funded_publications": "sum",
+            "Year": lambda x: sum_year_counts(x),  # Sumar correctamente los valores entre paréntesis
+            **{col: lambda x: "; ".join(map(str, x.unique())) for col in df_ucol_dir.columns if col not in [
+                "Cited_by", "Publications", "Journals", "Funded_publications", "Not_funded_publications", "Year", "Normalized_Author_Name"]}
+        }).reset_index()
+
+        # Crear un diccionario para rastrear qué filas se fusionan
+        merge_log = {}
+        for name in df_ucol["Normalized_Author_Name"].unique():
+            merged_ids = df_ucol_dir[df_ucol_dir["Normalized_Author_Name"] == name]["Author(s)_ID"].unique()
+            if len(merged_ids) > 1:  # Solo registrar si hubo más de una fusión
+                merge_log[name] = list(merged_ids)
+
+        # Convertir el log en un DataFrame para visualizar las fusiones
+        df_merge_ucol_log = pd.DataFrame(list(merge_log.items()), columns=["Normalized_Author_Name", "Merged_Author_IDs"])
+
+        df_merge_ucol_log
+
+
+    
     
     
     else:
