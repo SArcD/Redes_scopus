@@ -45,6 +45,54 @@ elif pagina == "Análisis por base":
         csv_data = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Descargar CSV", csv_data, "datos_procesados.csv", "text/csv")
 
+
+        import re
+
+        # 📌 **Función para procesar los datos**
+        def process_author_data(df):
+            df.columns = df.columns.str.strip().str.replace(" ", "_")  # Reemplazar espacios en nombres de columnas
+
+            # Verificar que las columnas necesarias están en el DataFrame
+            if "Author_full_names" not in df.columns or "Author(s)_ID" not in df.columns:
+                st.error("❌ No se encontraron las columnas 'Author full names' o 'Author(s) ID'.")
+                return None
+
+            # Crear diccionarios para asignar nombres a los IDs de autores
+            author_id_map = {}
+            author_name_map = {}
+
+            for row in df.dropna(subset=["Author_full_names"]).itertuples(index=False):
+                author_entries = str(getattr(row, "Author_full_names")).split(";")
+                for entry in author_entries:
+                    match = re.match(r"(.*) \((\d+)\)", entry.strip())  # Extraer nombre completo e ID
+                    if match:
+                        full_name, author_id = match.groups()
+                        author_id_map[author_id] = full_name
+                        author_name_map[author_id] = full_name.split(",")[0]  # Solo apellido y primera inicial
+
+            # Expandir filas con múltiples IDs separados por ';'
+            df = df.assign(**{"Author(s)_ID": df["Author(s)_ID"].astype(str).str.split(";")}).explode("Author(s)_ID")
+            df["Author(s)_ID"] = df["Author(s)_ID"].str.strip()
+
+            # Asignar nombres basados en los IDs de autor
+            df["Author_full_names"] = df["Author(s)_ID"].map(author_id_map).fillna("Unknown Author")
+            df["Authors"] = df["Author(s)_ID"].map(author_name_map).fillna("Unknown Author")
+
+            return df
+
+        df_processed = process_author_data(df)
+
+        if df_processed is not None:
+            st.success("✅ Datos procesados correctamente.")
+        
+            # 📋 **Vista previa**
+            st.subheader("📋 Vista previa de los datos procesados")
+            st.write(df_processed.head())
+
+            # 📂 **Descargar el archivo procesado**
+            csv_data = df_processed.to_csv(index=False).encode("utf-8")
+            st.download_button("📥 Descargar datos procesados", csv_data, "processed_author_data.csv", "text/csv")
+    
     else:
         st.info("📂 **Sube un archivo CSV para comenzar**")
 
