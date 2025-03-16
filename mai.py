@@ -95,105 +95,102 @@ elif pagina == "Análisis por base":
 
         from collections import Counter
 
-import streamlit as st
-import pandas as pd
-import re
-from collections import Counter
+        import streamlit as st
+        import pandas as pd
+        import re
+        from collections import Counter
 
-st.title("📊 Procesamiento de Datos de Autores")
+#st.title("📊 Procesamiento de Datos de Autores")
 
 # 📂 **Subir archivo CSV**
-uploaded_file = st.file_uploader("Sube un archivo CSV", type=["csv"])
+#uploaded_file = st.file_uploader("Sube un archivo CSV", type=["csv"])
 
-if uploaded_file is not None:
-    # Cargar el archivo en un DataFrame
-    df = pd.read_csv(uploaded_file, encoding='utf-8')
 
-    # 📌 **Funciones para procesamiento y análisis de datos**
-    def process_author_data(df):
-        df.columns = df.columns.str.strip().str.replace(" ", "_")
+        # 📌 **Funciones para procesamiento y análisis de datos**
+        def process_author_data(df):
+            df.columns = df.columns.str.strip().str.replace(" ", "_")
         
-        if "Author_full_names" not in df.columns or "Author(s)_ID" not in df.columns:
-            st.error("❌ No se encontraron las columnas 'Author full names' o 'Author(s) ID'.")
-            return None
+            if "Author_full_names" not in df.columns or "Author(s)_ID" not in df.columns:
+                st.error("❌ No se encontraron las columnas 'Author full names' o 'Author(s) ID'.")
+                return None
 
-        author_id_map = {}
-        author_name_map = {}
+            author_id_map = {}
+            author_name_map = {}
 
-        for row in df.dropna(subset=["Author_full_names"]).itertuples(index=False):
-            author_entries = str(getattr(row, "Author_full_names")).split(";")
-            for entry in author_entries:
-                match = re.match(r"(.*) \((\d+)\)", entry.strip())
-                if match:
-                    full_name, author_id = match.groups()
-                    author_id_map[author_id] = full_name
-                    author_name_map[author_id] = full_name.split(",")[0]
+            for row in df.dropna(subset=["Author_full_names"]).itertuples(index=False):
+                author_entries = str(getattr(row, "Author_full_names")).split(";")
+                for entry in author_entries:
+                    match = re.match(r"(.*) \((\d+)\)", entry.strip())
+                    if match:
+                        full_name, author_id = match.groups()
+                        author_id_map[author_id] = full_name
+                        author_name_map[author_id] = full_name.split(",")[0]
 
-        df = df.assign(**{"Author(s)_ID": df["Author(s)_ID"].astype(str).str.split(";")}).explode("Author(s)_ID")
-        df["Author(s)_ID"] = df["Author(s)_ID"].str.strip()
+            df = df.assign(**{"Author(s)_ID": df["Author(s)_ID"].astype(str).str.split(";")}).explode("Author(s)_ID")
+            df["Author(s)_ID"] = df["Author(s)_ID"].str.strip()
 
-        df["Author_full_names"] = df["Author(s)_ID"].map(author_id_map).fillna("Unknown Author")
-        df["Authors"] = df["Author(s)_ID"].map(author_name_map).fillna("Unknown Author")
+            df["Author_full_names"] = df["Author(s)_ID"].map(author_id_map).fillna("Unknown Author")
+            df["Authors"] = df["Author(s)_ID"].map(author_name_map).fillna("Unknown Author")
         
-        return df
+            return df
     
-    df_processed = process_author_data(df)
+        df_processed = process_author_data(df)
 
-    if df_processed is not None:
-        st.success("✅ Datos procesados correctamente.")
+        if df_processed is not None:
+            st.success("✅ Datos procesados correctamente.")
         
-        # 📋 **Vista previa**
-        st.subheader("📋 Vista previa de los datos procesados")
-        st.write(df_processed.head())
+            # 📋 **Vista previa**
+            st.subheader("📋 Vista previa de los datos procesados")
+            st.write(df_processed.head())
 
-        # 📊 **Análisis de Editoriales y Publicaciones**
-        st.subheader("📊 Análisis de Editoriales y Publicaciones")
+            # 📊 **Análisis de Editoriales y Publicaciones**
+            st.subheader("📊 Análisis de Editoriales y Publicaciones")
 
-        def count_unique_publishers(publishers):
-            if isinstance(publishers, float) and pd.isna(publishers):
-                return 0
-            return len(set(str(publishers).split(";")))
+            def count_unique_publishers(publishers):
+                if isinstance(publishers, float) and pd.isna(publishers):
+                    return 0
+                return len(set(str(publishers).split(";")))
 
-        def sorted_frequent_publishers(publishers):
-            if isinstance(publishers, float) and pd.isna(publishers):
-                return ""
-            publisher_list = str(publishers).split(";")
-            counter = Counter(publisher_list)
-            sorted_publishers = sorted(counter.items(), key=lambda x: x[1], reverse=True)
-            return "; ".join(f"{pub} ({count})" for pub, count in sorted_publishers)
+            def sorted_frequent_publishers(publishers):
+                if isinstance(publishers, float) and pd.isna(publishers):
+                    return ""
+                publisher_list = str(publishers).split(";")
+                counter = Counter(publisher_list)
+                sorted_publishers = sorted(counter.items(), key=lambda x: x[1], reverse=True)
+                return "; ".join(f"{pub} ({count})" for pub, count in sorted_publishers)
 
-        def format_year_counts(years):
-            if isinstance(years, float) and pd.isna(years):
-                return ""
-            year_list = str(years).split(";")
-            counter = Counter(year_list)
-            sorted_years = sorted(counter.items(), key=lambda x: int(x[0]))
-            return "; ".join(f"{year} ({count})" for year, count in sorted_years)
+            def format_year_counts(years):
+                if isinstance(years, float) and pd.isna(years):
+                    return ""
+                year_list = str(years).split(";")
+                counter = Counter(year_list)
+                sorted_years = sorted(counter.items(), key=lambda x: int(x[0]))
+                return "; ".join(f"{year} ({count})" for year, count in sorted_years)
 
-        df_grouped = df_processed.groupby("Author(s)_ID").agg({
-            "Cited_by": "sum",
-            "Title": "count",
-            "Source_title": lambda x: len(x.unique()),
-            "Funding_Details": lambda x: x.notna().sum(),
-            "Year": lambda x: format_year_counts(";".join(map(str, x))),
-            **{col: lambda x: "; ".join(map(str, x.unique())) for col in df_processed.columns if col not in ["Cited_by", "Title", "Source_title", "Funding_Details", "Year", "Author(s)_ID"]}
-        }).reset_index()
+            df_grouped = df_processed.groupby("Author(s)_ID").agg({
+                "Cited_by": "sum",
+                "Title": "count",
+                "Source_title": lambda x: len(x.unique()),
+                "Funding_Details": lambda x: x.notna().sum(),
+                "Year": lambda x: format_year_counts(";".join(map(str, x))),
+                **{col: lambda x: "; ".join(map(str, x.unique())) for col in df_processed.columns if col not in ["Cited_by", "Title", "Source_title", "Funding_Details", "Year", "Author(s)_ID"]}
+            }).reset_index()
 
-        df_grouped = df_grouped.rename(columns={"Title": "Publications", "Source_title": "Journals", "Funding_Details": "Funded_publications"})
-        df_grouped["Not_funded_publications"] = df_grouped["Publications"] - df_grouped["Funded_publications"]
+            df_grouped = df_grouped.rename(columns={"Title": "Publications", "Source_title": "Journals", "Funding_Details": "Funded_publications"})
+            df_grouped["Not_funded_publications"] = df_grouped["Publications"] - df_grouped["Funded_publications"]
 
-        if "Publisher" in df_processed.columns:
-            df_grouped["Publisher_Count"] = df_grouped["Publisher"].apply(count_unique_publishers)
-            df_grouped["Most_frequent_publisher"] = df_grouped["Publisher"].apply(sorted_frequent_publishers)
+            if "Publisher" in df_processed.columns:
+                df_grouped["Publisher_Count"] = df_grouped["Publisher"].apply(count_unique_publishers)
+                df_grouped["Most_frequent_publisher"] = df_grouped["Publisher"].apply(sorted_frequent_publishers)
 
-        columns_to_drop = ["DOI", "Volume", "Issue", "Art._No.", "Page_start", "Page_end", "Page_count", "Link", "ISBN", "CODEN", "Funding_Texts", "ISSN", "Open_Access", "Publisher"]
-        df_grouped = df_grouped.drop(columns=columns_to_drop, errors="ignore")
+            columns_to_drop = ["DOI", "Volume", "Issue", "Art._No.", "Page_start", "Page_end", "Page_count", "Link", "ISBN", "CODEN", "Funding_Texts", "ISSN", "Open_Access", "Publisher"]
+            df_grouped = df_grouped.drop(columns=columns_to_drop, errors="ignore")
 
-        st.write("📋 **Resumen de autores agrupados**")
-        st.dataframe(df_grouped)
+            st.write("📋 **Resumen de autores agrupados**")
+            st.dataframe(df_grouped)
 
-        csv_data = df_grouped.to_csv(index=False).encode("utf-8")
-        st.download_button("📥 Descargar datos agrupados", csv_data, "unified_author_data.csv", "text/csv")
+            csv_data = df_grouped.to_csv(index=False).encode("utf-8")
+            st.download_button("📥 Descargar datos agrupados", csv_data, "unified_author_data.csv", "text/csv")
 
 
     
