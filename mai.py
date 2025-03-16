@@ -218,9 +218,12 @@ elif pagina == "Análisis por base":
         #df_not_ucol.to_csv("author_data_not_colima.csv", index=False)
         #df_not_ucol
 
-
-
+#########################################################################
+#########################################################################
         import unicodedata
+
+        # Lista de autores a eliminar
+        authors_to_remove = ["crossa,", "murillo zamora, efren", "guzman esquivel,", "martinez fierro,"]
 
         # Función mejorada para normalizar nombres y eliminar iniciales, espacios extra y puntos finales
         def normalize_name_v2(name):
@@ -237,6 +240,9 @@ elif pagina == "Análisis por base":
 
         # Aplicar la normalización mejorada a los nombres de autores
         df_ucol_dir["Normalized_Author_Name"] = df_ucol_dir["Author_full_names"].apply(normalize_name_v2)
+        # Eliminar los autores no deseados antes de la agrupación
+        df_ucol_dir = df_ucol_dir[~df_ucol_dir["Normalized_Author_Name"].isin(authors_to_remove)]
+
 
         # Función para sumar correctamente las publicaciones por año
         def sum_year_counts(year_entries):
@@ -271,6 +277,120 @@ elif pagina == "Análisis por base":
         df_merge_ucol_log = pd.DataFrame(list(merge_log.items()), columns=["Normalized_Author_Name", "Merged_Author_IDs"])
 
         df_merge_ucol_log
+
+##########################################################################
+
+        # Recargar librerías
+        import pandas as pd
+        import plotly.express as px
+
+        # Asegurar que la columna Year es de tipo string y separar los valores correctamente
+        df_ucol["Year"] = df_ucol["Year"].astype(str)
+
+        # Expandir la columna Year para contar las publicaciones por año por autor
+        df_expanded = df_ucol.assign(Year=df_ucol["Year"].str.split(";")).explode("Year")
+
+        # Extraer solo el año numérico y la cantidad de publicaciones en ese año
+        df_expanded[["Year", "Publications"]] = df_expanded["Year"].str.extract(r'(\d{4})\s*\((\d+)\)')
+
+        # Convertir los valores a tipo numérico
+        df_expanded["Year"] = pd.to_numeric(df_expanded["Year"], errors='coerce')
+        df_expanded["Publications"] = pd.to_numeric(df_expanded["Publications"], errors='coerce')
+        df_expanded = df_expanded.dropna(subset=["Year", "Publications"])  # Eliminar filas con valores no válidos
+
+        # Ordenar cronológicamente los años
+        df_expanded = df_expanded.sort_values(by=["Year", "Normalized_Author_Name"])
+
+        # Filtrar el DataFrame eliminando a los autores no deseados
+        authors_to_remove = ["crossa,", "murillo zamora, efren", "guzman esquivel,", "martinez fierro,"]
+        df_expanded_filtered = df_expanded[~df_expanded["Normalized_Author_Name"].isin(authors_to_remove)]
+
+        # Identificar los 30 autores con más publicaciones totales después del filtrado
+        top_authors_filtered = df_expanded_filtered.groupby("Normalized_Author_Name")["Publications"].sum().nlargest(30).index
+
+        # Filtrar solo los datos de los 30 autores principales
+        df_top30_filtered = df_expanded_filtered[df_expanded_filtered["Normalized_Author_Name"].isin(top_authors_filtered)].copy()
+
+        # Obtener el primer y último año en la lista
+        year_min = df_top30_filtered["Year"].min()
+        year_max = df_top30_filtered["Year"].max()
+
+        # Crear una columna de publicaciones acumuladas
+        df_top30_filtered["Cumulative_Publications"] = 0
+
+        # Diccionario para rastrear la acumulación de publicaciones por autor    
+        author_cumulative_filtered = {author: 0 for author in top_authors_filtered}
+
+        # Lista para almacenar los frames de la animación
+        frames_filtered = []
+
+        # Iterar año por año y actualizar el número acumulado de publicaciones
+        for year in range(year_min, year_max + 1):
+            # Obtener las publicaciones de los autores en el año actual
+            df_year = df_top30_filtered[df_top30_filtered["Year"] == year].copy()
+
+            # Actualizar los valores acumulados para cada autor en el año actual
+            for author in top_authors_filtered:
+                if author in df_year["Normalized_Author_Name"].values:
+                    # Sumar publicaciones de este año
+                    publications_this_year = df_year[df_year["Normalized_Author_Name"] == author]["Publications"].sum()
+                    author_cumulative_filtered[author] += publications_this_year
+
+            # Crear un DataFrame con los valores actualizados
+            df_snapshot = pd.DataFrame({
+                "Normalized_Author_Name": list(author_cumulative_filtered.keys()),
+                "Cumulative_Publications": list(author_cumulative_filtered.values()),
+                "Year": year
+            })
+
+            # Filtrar los 30 autores con más publicaciones acumuladas hasta el momento
+            df_snapshot = df_snapshot.sort_values(by=["Cumulative_Publications", "Normalized_Author_Name"], ascending=[False, True]).head(30)
+
+            # Agregar el snapshot a la lista de frames
+            frames_filtered.append(df_snapshot)
+
+        # Unir los datos en un solo DataFrame para la animación
+        df_final_filtered = pd.concat(frames_filtered)
+
+        # Determinar el valor máximo de publicaciones acumuladas en cada año
+        df_max_values_filtered = df_final_filtered.groupby("Year")["Cumulative_Publications"].max().reset_index()
+        df_max_values_filtered["Cumulative_Publications"] = df_max_values_filtered["Cumulative_Publications"] * 1.1  # Añadir margen del 10%
+
+        # Agregar el Author(s)_ID al DataFrame antes de generar la gráfica
+        df_final_filtered = df_final_filtered.merge(df_ucol[["Normalized_Author_Name", "Author(s)_ID"]], on="Normalized_Author_Name", how="left")
+
+        # Obtener el último año de la animación
+        last_year = df_final_filtered["Year"].max()
+
+        # Extraer el orden final de los autores basado en el último año
+        final_order = df_final_filtered[df_final_filtered["Year"] == last_year].sort_values(
+            by="Cumulative_Publications", ascending=False
+        )["Normalized_Author_Name"].tolist()
+
+        # Crear la gráfica de barras animada con acumulación, orden final fijo y Author(s)_ID en hover
+        fig_filtered = px.bar(
+            df_final_filtered,
+            x="Cumulative_Publications",
+            y="Normalized_Author_Name",
+            color="Normalized_Author_Name",
+            animation_frame="Year",
+            orientation="h",
+            title="Evolución de Publicaciones Acumuladas - Top 30 Autores",
+            labels={"Cumulative_Publications": "Número Acumulado de Publicaciones", "Normalized_Author_Name": "Autores"},
+            hover_data={"Author(s)_ID": True},  # Agregar el ID del autor en el hover
+            template="plotly_white"
+        )
+
+        # Aplicar el orden inverso en el eje Y para que los autores con más publicaciones estén abajo
+        fig_filtered.update_layout(
+            xaxis=dict(range=[0, df_max_values_filtered["Cumulative_Publications"].max()]),
+            height=1000,  # Aumentar la altura para evitar que los nombres se aplasten
+            yaxis=dict(categoryorder="array", categoryarray=final_order[::-1])  # Invertir el orden de los autores
+        )
+
+        # Mostrar la gráfica interactiva con la corrección en hover
+        fig_filtered.show()
+
 
 
     
