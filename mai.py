@@ -1023,6 +1023,55 @@ elif pagina == "Análisis por base":
     
             st.info(cluster_explanations.get(predicted_cluster, "Descripción no disponible."))
 
+        ##############################################################################
+
+        # 📌 **Comparación Tabular del Usuario con Cluster y Base Completa**
+        st.subheader("📋 Comparación con el Cluster y la Base Completa")
+
+        # 📌 **Calcular Estadísticas**
+        comparison_data = {
+            "Métrica": ["Publicaciones", "Citas", "Antigüedad", "Ratio de Financiamiento"],
+            "Valor del Usuario": [publications, cited_by, seniority, funding_ratio],
+    
+            # 📌 **Estadísticas del Cluster**
+            "Cluster - Media": [
+                df_cluster["Publications"].mean(), df_cluster["Cited_by"].mean(),
+                df_cluster["Seniority"].mean(), df_cluster["Funding_Ratio"].mean()
+            ],
+            "Cluster - Q1 (P25)": [
+                df_cluster["Publications"].quantile(0.25), df_cluster["Cited_by"].quantile(0.25),
+                df_cluster["Seniority"].quantile(0.25), df_cluster["Funding_Ratio"].quantile(0.25)
+            ],
+            "Cluster - Q3 (P75)": [
+                df_cluster["Publications"].quantile(0.75), df_cluster["Cited_by"].quantile(0.75),
+                df_cluster["Seniority"].quantile(0.75), df_cluster["Funding_Ratio"].quantile(0.75)
+            ],
+
+            # 📌 **Estadísticas de la Base Completa**
+            "Base - Media": [
+                df_valid["Publications"].mean(), df_valid["Cited_by"].mean(),
+                df_valid["Seniority"].mean(), df_valid["Funding_Ratio"].mean()
+            ],
+            "Base - Q1 (P25)": [
+                df_valid["Publications"].quantile(0.25), df_valid["Cited_by"].quantile(0.25),
+                df_valid["Seniority"].quantile(0.25), df_valid["Funding_Ratio"].quantile(0.25)
+            ],
+            "Base - Q3 (P75)": [
+                df_valid["Publications"].quantile(0.75), df_valid["Cited_by"].quantile(0.75),
+                df_valid["Seniority"].quantile(0.75), df_valid["Funding_Ratio"].quantile(0.75)
+            ]
+        }
+
+        # 📌 **Convertir a DataFrame**
+        df_comparison = pd.DataFrame(comparison_data)
+
+        # 📌 **Mostrar la Tabla en Streamlit**
+        st.dataframe(df_comparison.style.format({
+            "Valor del Usuario": "{:.2f}",
+            "Cluster - Media": "{:.2f}", "Cluster - Q1 (P25)": "{:.2f}", "Cluster - Q3 (P75)": "{:.2f}",
+            "Base - Media": "{:.2f}", "Base - Q1 (P25)": "{:.2f}", "Base - Q3 (P75)": "{:.2f}"
+        }))
+
 
 
 #############################################################################################################
