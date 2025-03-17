@@ -952,6 +952,34 @@ elif pagina == "Análisis por base":
 
 
 
+        # 📌 **Formulario Inteligente para Asignación de Cluster**
+        st.header("📝 Predicción de Cluster Basado en Estadísticas de Autor")
+
+        funding_ratio = st.number_input("Proporción de Publicaciones Financiadas", min_value=0.0, max_value=1.0, step=0.01)
+        publications = st.number_input("Número de Publicaciones", min_value=0, step=1)
+        cited_by = st.number_input("Número de Citas", min_value=0, step=1)
+        seniority = st.number_input("Antigüedad (Años desde Primera Publicación)", min_value=0, max_value=100, step=1)
+
+        if st.button("📌 Asignar Cluster"):
+            user_data = np.array([[funding_ratio, publications, cited_by, seniority]])
+            predicted_cluster_idx = clf.predict(user_data)[0]
+            predicted_cluster = reverse_mapping[predicted_cluster_idx]
+    
+            st.success(f"🎯 Has sido asignado al Cluster {predicted_cluster}")
+    
+            # Explicación basada en el perfil de publicaciones
+            cluster_explanations = {
+                "0": "Autores con baja producción y pocas citas, posiblemente en inicio de carrera.",
+                "1": "Autores con producción moderada y algunas citas, con crecimiento académico estable.",
+                "2": "Autores con alta producción pero pocas citas, posiblemente en campos emergentes.",
+                "3": "Autores con una combinación equilibrada de publicaciones y citas, con reconocimiento académico.",
+                "4": "Autores con una trayectoria consolidada, con muchas publicaciones y alta citación."
+            }
+    
+            st.info(cluster_explanations.get(str(predicted_cluster), "Descripción no disponible."))
+
+
+
 
 
 
