@@ -405,6 +405,17 @@ elif pagina == "Análisis por base":
         #import moviepy.editor as mpy
         import os
         import numpy as np
+        import streamlit as st
+        import pandas as pd
+        import re
+        import unicodedata    
+        from collections import Counter
+        import plotly.express as px
+        import matplotlib.pyplot as plt
+        import os
+        import numpy as np
+        import imageio
+
 
 #st.title("📊 Procesamiento y Análisis de Publicaciones Acumuladas")
 
