@@ -1027,59 +1027,63 @@ elif pagina == "Análisis por base":
 
 #############################################################################################################
 
-        # 📌 Comparación Gráfica con el Cluster y Toda la Base
-        st.header("📊 Comparación con Cluster y Base Completa")
+        # 📌 **Comparación Visual Mejorada con Dos Arreglos de Gráficos**
+        st.header("📊 Comparación del Usuario con su Cluster y la Base Completa")
 
-        # Filtrar los datos del cluster asignado
+        # 📌 **Filtrar Datos del Cluster y Crear DataFrame del Usuario**
         df_cluster = df_valid[df_valid["Cluster"] == int(predicted_cluster)]
 
-        # Crear un DataFrame con los valores del usuario para graficarlo
         df_user = pd.DataFrame({
-            "Categoría": ["Usuario"] * 4,
             "Métrica": ["Publications", "Cited_by", "Seniority", "Funding_Ratio"],
             "Valor": [publications, cited_by, seniority, funding_ratio]
         })
 
-        # Crear DataFrame para el cluster y la base
-        df_cluster_melted = df_cluster.melt(id_vars=["Cluster"], value_vars=["Publications", "Cited_by", "Seniority", "Funding_Ratio"], 
-                                    var_name="Métrica", value_name="Valor")
-        df_base_melted = df_valid.melt(id_vars=["Cluster"], value_vars=["Publications", "Cited_by", "Seniority", "Funding_Ratio"], 
-                               var_name="Métrica", value_name="Valor")
-
-        # 📌 **Boxplot con Comparación entre Usuario, Cluster y Base**
-        fig_box = px.box(df_base_melted, x="Métrica", y="Valor", color="Métrica",
-                 title="Comparación con la Distribución de la Base",
-                 labels={"Valor": "Valor de la Métrica", "Métrica": "Métrica Evaluada"},
-                 template="plotly_white")
-
-        # Agregar puntos de usuario
-        for i, row in df_user.iterrows():
-            fig_box.add_trace(go.Scatter(
-                x=[row["Métrica"]], y=[row["Valor"]], 
+        # 📌 **Definir Función para Graficar Comparaciones**
+        def plot_comparison(metric, title, y_label):
+            fig_cluster = px.box(df_cluster, y=metric, points="all", 
+                         title=f"{title} en el Cluster {predicted_cluster}",
+                         labels={metric: y_label},
+                         template="plotly_white")
+    
+            fig_cluster.add_trace(go.Scatter(
+                x=["Usuario"], y=[df_user[df_user["Métrica"] == metric]["Valor"].values[0]], 
                 mode="markers+text", text="📍", textposition="top center",
                 marker=dict(color="red", size=12),
                 name="Usuario"
             ))
-
-        # 📌 **Diagrama de Violín con Comparación con el Cluster**
-        fig_violin = px.violin(df_cluster_melted, x="Métrica", y="Valor", color="Métrica",
-                       box=True, points="all",
-                       title="Distribución en el Cluster Asignado",
-                       labels={"Valor": "Valor de la Métrica", "Métrica": "Métrica Evaluada"},
-                       template="plotly_white")
-
-        # Agregar puntos de usuario
-        for i, row in df_user.iterrows():
-            fig_violin.add_trace(go.Scatter(
-                x=[row["Métrica"]], y=[row["Valor"]], 
+    
+            fig_base = px.box(df_valid, y=metric, points="all", 
+                      title=f"{title} en Toda la Base",
+                      labels={metric: y_label},
+                      template="plotly_white")
+    
+            fig_base.add_trace(go.Scatter(
+                x=["Usuario"], y=[df_user[df_user["Métrica"] == metric]["Valor"].values[0]], 
                 mode="markers+text", text="📍", textposition="top center",
                 marker=dict(color="red", size=12),
                 name="Usuario"
             ))
+    
+            return fig_cluster, fig_base
 
-        # 📌 **Mostrar Gráficos**        
-        st.plotly_chart(fig_box)
-        st.plotly_chart(fig_violin)
+        # 📌 **Comparaciones por Métrica**
+        fig_pub_cluster, fig_pub_base = plot_comparison("Publications", "Número de Publicaciones", "Publicaciones")
+        fig_cite_cluster, fig_cite_base = plot_comparison("Cited_by", "Número de Citas", "Citas")
+        fig_sen_cluster, fig_sen_base = plot_comparison("Seniority", "Antigüedad", "Años desde la Primera Publicación")
+        fig_fund_cluster, fig_fund_base = plot_comparison("Funding_Ratio", "Proporción de Publicaciones Financiadas", "Ratio de Financiamiento")
+
+        # 📌 **Mostrar Gráficos**
+        st.subheader(f"📊 Comparación con Autores del Cluster {predicted_cluster}")
+        st.plotly_chart(fig_pub_cluster)
+        st.plotly_chart(fig_cite_cluster)
+        st.plotly_chart(fig_sen_cluster)
+        st.plotly_chart(fig_fund_cluster)
+
+        st.subheader("📊 Comparación con Toda la Base de Datos")
+        st.plotly_chart(fig_pub_base)    
+        st.plotly_chart(fig_cite_base)
+        st.plotly_chart(fig_sen_base)
+        st.plotly_chart(fig_fund_base)
 
 
 
