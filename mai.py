@@ -413,7 +413,7 @@ elif pagina == "Análisis por base":
 
 #if uploaded_file is not None:
 #    df = pd.read_csv(uploaded_file, encoding='utf-8')
-
+        df=df_final_filtered
         if "Year" not in df.columns or "Normalized_Author_Name" not in df.columns:
             st.error("❌ El archivo no contiene las columnas necesarias ('Year', 'Normalized_Author_Name').")
         else:
