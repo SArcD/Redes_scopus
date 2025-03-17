@@ -558,6 +558,53 @@ elif pagina == "Análisis por base":
 
         # Mostrar la gráfica interactiva
         st.plotly_chart(fig_corr)
+#############################################################################################33
+
+        import streamlit as st
+        import pandas as pd
+        import plotly.express as px
+        import numpy as np
+
+        st.title("📊 Scatter Heatmap: Antigüedad vs. Publicaciones (Citas como color)")
+
+        # Convertir a valores numéricos
+        df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
+        df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
+
+        # Convertir Year a string y extraer el primer año de publicación
+        df_ucol["Year"] = df_ucol["Year"].astype(str)
+        df_ucol["First_Year"] = pd.to_numeric(df_ucol["Year"].str.extract(r'(\d{4})')[0], errors='coerce')
+
+        # Calcular la antigüedad (años desde la primera publicación hasta 2025)
+        df_ucol["Seniority"] = 2025 - df_ucol["First_Year"]
+
+        # Filtrar valores válidos
+        df_heatmap = df_ucol[["Seniority", "Publications", "Cited_by", "Author(s)_ID", "Normalized_Author_Name"]].dropna()
+
+        # Ajustar el tamaño de los puntos al cuádruple
+        df_heatmap["Size_Metric"] = df_heatmap["Cited_by"] * 10
+
+        # Crear el scatter heatmap con el tamaño ajustado
+        fig_heatmap = px.scatter(
+            df_heatmap,
+            x="Seniority",
+            y="Publications",
+            size="Size_Metric",  # Tamaño de los puntos escalado
+            color="Cited_by",  # Color de los puntos según el número de citas
+            labels={
+                "Seniority": "Antigüedad (Años desde Primera Publicación)",
+                "Publications": "Número Total de Publicaciones",
+                "Cited_by": "Número de Citas",
+                "Size_Metric": "Citas (Escalado)"
+            },
+            title="Scatter Heatmap: Antigüedad vs. Publicaciones (Citas como color)",
+            hover_data={"Author(s)_ID": True, "Normalized_Author_Name": True, "Cited_by": True},
+            color_continuous_scale="Viridis",
+            template="plotly_white"
+        )
+
+        # Mostrar la gráfica interactiva    
+        st.plotly_chart(fig_heatmap)
 
 
 
