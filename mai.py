@@ -607,6 +607,81 @@ elif pagina == "Análisis por base":
         st.plotly_chart(fig_heatmap)
 
 
+    #####################################################################################################3
+
+        import streamlit as st
+        import pandas as pd
+        import plotly.graph_objects as go
+        import numpy as np
+
+        st.title("📊 Distribución de Publicaciones y Citas por Antigüedad")
+
+        #     Convertir a valores numéricos
+        df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
+        df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
+
+        # Convertir Year a string y extraer el primer año de publicación
+        df_ucol["Year"] = df_ucol["Year"].astype(str)
+        df_ucol["First_Year"] = pd.to_numeric(df_ucol["Year"].str.extract(r'(\d{4})')[0], errors='coerce')
+
+        # Calcular la antigüedad (años desde la primera publicación hasta 2025)
+        df_ucol["Seniority"] = 2025 - df_ucol["First_Year"]
+
+        # Agrupar antigüedad en intervalos de 5 años
+        df_ucol["Seniority_Group"] = (df_ucol["Seniority"] // 5) * 5
+
+        # Calcular los valores del cuartil 75 (Q3) para definir el filtro
+        q3_cited = df_ucol["Cited_by"].quantile(0.75)
+        q3_publications = df_ucol["Publications"].quantile(0.75)
+
+        df_ucol["Cited_Above_Q3"] = df_ucol["Cited_by"] > q3_cited
+        df_ucol["Publications_Above_Q3"] = df_ucol["Publications"] > q3_publications
+
+        # Crear la figura para citas
+        fig_cites = go.Figure()
+        fig_cites.add_trace(go.Box(
+            x=df_ucol["Seniority_Group"],
+            y=df_ucol["Cited_by"],
+            boxpoints=False,
+            notched=True,
+            marker=dict(color="lightblue"),
+            name="Número de Citas"
+        ))
+        fig_cites.add_trace(go.Scatter(
+            x=df_ucol["Seniority_Group"],
+            y=df_ucol["Cited_by"],
+            mode="markers",
+            marker=dict(size=8, opacity=0.8, color="darkblue"),
+            name="Todos los Autores",
+            text=df_ucol["Normalized_Author_Name"] + "<br>ID: " + df_ucol["Author(s)_ID"],
+            hoverinfo="text+y"
+        ))
+
+        # Crear la figura para publicaciones
+        fig_publications = go.Figure()
+        fig_publications.add_trace(go.Box(
+            x=df_ucol["Seniority_Group"],
+            y=df_ucol["Publications"],
+            boxpoints=False,
+            notched=True,
+            marker=dict(color="lightgreen"),
+            name="Número de Publicaciones"
+        ))
+        fig_publications.add_trace(go.Scatter(
+            x=df_ucol["Seniority_Group"],
+            y=df_ucol["Publications"],
+            mode="markers",
+            marker=dict(size=8, opacity=0.8, color="darkgreen"),
+            name="Todos los Autores",
+            text=df_ucol["Normalized_Author_Name"] + "<br>ID: " + df_ucol["Author(s)_ID"],
+            hoverinfo="text+y"
+        ))
+
+        st.subheader("Distribución del Número Total de Citas por Antigüedad")
+        st.plotly_chart(fig_cites)
+
+        st.subheader("Distribución del Número Total de Publicaciones por Antigüedad")
+        st.plotly_chart(fig_publications)
 
     
 
