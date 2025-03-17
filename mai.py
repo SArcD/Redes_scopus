@@ -1014,12 +1014,31 @@ elif pagina == "Análisis por base":
         
             # Explicación basada en el perfil de publicaciones
             cluster_explanations = {
-                "0": "Autores con baja producción y pocas citas, posiblemente en inicio de carrera.",
-                "1": "Autores con producción moderada y algunas citas, con crecimiento académico estable.",
-                "2": "Autores con alta producción pero pocas citas, posiblemente en campos emergentes.",
-                "3": "Autores con una combinación equilibrada de publicaciones y citas, con reconocimiento académico.",
-                "4": "Autores con una trayectoria consolidada, con muchas publicaciones y alta citación."
+                "0": "Autores con baja producción y pocas citas, posiblemente en inicio de carrera. "
+                     "Suelen tener una antigüedad variable, pero con baja producción en publicaciones y un impacto limitado en citas. "
+                     "El financiamiento es bajo o moderado. Estos autores pueden estar comenzando su trayectoria o no enfocarse completamente en la investigación.",
+
+                "1": "Autores con una trayectoria consolidada, con muchas publicaciones y alta citación. "
+                     "Son investigadores de alto impacto, con un gran número de publicaciones y citas. "
+                     "Suelen tener una antigüedad alta en la academia (> 9.5 años) y financiamiento moderado o alto. "
+                     "Frecuentemente tienen colaboraciones internacionales y publican en revistas de alto impacto.",
+
+                "2": "Autores con producción moderada y algunas citas, con crecimiento académico estable. "
+                     "Estos investigadores tienen una producción media en publicaciones y citas. "
+                     "Suelen contar con financiamiento moderado y más de 9.5 años de antigüedad en la academia. "
+                     "Es un perfil típico de académicos en consolidación o en áreas emergentes con un crecimiento estable en citas.",
+
+                "3": "Autores en inicio de carrera con baja producción. "
+                     "Tienen pocos años en la academia (≤ 9.5 años), pocas publicaciones y bajo impacto en citas. "
+                     "El financiamiento es bajo o nulo, y su producción aún no ha crecido significativamente. "
+                     "Pueden ser investigadores jóvenes, profesores con menor enfoque en investigación o estudiantes de doctorado.",
+
+                "4": "Autores con producción alta y financiamiento significativo. "
+                     "Son líderes en investigación con múltiples proyectos financiados. "
+                     "Tienen una producción establecida en revistas de alto impacto y acceso a financiamiento significativo. "
+                     "Suelen tener una antigüedad alta, con equipos de trabajo consolidados y un alto impacto en citas."
             }
+
     
             st.info(cluster_explanations.get(predicted_cluster, "Descripción no disponible."))
 
