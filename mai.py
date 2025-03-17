@@ -402,7 +402,7 @@ elif pagina == "Análisis por base":
         from collections import Counter
         import plotly.express as px
         import matplotlib.pyplot as plt
-        import moviepy.editor as mpy
+        #import moviepy.editor as mpy
         import os
         import numpy as np
 
