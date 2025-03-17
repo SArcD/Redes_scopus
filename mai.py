@@ -438,19 +438,33 @@ elif pagina == "Análisis por base":
         df_final_filtered["Yearly_Publications"] = df_final_filtered.groupby(["Normalized_Author_Name", "Year"])["Cumulative_Publications"].diff().fillna(df_final_filtered["Cumulative_Publications"])
 
         # Crear la gráfica de barras animada con estratificación por año    
+        #fig = px.bar(
+        #    df_final_filtered,
+        #    x="Yearly_Publications",
+        #    y="Normalized_Author_Name",
+        #    color="Year",
+        #    animation_frame="Year",
+        #    orientation="h",
+        #    title="Evolución de Publicaciones Acumuladas - Top 30 Autores",
+        #    labels={"Yearly_Publications": "Publicaciones en el Año", "Normalized_Author_Name": "Autores", "Year": "Año"},
+        #    template="plotly_white",
+        #    color_continuous_scale="Viridis"
+        #)
+
+        # Crear la gráfica de barras animada con estratificación por año
         fig = px.bar(
             df_final_filtered,
             x="Yearly_Publications",
             y="Normalized_Author_Name",
-            color="Year",
+            color="Normalized_Author_Name",
             animation_frame="Year",
             orientation="h",
             title="Evolución de Publicaciones Acumuladas - Top 30 Autores",
-            labels={"Yearly_Publications": "Publicaciones en el Año", "Normalized_Author_Name": "Autores", "Year": "Año"},
-            template="plotly_white",
-            color_continuous_scale="Viridis"
+            labels={"Yearly_Publications": "Publicaciones en el Año", "Normalized_Author_Name": "Autores"},
+            template="plotly_white"
         )
 
+        
         # Ajustar layout para la animación
         fig.update_layout(
             xaxis=dict(range=[0, df_final_filtered["Yearly_Publications"].max() * 1.1]),
