@@ -11,3 +11,4 @@ dtreeviz
 imageio
 kaleido
 moviepy
+imageio
