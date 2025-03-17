@@ -418,6 +418,11 @@ elif pagina == "Análisis por base":
         import plotly.express as px
         import numpy as np
 
+        import streamlit as st
+        import pandas as pd
+        import plotly.express as px
+        import numpy as np
+
         st.title("📊 Procesamiento y Análisis de Publicaciones Acumuladas")
 
         # Lista de autores a eliminar
@@ -429,33 +434,56 @@ elif pagina == "Análisis por base":
         year_min = min(years_sorted)
         year_max = max(years_sorted)
 
-        # Crear el deslizador interactivo
-        selected_year = st.slider("Selecciona un año", int(year_min), int(year_max), int(year_max))
-#        df_year_filtered = df_final_filtered[df_final_filtered["Year"] == selected_year]
+        # Calcular publicaciones por año para cada autor
+        df_final_filtered["Yearly_Publications"] = df_final_filtered.groupby(["Normalized_Author_Name", "Year"])["Cumulative_Publications"].diff().fillna(df_final_filtered["Cumulative_Publications"])
 
-
-        # Filtrar los datos hasta el año seleccionado
-        df_filtered = df_final_filtered[df_final_filtered["Year"] <= selected_year]
-
-        # Definir colores distintos para cada año
-        num_years = len(years_sorted)
-        df_filtered["Color"] = df_filtered["Year"].apply(lambda y: px.colors.sequential.Viridis[(y - year_min) % num_years])
-
-        # Crear el gráfico interactivo de barras apiladas
+        # Crear la gráfica de barras animada con estratificación por año    
         fig = px.bar(
-            df_filtered,
-            x="Cumulative_Publications",
+            df_final_filtered,
+            x="Yearly_Publications",
             y="Normalized_Author_Name",
             color="Year",
+            animation_frame="Year",
             orientation="h",
-            title=f"Evolución de Publicaciones Acumuladas - Año {selected_year}",
-            labels={"Cumulative_Publications": "Número Acumulado de Publicaciones", "Normalized_Author_Name": "Autores", "Year": "Año"},
+            title="Evolución de Publicaciones Acumuladas - Top 30 Autores",
+            labels={"Yearly_Publications": "Publicaciones en el Año", "Normalized_Author_Name": "Autores", "Year": "Año"},
             template="plotly_white",
             color_continuous_scale="Viridis"
         )
-        fig.update_layout(yaxis=dict(categoryorder="total ascending"))
+
+        # Ajustar layout para la animación
+        fig.update_layout(
+            xaxis=dict(range=[0, df_final_filtered["Yearly_Publications"].max() * 1.1]),
+            height=1000,
+            yaxis=dict(categoryorder="total ascending"),
+            updatemenus=[
+                {
+                    "buttons": [
+                        {
+                            "args": [None, {"frame": {"duration": 500, "redraw": True}, "fromcurrent": True}],
+                            "label": "Play",
+                            "method": "animate"
+                        },
+                        {
+                            "args": [[None], {"frame": {"duration": 0, "redraw": True}, "mode": "immediate", "transition": {"duration": 0}}],
+                            "label": "Pause",
+                            "method": "animate"
+                        }
+                    ],
+                    "direction": "left",
+                    "pad": {"r": 10, "t": 10},
+                    "showactive": False,
+                    "type": "buttons",
+                    "x": 0.1,
+                    "xanchor": "right",
+                    "y": 1.15,
+                    "yanchor": "top"
+                }
+            ]
+        )
+
         st.plotly_chart(fig)
-    
+
     
     
     else:
