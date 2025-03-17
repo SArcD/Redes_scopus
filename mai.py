@@ -440,21 +440,7 @@ elif pagina == "Análisis por base":
 
         # Calcular publicaciones por año para cada autor
         df_final_filtered["Yearly_Publications"] = df_final_filtered.groupby(["Normalized_Author_Name", "Year"])["Cumulative_Publications"].diff().fillna(df_final_filtered["Cumulative_Publications"])
-
-        # Crear la gráfica de barras animada con estratificación por año    
-        #fig = px.bar(
-        #    df_final_filtered,
-        #    x="Yearly_Publications",
-        #    y="Normalized_Author_Name",
-        #    color="Year",
-        #    animation_frame="Year",
-        #    orientation="h",
-        #    title="Evolución de Publicaciones Acumuladas - Top 30 Autores",
-        #    labels={"Yearly_Publications": "Publicaciones en el Año", "Normalized_Author_Name": "Autores", "Year": "Año"},
-        #    template="plotly_white",
-        #    color_continuous_scale="Viridis"
-        #)
-
+    
         # Crear la gráfica de barras animada con estratificación por año
         fig = px.bar(
             df_final_filtered,
@@ -468,11 +454,7 @@ elif pagina == "Análisis por base":
             template="plotly_white"
         )
 
-        # Agregar una línea vertical para marcar el año en la animación
-        #for frame in fig.frames:
-        #    #frame.data += (px.scatter(x=[0], y=[None], mode="lines", line=dict(color="black", width=2)).data[0],)
-        #    frame.data += (go.Scatter(x=[0, df_final_filtered["Yearly_Publications"].max()], y=[None, None], mode="lines", line=dict(color="black", width=2)),)
-        # Agregar una línea vertical para marcar el año en la animación
+
         for frame in fig.frames:
             year = frame.name
             frame.data += (go.Scatter(
@@ -484,7 +466,6 @@ elif pagina == "Análisis por base":
             ),)
 
 
-        
         # Ajustar layout para la animación
         fig.update_layout(
             xaxis=dict(range=[0, df_final_filtered["Yearly_Publications"].max() * 1.1]),
@@ -517,7 +498,6 @@ elif pagina == "Análisis por base":
         )
 
         st.plotly_chart(fig)
-
 
 
 
