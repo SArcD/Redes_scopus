@@ -438,34 +438,17 @@ elif pagina == "Análisis por base":
             author_cumulative_filtered = {author: 0 for author in top_authors_filtered}
             frames_filtered = []
 
-            for year in range(year_min, year_max + 1):
-                df_year = df_top30_filtered[df_top30_filtered["Year"] == year].copy()
-
-                for author in top_authors_filtered:
-                    if author in df_year["Normalized_Author_Name"].values:
-                        publications_this_year = df_year[df_year["Normalized_Author_Name"] == author]["Publications"].sum()
-                        author_cumulative_filtered[author] += publications_this_year
-
-                df_snapshot = pd.DataFrame({
-                    "Normalized_Author_Name": list(author_cumulative_filtered.keys()),
-                    "Cumulative_Publications": list(author_cumulative_filtered.values()),
-                    "Year": year
-                })
-                df_snapshot = df_snapshot.sort_values(by=["Cumulative_Publications", "Normalized_Author_Name"], ascending=[False, True]).head(30)
-                frames_filtered.append(df_snapshot)
-
-            df_final_filtered = pd.concat(frames_filtered)
-
             output_folder = "frames"
             os.makedirs(output_folder, exist_ok=True)
 
-            years_sorted = sorted(df_final_filtered["Year"].unique())
+            years_sorted = sorted(df_top30_filtered["Year"].unique())
             num_years = len(years_sorted)
             colors = plt.cm.viridis(np.linspace(0, 1, num_years))
 
-            frames = []
+            image_frames = []
+
             for i, year in enumerate(years_sorted):
-                df_year = df_final_filtered[df_final_filtered["Year"] == year].sort_values(by="Cumulative_Publications", ascending=True).head(30)
+                df_year = df_top30_filtered[df_top30_filtered["Year"] == year].sort_values(by="Cumulative_Publications", ascending=True).head(30)
 
                 fig, ax = plt.subplots(figsize=(20, 10))
                 for j, author in enumerate(df_year["Normalized_Author_Name"]):
@@ -480,29 +463,22 @@ elif pagina == "Análisis por base":
                 ax.set_xlabel("Número Acumulado de Publicaciones")
                 ax.set_ylabel("Autores")
                 ax.set_title(f"Evolución de Publicaciones Acumuladas - Año {year}")
-                plt.xlim(0, df_final_filtered["Cumulative_Publications"].max() * 1.1)
+                plt.xlim(0, df_top30_filtered["Cumulative_Publications"].max() * 1.1)
 
                 frame_path = f"{output_folder}/frame_{i:03d}.png"
                 plt.savefig(frame_path)
                 plt.close()
-                frames.append(frame_path)
+                image_frames.append(imageio.imread(frame_path))
 
-            last_frame = frames[-1]
-            frames.extend([last_frame] * 30)
+            gif_path = "publications_animation.gif"
+            imageio.mimsave(gif_path, image_frames, duration=0.5)
 
-            video_path = "publications_animation.mp4"
-            clip = mpy.ImageSequenceClip(frames, fps=1)
-            clip.write_videofile(video_path, codec="libx264")
+            st.success("✅ Animación generada correctamente.")
+            st.image(gif_path, caption="Evolución de Publicaciones Acumuladas", use_column_width=True)
 
-            st.success("✅ Video guardado como 'publications_animation.mp4'.")
-            st.video(video_path)
-            with open(video_path, "rb") as f:
-                st.download_button("📥 Descargar Video", f, file_name="publications_animation.mp4", mime="video/mp4")
+            with open(gif_path, "rb") as f:
+                st.download_button("📥 Descargar Animación", f, file_name="publications_animation.gif", mime="image/gif")
 
-    
-
-
-    
     
     
     else:
