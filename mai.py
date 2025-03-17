@@ -403,28 +403,21 @@ elif pagina == "Análisis por base":
         import plotly.express as px
         import matplotlib.pyplot as plt
         #import moviepy.editor as mpy
-        import os
-        import numpy as np
         import streamlit as st
         import pandas as pd
         import re
-        import unicodedata    
+        import unicodedata
         from collections import Counter
         import plotly.express as px
         import matplotlib.pyplot as plt
         import os
         import numpy as np
-        import imageio
+
+        #st.title("📊 Procesamiento y Análisis de Publicaciones Acumuladas")
 
 
-#st.title("📊 Procesamiento y Análisis de Publicaciones Acumuladas")
-
-## 📂 **Subir archivo CSV**
-#uploaded_file = st.file_uploader("Sube un archivo CSV", type=["csv"])
-
-#if uploaded_file is not None:
-#    df = pd.read_csv(uploaded_file, encoding='utf-8')
-        df=df_final_filtered
+        #df = pd.read_csv(uploaded_file, encoding='utf-8')
+        df = df_final_filtered
         if "Year" not in df.columns or "Normalized_Author_Name" not in df.columns:
             st.error("❌ El archivo no contiene las columnas necesarias ('Year', 'Normalized_Author_Name').")
         else:
@@ -447,49 +440,39 @@ elif pagina == "Análisis por base":
 
             df_top30_filtered["Cumulative_Publications"] = 0
             author_cumulative_filtered = {author: 0 for author in top_authors_filtered}
-            frames_filtered = []
-
-            output_folder = "frames"
-            os.makedirs(output_folder, exist_ok=True)
-
             years_sorted = sorted(df_top30_filtered["Year"].unique())
-            num_years = len(years_sorted)
-            colors = plt.cm.viridis(np.linspace(0, 1, num_years))
 
-            image_frames = []
+            for year in years_sorted:
+                df_year = df_top30_filtered[df_top30_filtered["Year"] == year].copy()
+                for author in top_authors_filtered:
+                    if author in df_year["Normalized_Author_Name"].values:
+                        publications_this_year = df_year[df_year["Normalized_Author_Name"] == author]["Publications"].sum()
+                        author_cumulative_filtered[author] += publications_this_year
 
-            for i, year in enumerate(years_sorted):
-                df_year = df_top30_filtered[df_top30_filtered["Year"] == year].sort_values(by="Cumulative_Publications", ascending=True).head(30)
+            df_final_filtered = pd.DataFrame({
+                "Normalized_Author_Name": list(author_cumulative_filtered.keys()),
+                "Cumulative_Publications": list(author_cumulative_filtered.values()),
+                "Year": list(years_sorted)[-1]
+            })
 
-                fig, ax = plt.subplots(figsize=(20, 10))
-                for j, author in enumerate(df_year["Normalized_Author_Name"]):
-                    prev_total = 0
-                    for k, prev_year in enumerate(years_sorted[:i+1]):
-                        if author in author_cumulative_filtered and prev_year in author_cumulative_filtered[author]:
-                            pub_count = author_cumulative_filtered[author][prev_year]
-                            if pub_count > prev_total:
-                                ax.barh(author, pub_count - prev_total, left=prev_total, color=colors[k], edgecolor='black', height=0.6)
-                                prev_total = pub_count
+            selected_year = st.slider("Selecciona un año", int(year_min), int(year_max), int(year_max))
+            df_year_filtered = df_top30_filtered[df_top30_filtered["Year"] == selected_year]
 
-                ax.set_xlabel("Número Acumulado de Publicaciones")
-                ax.set_ylabel("Autores")
-                ax.set_title(f"Evolución de Publicaciones Acumuladas - Año {year}")
-                plt.xlim(0, df_top30_filtered["Cumulative_Publications"].max() * 1.1)
+            fig = px.bar(
+                df_year_filtered,
+                x="Cumulative_Publications",
+                y="Normalized_Author_Name",
+                orientation="h",
+                title=f"Evolución de Publicaciones Acumuladas - Año {selected_year}",
+                labels={"Cumulative_Publications": "Número Acumulado de Publicaciones", "Normalized_Author_Name": "Autores"},
+                template="plotly_white"
+            )
+            fig.update_layout(yaxis=dict(categoryorder="total ascending"))
+            st.plotly_chart(fig)
 
-                frame_path = f"{output_folder}/frame_{i:03d}.png"
-                plt.savefig(frame_path)
-                plt.close()
-                image_frames.append(imageio.imread(frame_path))
 
-            gif_path = "publications_animation.gif"
-            imageio.mimsave(gif_path, image_frames, duration=0.5)
 
-            st.success("✅ Animación generada correctamente.")
-            st.image(gif_path, caption="Evolución de Publicaciones Acumuladas", use_column_width=True)
-
-            with open(gif_path, "rb") as f:
-                st.download_button("📥 Descargar Animación", f, file_name="publications_animation.gif", mime="image/gif")
-
+    
     
     
     else:
