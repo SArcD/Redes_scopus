@@ -413,65 +413,39 @@ elif pagina == "Análisis por base":
         import os
         import numpy as np
 
-        #st.title("📊 Procesamiento y Análisis de Publicaciones Acumuladas")
+        import streamlit as st
+        import pandas as pd
+        import plotly.express as px
+        import numpy as np
 
+        st.title("📊 Procesamiento y Análisis de Publicaciones Acumuladas")
 
-        #df = pd.read_csv(uploaded_file, encoding='utf-8')
-        #df = df_final_filtered
-        if "Year" not in df.columns or "Normalized_Author_Name" not in df.columns:
-            st.error("❌ El archivo no contiene las columnas necesarias ('Year', 'Normalized_Author_Name').")
-        else:
-            df["Year"] = df["Year"].astype(str)
-            df_expanded = df.assign(Year=df["Year"].str.split(";")).explode("Year")
-            df_expanded[["Year", "Publications"]] = df_expanded["Year"].str.extract(r'(\d{4})\s*\((\d+)\)')
-            df_expanded["Year"] = pd.to_numeric(df_expanded["Year"], errors='coerce')
-            df_expanded["Publications"] = pd.to_numeric(df_expanded["Publications"], errors='coerce')
-            df_expanded = df_expanded.dropna(subset=["Year", "Publications"])
-            df_expanded = df_expanded.sort_values(by=["Year", "Normalized_Author_Name"])
+        # Lista de autores a eliminar
+        authors_to_remove = ["crossa,", "murillo zamora, efren", "guzman esquivel,", "martinez fierro,"]
+        df_final_filtered = df_final_filtered[~df_final_filtered["Normalized_Author_Name"].isin(authors_to_remove)]
 
-            authors_to_remove = ["crossa,", "murillo zamora, efren", "guzman esquivel,", "martinez fierro,"]
-            df_expanded_filtered = df_expanded[~df_expanded["Normalized_Author_Name"].isin(authors_to_remove)]
+        # Obtener los años en orden
+        years_sorted = sorted(df_final_filtered["Year"].unique())
+        year_min = min(years_sorted)
+        year_max = max(years_sorted)
 
-            top_authors_filtered = df_expanded_filtered.groupby("Normalized_Author_Name")["Publications"].sum().nlargest(30).index
-            df_top30_filtered = df_expanded_filtered[df_expanded_filtered["Normalized_Author_Name"].isin(top_authors_filtered)].copy()
+        # Crear el deslizador interactivo
+        selected_year = st.slider("Selecciona un año", int(year_min), int(year_max), int(year_max))
+        df_year_filtered = df_final_filtered[df_final_filtered["Year"] == selected_year]
 
-            year_min = df_top30_filtered["Year"].min()
-            year_max = df_top30_filtered["Year"].max()
-
-            df_top30_filtered["Cumulative_Publications"] = 0
-            author_cumulative_filtered = {author: 0 for author in top_authors_filtered}
-            years_sorted = sorted(df_top30_filtered["Year"].unique())
-
-            for year in years_sorted:
-                df_year = df_top30_filtered[df_top30_filtered["Year"] == year].copy()
-                for author in top_authors_filtered:
-                    if author in df_year["Normalized_Author_Name"].values:
-                        publications_this_year = df_year[df_year["Normalized_Author_Name"] == author]["Publications"].sum()
-                        author_cumulative_filtered[author] += publications_this_year
-
-            df_final_filtered = pd.DataFrame({
-                "Normalized_Author_Name": list(author_cumulative_filtered.keys()),
-                "Cumulative_Publications": list(author_cumulative_filtered.values()),
-                "Year": list(years_sorted)[-1]
-            })
-
-            selected_year = st.slider("Selecciona un año", int(year_min), int(year_max), int(year_max))
-            df_year_filtered = df_top30_filtered[df_top30_filtered["Year"] == selected_year]
-
-            fig = px.bar(
-                df_year_filtered,
-                x="Cumulative_Publications",
-                y="Normalized_Author_Name",
-                orientation="h",
-                title=f"Evolución de Publicaciones Acumuladas - Año {selected_year}",
-                labels={"Cumulative_Publications": "Número Acumulado de Publicaciones", "Normalized_Author_Name": "Autores"},
-                template="plotly_white"
-            )
-            fig.update_layout(yaxis=dict(categoryorder="total ascending"))
-            st.plotly_chart(fig)
-
-
-
+        # Crear el gráfico interactivo
+        fig = px.bar(
+            df_year_filtered,
+            x="Cumulative_Publications",
+            y="Normalized_Author_Name",
+            orientation="h",
+            title=f"Evolución de Publicaciones Acumuladas - Año {selected_year}",
+            labels={"Cumulative_Publications": "Número Acumulado de Publicaciones", "Normalized_Author_Name": "Autores"},
+            template="plotly_white"
+        )
+        fig.update_layout(yaxis=dict(categoryorder="total ascending"))
+        st.plotly_chart(fig)
+    
     
     
     
