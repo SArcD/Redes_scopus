@@ -952,6 +952,50 @@ elif pagina == "Análisis por base":
 
 
 
+        import streamlit as st
+        import pandas as pd
+        import plotly.express as px
+        import plotly.graph_objects as go
+        import numpy as np
+        from sklearn.preprocessing import StandardScaler
+        from sklearn.cluster import AgglomerativeClustering
+        from sklearn.manifold import TSNE
+        import plotly.colors as pc
+        from sklearn.model_selection import train_test_split
+        from sklearn.tree import DecisionTreeClassifier, plot_tree
+        from sklearn.metrics import classification_report, confusion_matrix
+        import seaborn as sns
+        import matplotlib.pyplot as plt
+
+        st.title("📊 Clustering Jerárquico y Árbol de Decisión de Autores en Función de su Producción Académica")
+
+        # Convertir a valores numéricos
+        df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
+        df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
+        df_ucol["Funded_publications"] = pd.to_numeric(df_ucol["Funded_publications"], errors='coerce')
+        df_ucol["Seniority"] = pd.to_numeric(df_ucol["Seniority"], errors='coerce')
+
+        # Crear la variable Funding Ratio
+        df_ucol["Funding_Ratio"] = df_ucol["Funded_publications"] / df_ucol["Publications"]
+        df_ucol["Funding_Ratio"] = df_ucol["Funding_Ratio"].fillna(0)
+
+        # Filtrar datos válidos
+        df_valid = df_ucol.dropna(subset=["Funding_Ratio", "Publications", "Cited_by", "Seniority", "Cluster"])
+
+        # Definir variables predictoras y objetivo
+        X = df_valid[["Funding_Ratio", "Publications", "Cited_by", "Seniority"]]
+
+        # Crear un diccionario para asignar los clusters originales a etiquetas ordenadas
+        cluster_mapping = {cluster: idx for idx, cluster in enumerate(sorted(df_valid["Cluster"].unique()))}
+        reverse_mapping = {v: k for k, v in cluster_mapping.items()}  # Para revertir la codificación
+
+        # Reemplazar los valores originales por los índices ordenados    
+        y = df_valid["Cluster"].map(cluster_mapping).astype(int)
+
+        # Entrenar el modelo de Árbol de Decisión
+        clf = DecisionTreeClassifier(random_state=42, max_depth=4)
+        clf.fit(X, y)
+
         # 📌 **Formulario Inteligente para Asignación de Cluster**
         st.header("📝 Predicción de Cluster Basado en Estadísticas de Autor")
 
@@ -963,10 +1007,11 @@ elif pagina == "Análisis por base":
         if st.button("📌 Asignar Cluster"):
             user_data = np.array([[funding_ratio, publications, cited_by, seniority]])
             predicted_cluster_idx = clf.predict(user_data)[0]
-            predicted_cluster = reverse_mapping[predicted_cluster_idx]
-    
+            #predicted_cluster = str(reverse_mapping[predicted_cluster_idx])  # 🔹 Convertir a string para evitar errores en el diccionario
+            predicted_cluster = str(int(reverse_mapping[predicted_cluster_idx]))  # 🔹 Convertimos primero a entero y luego a string
+
             st.success(f"🎯 Has sido asignado al Cluster {predicted_cluster}")
-    
+        
             # Explicación basada en el perfil de publicaciones
             cluster_explanations = {
                 "0": "Autores con baja producción y pocas citas, posiblemente en inicio de carrera.",
@@ -976,7 +1021,9 @@ elif pagina == "Análisis por base":
                 "4": "Autores con una trayectoria consolidada, con muchas publicaciones y alta citación."
             }
     
-            st.info(cluster_explanations.get(str(predicted_cluster), "Descripción no disponible."))
+            st.info(cluster_explanations.get(predicted_cluster, "Descripción no disponible."))
+
+
 
 
 
