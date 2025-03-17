@@ -469,7 +469,8 @@ elif pagina == "Análisis por base":
 
         # Agregar una línea vertical para marcar el año en la animación
         for frame in fig.frames:
-            frame.data += (px.scatter(x=[0], y=[None], mode="lines", line=dict(color="black", width=2)).data[0],)
+            #frame.data += (px.scatter(x=[0], y=[None], mode="lines", line=dict(color="black", width=2)).data[0],)
+            frame.data += (go.Scatter(x=[0, df_final_filtered["Yearly_Publications"].max()], y=[None, None], mode="lines", line=dict(color="black", width=2)),)
 
         # Ajustar layout para la animación
         fig.update_layout(
