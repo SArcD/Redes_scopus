@@ -500,6 +500,68 @@ elif pagina == "Análisis por base":
         st.plotly_chart(fig)
 
 
+#####################################################################################3
+
+        import streamlit as st
+        import pandas as pd
+        import plotly.graph_objects as go
+        import numpy as np
+        import scipy.stats as stats
+
+        st.title("📊 Correlación entre Número de Artículos y Número de Citas")
+
+        # Convertir a valores numéricos (por si hay valores en string)
+        df_final_filtered["Cited_by"] = pd.to_numeric(df_final_filtered["Cited_by"], errors='coerce')
+        df_final_filtered["Publications"] = pd.to_numeric(df_final_filtered["Publications"], errors='coerce')
+
+        # Eliminar valores NaN si existen
+        df_correlation = df_final_filtered[["Cited_by", "Publications", "Author(s)_ID", "Normalized_Author_Name"]].dropna()
+
+        # Calcular la correlación de Pearson
+        correlation_coefficient, p_value = stats.pearsonr(df_correlation["Cited_by"], df_correlation["Publications"])
+
+        # Ajustar una línea de tendencia (regresión lineal)
+        slope, intercept = np.polyfit(df_correlation["Publications"], df_correlation["Cited_by"], 1)
+        x_line = np.linspace(df_correlation["Publications"].min(), df_correlation["Publications"].max(), 100)
+        y_line = slope * x_line + intercept
+
+        # Crear la gráfica de dispersión con información adicional en el tooltip
+        fig_corr = go.Figure()
+
+        # Agregar los puntos de dispersión con el ID y nombre del autor en el hover
+        fig_corr.add_trace(go.Scatter(
+            x=df_correlation["Publications"],
+            y=df_correlation["Cited_by"],
+            mode="markers",
+            marker=dict(color="blue", opacity=0.5, size=6),
+            text=df_correlation["Normalized_Author_Name"] + "<br>ID: " + df_correlation["Author(s)_ID"].astype(str),
+            hoverinfo="text+x+y",
+            name="Datos"
+        ))
+
+        # Agregar la línea de tendencia
+        fig_corr.add_trace(go.Scatter(
+            x=x_line,
+            y=y_line,
+            mode="lines",
+            line=dict(color="red", width=2),
+            name="Línea de tendencia"
+        ))
+
+        # Configurar el diseño
+        fig_corr.update_layout(
+            title=f"Correlación entre Número de Artículos y Número de Citas<br>Coeficiente de Pearson: {correlation_coefficient:.2f}, p-valor: {p_value:.3f}",
+            xaxis_title="Número Total de Artículos",
+            yaxis_title="Número Total de Citas",
+            template="plotly_white"
+        )    
+
+        # Mostrar la gráfica interactiva
+        st.plotly_chart(fig_corr)
+
+
+
+    
 
 
     
