@@ -814,6 +814,75 @@ elif pagina == "Análisis por base":
         st.plotly_chart(fig_pie)
 
 
+    ##################################################################################3
+
+        import streamlit as st
+        import pandas as pd
+        import plotly.express as px
+        import plotly.graph_objects as go
+        import numpy as np
+        from sklearn.preprocessing import StandardScaler
+        from sklearn.cluster import AgglomerativeClustering
+        from sklearn.manifold import TSNE
+        import plotly.colors as pc
+
+        st.title("📊 Clustering Jerárquico de Autores en Función de su Producción Académica")
+
+        # Convertir a valores numéricos
+        df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
+        df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
+        df_ucol["Funded_publications"] = pd.to_numeric(df_ucol["Funded_publications"], errors='coerce')
+        df_ucol["Seniority"] = pd.to_numeric(df_ucol["Seniority"], errors='coerce')
+
+        # Crear la variable Funding Ratio
+        df_ucol["Funding_Ratio"] = df_ucol["Funded_publications"] / df_ucol["Publications"]
+        df_ucol["Funding_Ratio"] = df_ucol["Funding_Ratio"].fillna(0)
+
+        # Eliminar índices duplicados si existen
+        df_ucol = df_ucol.drop_duplicates()
+
+        # Filtrar solo las columnas necesarias para el análisis    
+        df_boxplot = df_ucol[["Cluster", "Publications", "Cited_by", "Seniority", "Funding_Ratio"]].copy()
+
+        # Convertir "Cluster" a tipo categórico
+        df_boxplot["Cluster"] = df_boxplot["Cluster"].astype(str)
+    
+        # Definir colores de los clusters extraídos de la visualización t-SNE
+        cluster_colors = pc.qualitative.Plotly[:len(df_boxplot["Cluster"].unique())]
+        color_mapping = {str(cluster): color for cluster, color in zip(df_boxplot["Cluster"].unique(), cluster_colors)}
+
+        # Crear los diagramas de caja con los colores de los clusters
+        fig1 = px.box(df_boxplot, x="Cluster", y="Publications", color="Cluster",
+              title="Número de Publicaciones por Cluster",
+              labels={"Cluster": "Cluster", "Publications": "Número de Publicaciones"},
+              notched=True, template="plotly_white",
+              color_discrete_map=color_mapping)
+
+        fig2 = px.box(df_boxplot, x="Cluster", y="Cited_by", color="Cluster",
+              title="Número de Citas por Cluster",
+              labels={"Cluster": "Cluster", "Cited_by": "Número de Citas"},
+              notched=True, template="plotly_white",
+              color_discrete_map=color_mapping)
+
+        fig3 = px.box(df_boxplot, x="Cluster", y="Funding_Ratio", color="Cluster",
+              title="Cociente de Publicaciones Financiadas por Cluster",
+              labels={"Cluster": "Cluster", "Funding_Ratio": "Proporción de Publicaciones Financiadas"},
+              notched=True, template="plotly_white",
+              color_discrete_map=color_mapping)
+
+        fig4 = px.box(df_boxplot, x="Cluster", y="Seniority", color="Cluster",
+              title="Antigüedad por Cluster",
+              labels={"Cluster": "Cluster", "Seniority": "Años desde la Primera Publicación"},
+              notched=True, template="plotly_white",
+              color_discrete_map=color_mapping)
+
+        # Mostrar las gráficas en Streamlit
+        st.plotly_chart(fig1)
+        st.plotly_chart(fig2)
+        st.plotly_chart(fig3)
+        st.plotly_chart(fig4)
+
+
 
 
 
