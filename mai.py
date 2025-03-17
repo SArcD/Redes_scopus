@@ -945,7 +945,7 @@ elif pagina == "Análisis por base":
 
         # Visualización del Árbol de Decisión
         st.subheader("📌 Visualización del Árbol de Decisión")
-        fig, ax = plt.subplots(figsize=(12, 6))
+        fig, ax = plt.subplots(figsize=(30, 15))
         plot_tree(clf, feature_names=X.columns, class_names=[str(reverse_mapping[c]) for c in sorted(y.unique())],
                   filled=True, fontsize=8, ax=ax)
         st.pyplot(fig)
