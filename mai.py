@@ -431,21 +431,30 @@ elif pagina == "Análisis por base":
 
         # Crear el deslizador interactivo
         selected_year = st.slider("Selecciona un año", int(year_min), int(year_max), int(year_max))
-        df_year_filtered = df_final_filtered[df_final_filtered["Year"] == selected_year]
+#        df_year_filtered = df_final_filtered[df_final_filtered["Year"] == selected_year]
 
-        # Crear el gráfico interactivo
+
+        # Filtrar los datos hasta el año seleccionado
+        df_filtered = df_final_filtered[df_final_filtered["Year"] <= selected_year]
+
+        # Definir colores distintos para cada año
+        num_years = len(years_sorted)
+        df_filtered["Color"] = df_filtered["Year"].apply(lambda y: px.colors.sequential.Viridis[(y - year_min) % num_years])
+
+        # Crear el gráfico interactivo de barras apiladas
         fig = px.bar(
-            df_year_filtered,
+            df_filtered,
             x="Cumulative_Publications",
             y="Normalized_Author_Name",
+            color="Year",
             orientation="h",
             title=f"Evolución de Publicaciones Acumuladas - Año {selected_year}",
-            labels={"Cumulative_Publications": "Número Acumulado de Publicaciones", "Normalized_Author_Name": "Autores"},
-            template="plotly_white"
+            labels={"Cumulative_Publications": "Número Acumulado de Publicaciones", "Normalized_Author_Name": "Autores", "Year": "Año"},
+            template="plotly_white",
+            color_continuous_scale="Viridis"
         )
         fig.update_layout(yaxis=dict(categoryorder="total ascending"))
         st.plotly_chart(fig)
-    
     
     
     
