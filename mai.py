@@ -684,6 +684,79 @@ elif pagina == "Análisis por base":
         st.plotly_chart(fig_publications)
 
     
+###############################################################################################################
+
+        import streamlit as st
+        import pandas as pd
+        import plotly.express as px
+        import plotly.graph_objects as go
+        import numpy as np
+        from sklearn.preprocessing import StandardScaler
+        from sklearn.cluster import AgglomerativeClustering
+        from sklearn.manifold import TSNE
+
+        st.title("📊 Clustering Jerárquico de Autores en Función de su Producción Académica")
+
+        # Convertir a valores numéricos
+        df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
+        df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
+        df_ucol["Funded_publications"] = pd.to_numeric(df_ucol["Funded_publications"], errors='coerce')
+
+        # Crear la variable Funding Ratio
+        df_ucol["Funding_Ratio"] = df_ucol["Funded_publications"] / df_ucol["Publications"]
+        df_ucol["Funding_Ratio"] = df_ucol["Funding_Ratio"].fillna(0)
+
+        # Convertir Year a string y extraer el primer año de publicación
+        df_ucol["Year"] = df_ucol["Year"].astype(str)
+        df_ucol["First_Year"] = pd.to_numeric(df_ucol["Year"].str.extract(r'(\d{4})')[0], errors='coerce')
+
+        # Calcular la antigüedad (años desde la primera publicación hasta 2025)
+        df_ucol["Seniority"] = 2025 - df_ucol["First_Year"]
+
+        # Filtrar valores válidos
+        df_valid = df_ucol.dropna(subset=["Publications", "Cited_by", "Seniority", "Funding_Ratio"])[
+            ["Publications", "Cited_by", "Seniority", "Funding_Ratio"]
+        ]
+
+        # Estandarizar los datos
+        scaler = StandardScaler()
+        df_scaled = scaler.fit_transform(df_valid)
+
+        # Aplicar Hierarchical Clustering (Agglomerative Clustering)
+        num_clusters = 5
+        agg_clustering = AgglomerativeClustering(n_clusters=num_clusters, linkage="ward")
+        df_ucol.loc[df_valid.index, "Cluster"] = agg_clustering.fit_predict(df_scaled)
+
+        # Aplicar t-SNE para reducir dimensiones
+        tsne = TSNE(n_components=2, random_state=42)
+        df_ucol.loc[df_valid.index, ["TSNE1", "TSNE2"]] = tsne.fit_transform(df_scaled)
+
+        # Crear la gráfica de dispersión con t-SNE y curvas de nivel
+        fig_clusters = px.scatter(
+            df_ucol,
+            x="TSNE1",
+            y="TSNE2",
+            color=df_ucol["Cluster"].astype(str),
+            title="Visualización t-SNE de Clusters con Cuatro Variables (Hierarchical Clustering)",
+            labels={"TSNE1": "Componente t-SNE 1", "TSNE2": "Componente t-SNE 2", "Cluster": "Cluster"},
+            hover_data={
+                "Author(s)_ID": True,
+                "Normalized_Author_Name": True,
+                "Seniority": True,
+                "Funding_Ratio": True
+            },
+            template="plotly_white"
+        )
+
+        # Agregar curvas de nivel    
+        fig_clusters.add_trace(go.Histogram2dContour(
+            x=df_ucol["TSNE1"],
+            y=df_ucol["TSNE2"],
+            colorscale="blues",
+            showscale=False
+        ))
+
+        st.plotly_chart(fig_clusters)
 
 
     
