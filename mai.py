@@ -1025,6 +1025,61 @@ elif pagina == "Análisis por base":
 
 
 
+#############################################################################################################
+
+        # 📌 Comparación Gráfica con el Cluster y Toda la Base
+        st.header("📊 Comparación con Cluster y Base Completa")
+
+        # Filtrar los datos del cluster asignado
+        df_cluster = df_valid[df_valid["Cluster"] == int(predicted_cluster)]
+
+        # Crear un DataFrame con los valores del usuario para graficarlo
+        df_user = pd.DataFrame({
+            "Categoría": ["Usuario"] * 4,
+            "Métrica": ["Publications", "Cited_by", "Seniority", "Funding_Ratio"],
+            "Valor": [publications, cited_by, seniority, funding_ratio]
+        })
+
+        # Crear DataFrame para el cluster y la base
+        df_cluster_melted = df_cluster.melt(id_vars=["Cluster"], value_vars=["Publications", "Cited_by", "Seniority", "Funding_Ratio"], 
+                                    var_name="Métrica", value_name="Valor")
+        df_base_melted = df_valid.melt(id_vars=["Cluster"], value_vars=["Publications", "Cited_by", "Seniority", "Funding_Ratio"], 
+                               var_name="Métrica", value_name="Valor")
+
+        # 📌 **Boxplot con Comparación entre Usuario, Cluster y Base**
+        fig_box = px.box(df_base_melted, x="Métrica", y="Valor", color="Métrica",
+                 title="Comparación con la Distribución de la Base",
+                 labels={"Valor": "Valor de la Métrica", "Métrica": "Métrica Evaluada"},
+                 template="plotly_white")
+
+        # Agregar puntos de usuario
+        for i, row in df_user.iterrows():
+            fig_box.add_trace(go.Scatter(
+                x=[row["Métrica"]], y=[row["Valor"]], 
+                mode="markers+text", text="📍", textposition="top center",
+                marker=dict(color="red", size=12),
+                name="Usuario"
+            ))
+
+        # 📌 **Diagrama de Violín con Comparación con el Cluster**
+        fig_violin = px.violin(df_cluster_melted, x="Métrica", y="Valor", color="Métrica",
+                       box=True, points="all",
+                       title="Distribución en el Cluster Asignado",
+                       labels={"Valor": "Valor de la Métrica", "Métrica": "Métrica Evaluada"},
+                       template="plotly_white")
+
+        # Agregar puntos de usuario
+        for i, row in df_user.iterrows():
+            fig_violin.add_trace(go.Scatter(
+                x=[row["Métrica"]], y=[row["Valor"]], 
+                mode="markers+text", text="📍", textposition="top center",
+                marker=dict(color="red", size=12),
+                name="Usuario"
+            ))
+
+        # 📌 **Mostrar Gráficos**        
+        st.plotly_chart(fig_box)
+        st.plotly_chart(fig_violin)
 
 
 
