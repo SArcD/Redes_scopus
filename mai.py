@@ -511,11 +511,11 @@ elif pagina == "Análisis por base":
         st.title("📊 Correlación entre Número de Artículos y Número de Citas")
 
         # Convertir a valores numéricos (por si hay valores en string)
-        df_final_filtered["Cited_by"] = pd.to_numeric(df_final_filtered["Cited_by"], errors='coerce')
-        df_final_filtered["Publications"] = pd.to_numeric(df_final_filtered["Publications"], errors='coerce')
+        df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
+        df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
 
         # Eliminar valores NaN si existen
-        df_correlation = df_final_filtered[["Cited_by", "Publications", "Author(s)_ID", "Normalized_Author_Name"]].dropna()
+        df_correlation = df_ucol[["Cited_by", "Publications", "Author(s)_ID", "Normalized_Author_Name"]].dropna()
 
         # Calcular la correlación de Pearson
         correlation_coefficient, p_value = stats.pearsonr(df_correlation["Cited_by"], df_correlation["Publications"])
