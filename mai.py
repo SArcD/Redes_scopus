@@ -882,6 +882,64 @@ elif pagina == "Análisis por base":
         st.plotly_chart(fig3)
         st.plotly_chart(fig4)
 
+    #####################################################################################333
+
+        # 🏆 **Árbol de Decisión para Predicción de Clusters**
+        st.header("🌳 Árbol de Decisión para Predicción de Clusters")
+
+        # Filtrar datos válidos
+        df_valid = df_ucol.dropna(subset=["Funding_Ratio", "Publications", "Cited_by", "Seniority", "Cluster"])
+
+        # Definir variables predictoras y objetivo
+        X = df_valid[["Funding_Ratio", "Publications", "Cited_by", "Seniority"]]
+
+        # Crear un diccionario para asignar los clusters originales a etiquetas ordenadas
+        cluster_mapping = {cluster: idx for idx, cluster in enumerate(sorted(df_valid["Cluster"].unique()))}
+        reverse_mapping = {v: k for k, v in cluster_mapping.items()}  # Para revertir la codificación
+
+        # Reemplazar los valores originales por los índices ordenados
+        y = df_valid["Cluster"].map(cluster_mapping).astype(int)
+
+        # Dividir en conjunto de entrenamiento y prueba
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Entrenar el modelo de Árbol de Decisión
+        clf = DecisionTreeClassifier(random_state=42, max_depth=4)
+        clf.fit(X_train, y_train)
+
+        # Evaluar el modelo
+        y_pred = clf.predict(X_test)
+
+        # Reconvertir las predicciones y etiquetas originales a los valores reales de cluster
+        y_test_original = y_test.map(reverse_mapping)
+        y_pred_original = pd.Series(y_pred).map(reverse_mapping)
+
+        # Matriz de confusión
+        st.subheader("📌 Matriz de Confusión")
+        st.write(pd.DataFrame(confusion_matrix(y_test_original, y_pred_original),
+                      index=[f"Actual {reverse_mapping[c]}" for c in sorted(y.unique())],
+                      columns=[f"Predicho {reverse_mapping[c]}" for c in sorted(y.unique())]))
+
+        # Reporte de Clasificación
+        st.subheader("📌 Reporte de Clasificación")
+        st.text(classification_report(y_test_original, y_pred_original))
+
+        # Importancia de las Variables
+        st.subheader("📌 Importancia de las Variables en el Modelo")
+        importances = pd.Series(clf.feature_importances_, index=X.columns)
+        fig_importance = px.bar(importances, x=importances.index, y=importances.values,
+                        labels={"x": "Variables", "y": "Importancia Relativa"},
+                        title="Importancia de las Variables en el Árbol de Decisión",
+                        template="plotly_white")
+        st.plotly_chart(fig_importance)
+
+        # Visualización del Árbol de Decisión
+        st.subheader("📌 Visualización del Árbol de Decisión")
+        fig, ax = plt.subplots(figsize=(12, 6))
+        plot_tree(clf, feature_names=X.columns, class_names=[str(reverse_mapping[c]) for c in sorted(y.unique())],
+                  filled=True, fontsize=8, ax=ax)
+        st.pyplot(fig)
+
 
 
 
