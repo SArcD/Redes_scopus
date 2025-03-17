@@ -382,42 +382,12 @@ elif pagina == "Análisis por base":
         )
 
         # Aplicar el orden inverso en el eje Y para que los autores con más publicaciones estén abajo
-        #fig_filtered.update_layout(
-        #    xaxis=dict(range=[0, df_max_values_filtered["Cumulative_Publications"].max()]),
-        #    height=1000,  # Aumentar la altura para evitar que los nombres se aplasten
-        #    yaxis=dict(categoryorder="array", categoryarray=final_order[::-1])  # Invertir el orden de los autores
-        #)
-
-            # Ajustar layout para la animación
-        fig.update_layout(
-            xaxis=dict(range=[0, df_final_filtered["Yearly_Publications"].max() * 1.1]),
-            height=1000,
-            yaxis=dict(categoryorder="total ascending"),
-            updatemenus=[
-                {
-                    "buttons": [
-                        {
-                            "args": [None, {"frame": {"duration": 500, "redraw": True}, "fromcurrent": True}],
-                            "label": "Play",
-                            "method": "animate"
-                        },
-                        {
-                            "args": [[None], {"frame": {"duration": 0, "redraw": True}, "mode": "immediate", "transition": {"duration": 0}}],
-                            "label": "Pause",
-                            "method": "animate"
-                        }
-                    ],
-                    "direction": "left",
-                    "pad": {"r": 10, "t": 10},
-                    "showactive": False,
-                    "type": "buttons",
-                    "x": 0.1,
-                    "xanchor": "right",
-                    "y": 1.15,
-                    "yanchor": "top"
-                }
-            ]
+        fig_filtered.update_layout(
+            xaxis=dict(range=[0, df_max_values_filtered["Cumulative_Publications"].max()]),
+            height=1000,  # Aumentar la altura para evitar que los nombres se aplasten
+            yaxis=dict(categoryorder="array", categoryarray=final_order[::-1])  # Invertir el orden de los autores
         )
+
 
 
         
@@ -529,9 +499,42 @@ elif pagina == "Análisis por base":
             ]
         )
 
+
+
+                # Ajustar layout para la animación
+        fig.update_layout(
+            xaxis=dict(range=[0, df_final_filtered["Yearly_Publications"].max() * 1.1]),
+            height=1000,
+            yaxis=dict(categoryorder="total ascending"),
+            updatemenus=[
+                {
+                    "buttons": [
+                        {
+                            "args": [None, {"frame": {"duration": 500, "redraw": True}, "fromcurrent": True}],
+                            "label": "Play",
+                            "method": "animate"
+                        },
+                        {
+                            "args": [[None], {"frame": {"duration": 0, "redraw": True}, "mode": "immediate", "transition": {"duration": 0}}],
+                            "label": "Pause",
+                            "method": "animate"
+                        }
+                    ],
+                    "direction": "left",
+                    "pad": {"r": 10, "t": 10},
+                    "showactive": False,
+                    "type": "buttons",
+                    "x": 0.1,
+                    "xanchor": "right",
+                    "y": 1.15,
+                    "yanchor": "top"
+                }
+            ]
+        )
+
+
         st.plotly_chart(fig)
 
-    
     
     else:
         st.info("📂 **Sube un archivo CSV para comenzar**")
