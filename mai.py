@@ -1028,6 +1028,19 @@ elif pagina == "Análisis por base":
         # 📌 **Comparación Tabular del Usuario con Cluster y Base Completa**
         st.subheader("📋 Comparación con el Cluster y la Base Completa")
 
+        # 📌 **Comparación Visual Mejorada con Dos Arreglos de Gráficos**
+        st.header("📊 Comparación del Usuario con su Cluster y la Base Completa")
+
+        # 📌 **Filtrar Datos del Cluster y Crear DataFrame del Usuario**
+        df_cluster = df_valid[df_valid["Cluster"] == int(predicted_cluster)]
+
+        df_user = pd.DataFrame({
+            "Métrica": ["Publications", "Cited_by", "Seniority", "Funding_Ratio"],
+            "Valor": [publications, cited_by, seniority, funding_ratio]
+        })
+
+
+        
         # 📌 **Calcular Estadísticas**
         comparison_data = {
             "Métrica": ["Publicaciones", "Citas", "Antigüedad", "Ratio de Financiamiento"],
@@ -1076,16 +1089,6 @@ elif pagina == "Análisis por base":
 
 #############################################################################################################
 
-        # 📌 **Comparación Visual Mejorada con Dos Arreglos de Gráficos**
-        st.header("📊 Comparación del Usuario con su Cluster y la Base Completa")
-
-        # 📌 **Filtrar Datos del Cluster y Crear DataFrame del Usuario**
-        df_cluster = df_valid[df_valid["Cluster"] == int(predicted_cluster)]
-
-        df_user = pd.DataFrame({
-            "Métrica": ["Publications", "Cited_by", "Seniority", "Funding_Ratio"],
-            "Valor": [publications, cited_by, seniority, funding_ratio]
-        })
 
         # 📌 **Definir Función para Graficar Comparaciones**
         def plot_comparison(metric, title, y_label):
