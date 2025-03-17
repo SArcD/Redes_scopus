@@ -759,6 +759,70 @@ elif pagina == "Análisis por base":
         st.plotly_chart(fig_clusters)
 
 
+        # Filtrar los autores que están en el cluster 1.0
+        df_cluster_0 = df_ucol[df_ucol["Cluster"] == 0.0]
+        # Omitir las columnas "Correspondence_Address" y "Year" en el DataFrame df_cluster_1
+        columns_to_exclude = ["Correspondence_Address", "Year", "Most_frequent_publisher"]
+        df_cluster_0 = df_cluster_0.drop(columns=[col for col in columns_to_exclude if col in df_cluster_0.columns])
+        df_cluster_0
+
+        # Filtrar los autores que están en el cluster 1.0
+        df_cluster_1 = df_ucol[df_ucol["Cluster"] == 1.0]
+        # Omitir las columnas "Correspondence_Address" y "Year" en el DataFrame df_cluster_1
+        columns_to_exclude = ["Correspondence_Address", "Year", "Most_frequent_publisher"]
+        df_cluster_1 = df_cluster_1.drop(columns=[col for col in columns_to_exclude if col in df_cluster_1.columns])
+        df_cluster_1
+
+        # Filtrar los autores que están en el cluster 1.0
+        df_cluster_2 = df_ucol[df_ucol["Cluster"] == 2.0]
+        # Omitir las columnas "Correspondence_Address" y "Year" en el DataFrame df_cluster_1
+        columns_to_exclude = ["Correspondence_Address", "Year", "Most_frequent_publisher"]
+        df_cluster_2 = df_cluster_2.drop(columns=[col for col in columns_to_exclude if col in df_cluster_2.columns])
+        df_cluster_2
+
+        # Filtrar los autores que están en el cluster 1.0
+        df_cluster_3 = df_ucol[df_ucol["Cluster"] == 3.0]
+        # Omitir las columnas "Correspondence_Address" y "Year" en el DataFrame df_cluster_1
+        columns_to_exclude = ["Correspondence_Address", "Year", "Most_frequent_publisher"]
+        df_cluster_3 = df_cluster_3.drop(columns=[col for col in columns_to_exclude if col in df_cluster_3.columns])
+        df_cluster_3
+
+        # Filtrar los autores que están en el cluster 1.0
+        df_cluster_4 = df_ucol[df_ucol["Cluster"] == 4.0]
+        # Omitir las columnas "Correspondence_Address" y "Year" en el DataFrame df_cluster_1
+        columns_to_exclude = ["Correspondence_Address", "Year", "Most_frequent_publisher"]
+        df_cluster_4 = df_cluster_4.drop(columns=[col for col in columns_to_exclude if col in df_cluster_4.columns])
+        df_cluster_4
+
+
+        # Contar la cantidad de registros en cada cluster
+        cluster_counts = df_ucol["Cluster"].value_counts().sort_index()
+
+        # Calcular el porcentaje de cada cluster respecto al total
+        total_count = len(df_ucol)
+        cluster_percentages = (cluster_counts / total_count) * 100
+
+        # Crear etiquetas con el total de autores por cluster
+        labels = [f"Cluster {i} ({count} autores)" for i, count in cluster_counts.items()]
+
+        # Crear gráfico de pastel con leyenda de total de autores
+        fig_pie = go.Figure(data=[
+            go.Pie(labels=labels, values=cluster_percentages, textinfo='label+percent', hole=0.4)
+        ])
+        fig_pie.update_layout(title_text=f"Distribución de Clusters en df_ucol\nTotal de autores: {total_count}")
+
+        st.plotly_chart(fig_pie)
+
+
+
+
+
+
+
+
+
+
+
     
     else:
         st.info("📂 **Sube un archivo CSV para comenzar**")
