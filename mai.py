@@ -33,6 +33,10 @@ elif pagina == "Análisis por base":
 
     if uploaded_file is not None:
         # Cargar el archivo en un DataFrame
+        st.markdown("""
+        Para poder visualizar el análisis, por favor cargue la base de datos de publicaciones de scopus.
+        """)
+        
         df = pd.read_csv(uploaded_file, encoding='utf-8')
 
         # ✅ Mostrar mensaje de éxito
@@ -40,10 +44,10 @@ elif pagina == "Análisis por base":
 
         # 📊 **Mostrar las primeras filas**
         st.subheader("📋 Vista previa de los datos")
+
+        
         st.write(df.head())
-        st.markdown("""
-        Para poder visualizar el análisis, por favor cargue la base de datos de publicaciones de scopus.
-        """)
+
         # 📂 **Descargar el archivo procesado**
         csv_data = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Descargar CSV", csv_data, "datos_procesados.csv", "text/csv")
