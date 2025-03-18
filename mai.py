@@ -228,7 +228,7 @@ elif pagina == "Análisis por base":
             columns_to_drop = ["DOI", "Volume", "Issue", "Art._No.", "Page_start", "Page_end", "Page_count", "Link", "ISBN", "CODEN", "Funding_Texts", "ISSN", "Open_Access", "Publisher"]
             df_grouped = df_grouped.drop(columns=columns_to_drop, errors="ignore")
             st.markdown("""
-            Como primer paso, se separa la base original, pasando de tener una fila por artículo a una fila por cada autor resgitrado en la base de datos. De esta manera se crea un registro del historial de publicaciones de cada autor registrado. Debido a que es posible que una persona aparzca con distinta sversiones de su nombre y distintos identificadores de Scopus, se normalizaron los nombres (eliminando mayúsculas y caracteres especiales, y se unificaron todos los trabajos de cada autor en el ID de Scopus mas reciente. Además, se usó el registro de direcciones de correo para depurar la base y conservar solo a aquellos autores que tengan una dirección que pueda asociarse con la Universidad (esto último implicó una revisión por parte de la **Dirección General de Investigación Científica** para quitar del registro a colaboradores que no pertenezcan a la Universidad de Colima) A continuación se muestran las **primeras cinco filas**. El archivo con la base procesada puede descargarse presionando el botón.
+            Como primer paso, se separa la base original, generando una fila para cada participación de un autor o autora de la Universidad en un artículo indizado en Scopus. Debido a que es posible que una persona aparzca con distintas versiones de su nombre, así como con distintos identificadores de Scopus, se normalizaron los nombres (eliminando mayúsculas y caracteres especiales), y se unificaron todos los trabajos de cada autor en el ID de Scopus mas reciente. Además, se usó el registro de direcciones de correo para depurar la base y conservar solo a aquellos autores que tengan una dirección que pueda asociarse con la Universidad de Colima (esto último implicó una revisión por parte de la **Dirección General de Investigación Científica** para quitar del registro a colaboradores que no pertenezcan a la Universidad de Colima). A continuación se muestran las **primeras cinco filas** de la base con los autores ya separados..
             """)
             #st.markdown("""
             #    Después del procesamiento, se agrupa la información a nivel de autor ("Author(s)_ID") y se generan estadísticas:
@@ -505,7 +505,7 @@ elif pagina == "Análisis por base":
 
         #st.title("📊 Procesamiento y Análisis de Publicaciones Acumuladas")
         st.markdown("""
-        A continuación se muestra la evolución temporal de los 30 autores mas productivos de la Universidad de Colima. La animación puede pasarse o reproducirse al presionar los botones de la parte superior izquierda.
+        A continuación se muestra la evolución temporal de los 30 autores mas productivos de la Universidad de Colima. La animación puede pasarse o reproducirse al presionar los botones de la parte superior izquierda. Puede ajustar el año a visualizar mediante el deslizador de la parte inferior.
         """)
         # Lista de autores a eliminar
         authors_to_remove = ["crossa,", "murillo zamora, efren", "guzman esquivel,", "martinez fierro,"]
@@ -583,9 +583,9 @@ elif pagina == "Análisis por base":
         import plotly.graph_objects as go
         import scipy.stats as stats
 
-        st.subheader("Correlación entre Número de Artículos y Número de Citas")
+        st.subheader("Correlación entre el número de publicaciones y el número de citas.")
         st.markdown("""
-        En esta sección se muestra la grafica de correlación entre las publicaciones y el número de citas. La gráfica es interactiva y puede hacer acercamientos a zonas especificas usando los botones que se muestran en la parte superior derecha al dejar el cursor sobre ella. Si deja el cursor sobre un punto en específico, se desplegarán los datos del autor al que corresponde ese punto. La línea roja representa la línea de tendencia del ajuste a los datos. El coeficiente de person se muestra en la parte superior izquierda.
+        En esta sección se muestra la grafica de **correlación entre las publicaciones y el número de citas** para todos los autores registrados en la base. Cada punto corresponde a un autor y si deja el cursor sobre un punto en específico, se desplegarán los datos del autor al que corresponde ese punto. La línea roja representa la línea de tendencia del ajuste a los datos. El coeficiente de person se muestra en la parte superior izquierda. La gráfica es interactiva y puede hacer acercamientos a zonas especificas usando los botones que se muestran en la parte superior derecha al dejar el cursor sobre ella. 
         """)
         # Convertir a valores numéricos (por si hay valores en string)
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
