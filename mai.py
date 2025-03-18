@@ -642,7 +642,7 @@ elif pagina == "Análisis por base":
         import plotly.express as px
         import numpy as np
 
-        st.title("📊 Scatter Heatmap: Antigüedad vs. Publicaciones (Citas como color)")
+        st.subheader("Mapa de dispersion: antigüedad vs. publicaciones")
 
         # Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
