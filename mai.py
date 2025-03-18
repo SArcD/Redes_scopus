@@ -495,32 +495,12 @@ elif pagina == "Análisis por base":
 
 ###########################################################################################
 
-        import streamlit as st
-        import pandas as pd
-        import re
-        import unicodedata
-        from collections import Counter
-        import plotly.express as px
-        import matplotlib.pyplot as plt
-        #import moviepy.editor as mpy
-        import streamlit as st
-        import pandas as pd
         import re
         import unicodedata
         from collections import Counter
         import plotly.express as px
         import matplotlib.pyplot as plt
         import os
-        import numpy as np
-
-        import streamlit as st
-        import pandas as pd
-        import plotly.express as px
-        import numpy as np
-
-        import streamlit as st
-        import pandas as pd
-        import plotly.express as px
         import numpy as np
 
         #st.title("📊 Procesamiento y Análisis de Publicaciones Acumuladas")
@@ -599,15 +579,14 @@ elif pagina == "Análisis por base":
 
 
 #####################################################################################3
-        df_final_filtered
-        import streamlit as st
-        import pandas as pd
+        #df_final_filtered
         import plotly.graph_objects as go
-        import numpy as np
         import scipy.stats as stats
 
-        st.title("📊 Correlación entre Número de Artículos y Número de Citas")
-
+        st.subheader("Correlación entre Número de Artículos y Número de Citas")
+        st.markdown("""
+        En esta sección se muestra la grafica de correlación entre las publicaciones y el número de citas. La gráfica es interactiva y puede hacer acercamientos a zonas especificas usando los botones que se muestran en la parte superior derecha al dejar el cursor sobre ella.
+        """)
         # Convertir a valores numéricos (por si hay valores en string)
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
         df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
