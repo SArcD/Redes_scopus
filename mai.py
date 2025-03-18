@@ -27,15 +27,17 @@ elif pagina == "Análisis por base":
 
     # 📌 Título de la aplicación
     st.title("📂 Carga y Visualización de Datos")
+    st.markdown("""
+    Para poder visualizar el análisis de publicaciones, por favor cargue la base de datos de publicaciones de Scopus.
+    """)
 
+    
     # 📂 **Subir archivo CSV**
     uploaded_file = st.file_uploader("Sube un archivo CSV", type=["csv"])
 
     if uploaded_file is not None:
         # Cargar el archivo en un DataFrame
-        st.markdown("""
-        Para poder visualizar el análisis, por favor cargue la base de datos de publicaciones de scopus.
-        """)
+
         
         df = pd.read_csv(uploaded_file, encoding='utf-8')
 
