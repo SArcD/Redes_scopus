@@ -31,7 +31,8 @@ elif pagina == "Análisis por base":
 
     # Ruta o URL del logo
     logo_path = "ucol_logo.PNG"  # Si es local, usa el nombre del archivo
-    st.image("ucol_logo.PNG", width=150)  # Ajusta el ancho según necesites
+    #st.image("ucol_logo.PNG", width=150)  # Ajusta el ancho según necesites
+    st.image(logo_path, use_column_width=True)
 
     
     
