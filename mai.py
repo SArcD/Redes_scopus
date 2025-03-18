@@ -217,12 +217,14 @@ elif pagina == "Análisis por base":
 
             st.markdown("""
                 Después del procesamiento, se agrupa la información a nivel de autor ("Author(s)_ID") y se generan estadísticas:
-
+                - "Normalized_Author_Name": Nombre del autor, escrito en minúsculas y sin caracteres especiales.
                 - "Cited_by": Suma de citas recibidas.
                 - "Publications": Conteo de artículos por autor.
                 - "Journals": Número de fuentes únicas en las que ha publicado.
                 - "Funded_publications": Cantidad de artículos con financiamiento.
                 - "Not_funded_publications": Publicaciones sin financiamiento (Publications - Funded_publications).
+                - "Year": Años en los que el autor publicó (los números entre paréntesis representan el número de publicaciones por año).
+                - "Authors_ID": ID de scopus del autor o autora.
                 - "Publisher_Count" y "Most_frequent_publisher": Cantidad y ranking de editoriales (si la columna "Publisher" está en el DataFrame).
             """)
             #st.dataframe(df_grouped)
