@@ -1044,7 +1044,8 @@ elif pagina == "Análisis por base":
         # Matriz de confusión
             st.subheader("Matriz de Confusión")
             ## 📌 Matriz de Confusión
-            st.markdown(""" Muestra los aciertos y errores del modelo de clasificación comparando predicciones con valores reales.
+            st.markdown(""" 
+            Muestra los aciertos y errores del modelo de clasificación comparando predicciones con valores reales.
             
             - TP (True Positive): Predicciones correctas de la clase positiva.
             - FP (False Positive): Casos incorrectamente clasificados como positivos.
