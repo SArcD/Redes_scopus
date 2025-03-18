@@ -6,6 +6,8 @@ import plotly.graph_objects as go
 
 import streamlit as st
 
+st.set_page_config(page_title="App con Múltiples Páginas", layout="wide")
+
 # Ruta o URL del logo
 logo_path = "ucol_logo.PNG"  # Si es local, usa el nombre del archivo
 #st.image("ucol_logo.PNG", width=150)  # Ajusta el ancho según necesites
@@ -18,7 +20,6 @@ with col2:  # Colocar la imagen en la columna central
     st.image(logo_path, width=400)  # Ajusta el tamaño según necesites
 
 
-st.set_page_config(page_title="App con Múltiples Páginas", layout="wide")
 
 # Crear menú de navegación
 pagina = st.selectbox("Selecciona una página", ["Inicio", "Análisis por base", "Análisis por autor", "Equipo de trabajo"])
