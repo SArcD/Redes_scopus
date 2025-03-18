@@ -225,7 +225,31 @@ elif pagina == "Análisis por base":
                 - "Not_funded_publications": Publicaciones sin financiamiento (Publications - Funded_publications).
                 - "Publisher_Count" y "Most_frequent_publisher": Cantidad y ranking de editoriales (si la columna "Publisher" está en el DataFrame).
             """)
-            st.dataframe(df_grouped)
+            #st.dataframe(df_grouped)
+            # Definir el orden prioritario
+            priority_columns = [
+                "Author(s)_ID",
+                "Authors",
+                "Author_full_names",
+                "Publications",
+                "Year",
+                "Cited_by",
+                "Funded_publications",
+                "Not_funded_publications",
+                "Correspondence_Address"
+            ]
+
+            # Obtener las demás columnas sin alterar su orden original
+            remaining_columns = [col for col in df_grouped.columns if col not in priority_columns]
+
+            # Reordenar el DataFrame con las columnas prioritarias primero
+            df_grouped = df_grouped[priority_columns + remaining_columns]
+
+            # Mostrar las primeras filas para verificar
+            st.write(df_grouped.head())
+
+
+            
             with st.expander("Datos del archivo"):
                 st.write(f"**Número de filas:** {df_grouped.shape[0]}")
                 st.write(f"**Número de columnas:** {df_grouped.shape[1]}")
