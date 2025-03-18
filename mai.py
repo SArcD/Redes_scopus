@@ -1042,10 +1042,9 @@ elif pagina == "Análisis por base":
 
         with st.expander("**Validación del modelo**"):
         # Matriz de confusión
-            st.subheader("📌 Matriz de Confusión")
+            st.subheader("Matriz de Confusión")
             ## 📌 Matriz de Confusión
             st.markdown(""" Muestra los aciertos y errores del modelo de clasificación comparando predicciones con valores reales.
-
             - **TP (True Positive)**: Predicciones correctas de la clase positiva.
             - **FP (False Positive)**: Casos incorrectamente clasificados como positivos.
             - **FN (False Negative)**: Casos incorrectamente clasificados como negativos.
@@ -1057,11 +1056,19 @@ elif pagina == "Análisis por base":
                       columns=[f"Predicho {reverse_mapping[c]}" for c in sorted(y.unique())]))
 
             # Reporte de Clasificación
-            st.subheader("📌 Reporte de Clasificación")
+            st.subheader("Reporte de Clasificación
+            st.markdown("""
+            Resumen de métricas clave del modelo:
+
+            - Precisión: Proporción de predicciones correctas en cada clase.
+            - Recall: Capacidad del modelo para detectar todos los casos positivos.
+            - F1-score: Media armónica entre precisión y recall.
+            """)
+                         
             st.text(classification_report(y_test_original, y_pred_original))
 
             # Importancia de las Variables
-            st.subheader("📌 Importancia de las Variables en el Modelo")
+            st.subheader("Importancia de las Variables en el Modelo")
             importances = pd.Series(clf.feature_importances_, index=X.columns)
             fig_importance = px.bar(importances, x=importances.index, y=importances.values,
                         labels={"x": "Variables", "y": "Importancia Relativa"},
@@ -1070,7 +1077,7 @@ elif pagina == "Análisis por base":
             st.plotly_chart(fig_importance)
 
         # Visualización del Árbol de Decisión
-        st.subheader("📌 Visualización del Árbol de Decisión")
+        st.subheader("Visualización del Árbol de Decisión")
         fig, ax = plt.subplots(figsize=(30, 15))
         plot_tree(clf, feature_names=X.columns, class_names=[str(reverse_mapping[c]) for c in sorted(y.unique())],
                   filled=True, fontsize=8, ax=ax)
