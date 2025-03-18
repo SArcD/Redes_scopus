@@ -33,26 +33,15 @@ elif pagina == "Análisis por base":
     # Ruta o URL del logo
     logo_path = "ucol_logo.PNG"  # Si es local, usa el nombre del archivo
     
-
-    # Centrar el logo y hacerlo más grande con CSS
-    st.markdown(
-        """
-        <style>
-        .logo-container {
-            display: flex;
-            justify-content: center;
-        }
-        .logo-container img {
-            width: 300px; /* Ajusta el tamaño según sea necesario */
-        }
-        </style>
+    # Usar `st.markdown()` para centrar el logo y hacer que sea 2x más grande
+    st.markdown(f"""
+        <div style="display: flex; justify-content: center;">
+            <img src="{logo_path}" width="400">
+        </div>
         """,
-        unsafe_allow_html=True
-    )
+        unsafe_allow_html=True)
 
-    # Mostrar logo centrado
-    st.markdown('<div class="logo-container"><img src="{}"></div>'.format(logo_path), unsafe_allow_html=True)
-  
+    
     st.markdown("""
     Para poder visualizar el análisis de publicaciones, por favor cargue la base de datos de publicaciones de Scopus.
     """)
