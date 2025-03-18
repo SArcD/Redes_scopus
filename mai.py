@@ -367,7 +367,7 @@ elif pagina == "Análisis por base":
 
         st.write(df_ucol.head())
          
-        with st.expander("Datos del archivo"):
+        with st.expander("**Datos del archivo**"):
             st.write(f"**Número de filas:** {df_ucol.shape[0]}")
             st.write(f"**Número de columnas:** {df_ucol.shape[1]}")
             st.write("**Lista de columnas:**")
@@ -524,7 +524,9 @@ elif pagina == "Análisis por base":
         import numpy as np
 
         #st.title("📊 Procesamiento y Análisis de Publicaciones Acumuladas")
-
+        st.markdown("""
+        A continuación se muestra la evolución temporal de los 30 autores mas productivos de la Universidad de Colima. La animación puede pasarse o reproducirse al presionar los botones de la parte superior izquierda.
+        """)
         # Lista de autores a eliminar
         authors_to_remove = ["crossa,", "murillo zamora, efren", "guzman esquivel,", "martinez fierro,"]
         df_final_filtered = df_final_filtered[~df_final_filtered["Normalized_Author_Name"].isin(authors_to_remove)]
