@@ -777,12 +777,13 @@ elif pagina == "Análisis por base":
 
         st.subheader("Clustering Jerárquico de Autores en función de su producción académica")
         st.markdown("""
-        En esta sección se utiliza un algoritmo de clustering jerárquico para clasificar a los autores, deacuerdon cuatro variables:
-        - Número de publicaciónes.
+        En esta sección se utiliza un algoritmo de clustering jerárquico para clasificar a los autores, de acuerdo a cuatro parámetros:
+        - Número de publicaciones.
         - Número de citas.
         - Porcentaje de publicaciones financiadas.
         - Antigüedad en la Universidad de Colima.
-        Se utilizó la gráfica de codo para definir el número óptimo de clusters, encontrando que los autores pueden dividirse en 5 clusters distintos. Para visualizar la distribución de los autores en los clusters se utilizó el gráfico t-SNE que se muestra debajo. En est grafico se puede observar la cercania de los clusters, que tan compactos son y el número de autores que los conforman.
+        
+        Se utilizó la gráfica de codo para definir el número óptimo de clusters, encontrando que los autores pueden dividirse en 5 clusters distintos. Para visualizar la distribución de los autores en los clusters se utilizó el gráfico t-SNE que se muestra debajo. En est gráfico se puede observar la cercanía de los clusters, que tan compactos son y el número de autores que los conforman.
         """)
         # Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
