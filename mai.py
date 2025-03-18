@@ -103,7 +103,7 @@ elif pagina == "Análisis por base":
         df_processed = process_author_data(df)
 
         if df_processed is not None:
-            #st.success("✅ Datos procesados correctamente.")
+            st.success("✅ Datos procesados correctamente.")
         
             # 📋 **Vista previa**
             #st.subheader("📋 Vista previa de los datos procesados")
