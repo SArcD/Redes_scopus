@@ -44,8 +44,13 @@ elif pagina == "Análisis por base":
         # ✅ Mostrar mensaje de éxito
         st.success("✅ Archivo cargado correctamente.")
 
+
+        
         # 📊 **Mostrar las primeras filas**
         st.subheader("📋 Vista previa de los datos")
+        st.markdown("""
+        Estas son las primeras cinco filas del archivo con la lista de publicaciones en las que se han involucrado profesores de la Universidad de Colima. En su estado actual, cada fila corresponde a un artículo diferente.
+        """)
 
         
         st.write(df.head())
