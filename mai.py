@@ -103,25 +103,25 @@ elif pagina == "Análisis por base":
         df_processed = process_author_data(df)
 
         if df_processed is not None:
-            st.success("✅ Datos procesados correctamente.")
+            #st.success("✅ Datos procesados correctamente.")
         
             # 📋 **Vista previa**
-            st.subheader("📋 Vista previa de los datos procesados")
-            st.markdown("""
-            Como primer paso, se procesa la base de datos para crear un registro por autor de cada artículo producido. De esta manera, cada fila corresponde a una ocasión en la que un investigador participa en un artículo.
-            """)
+            #st.subheader("📋 Vista previa de los datos procesados")
+            #st.markdown("""
+            #Como primer paso, se procesa la base de datos para crear un registro por autor de cada artículo producido. De esta manera, cada fila corresponde a una ocasión en la que un investigador participa en un artículo.
+            #""")
 
-            st.write(df_processed.head())
+            #st.write(df_processed.head())
 
-            with st.expander("Datos del archivo"):
-                st.write(f"**Número de filas:** {df_processed.shape[0]}")
-                st.write(f"**Número de columnas:** {df_processed.shape[1]}")
-                st.write("**Lista de columnas:**")
-                st.write(df_processed.columns.tolist())  # Mostrar los nombres de las columnas como una lista
+            #with st.expander("Datos del archivo"):
+            #    st.write(f"**Número de filas:** {df_processed.shape[0]}")
+            #    st.write(f"**Número de columnas:** {df_processed.shape[1]}")
+            #    st.write("**Lista de columnas:**")
+            #    st.write(df_processed.columns.tolist())  # Mostrar los nombres de las columnas como una lista
 
             # 📂 **Descargar el archivo procesado**
-            csv_data = df_processed.to_csv(index=False).encode("utf-8")
-            st.download_button("📥 Descargar datos procesados", csv_data, "processed_author_data.csv", "text/csv")
+            #csv_data = df_processed.to_csv(index=False).encode("utf-8")
+            #st.download_button("📥 Descargar datos procesados", csv_data, "processed_author_data.csv", "text/csv")
 
         from collections import Counter
         import streamlit as st
