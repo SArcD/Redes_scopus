@@ -1106,8 +1106,6 @@ elif pagina == "Análisis por base":
         import seaborn as sns
         import matplotlib.pyplot as plt
 
-        st.title("📊 Clustering Jerárquico y Árbol de Decisión de Autores en Función de su Producción Académica")
-
         # Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
         df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
@@ -1138,12 +1136,16 @@ elif pagina == "Análisis por base":
         # 📌 **Formulario Inteligente para Asignación de Cluster**
         st.header("📝 Predicción de Cluster Basado en Estadísticas de Autor")
 
-        funding_ratio = st.number_input("Proporción de Publicaciones Financiadas", min_value=0.0, max_value=1.0, step=0.01)
-        publications = st.number_input("Número de Publicaciones", min_value=0, step=1)
-        cited_by = st.number_input("Número de Citas", min_value=0, step=1)
-        seniority = st.number_input("Antigüedad (Años desde Primera Publicación)", min_value=0, max_value=100, step=1)
+        st.markdown("""
+        En el siguiente formulario es posible que el usuario introduzca sus datos y obtenga su clasificación dentro de alguno de los clusters de autores descritos arriba.
+        """)
+        
+        funding_ratio = st.number_input("**Proporción de publicaciones financiadas**", min_value=0.0, max_value=1.0, step=0.01)
+        publications = st.number_input("**Número de publicaciones**", min_value=0, step=1)
+        cited_by = st.number_input("**Número de citas**", min_value=0, step=1)
+        seniority = st.number_input("**Antigüedad (años desde la primera publicación**)", min_value=0, max_value=100, step=1)
 
-        if st.button("📌 Asignar Cluster"):
+        if st.button("**Asignar Cluster**"):
             user_data = np.array([[funding_ratio, publications, cited_by, seniority]])
             predicted_cluster_idx = clf.predict(user_data)[0]
             #predicted_cluster = str(reverse_mapping[predicted_cluster_idx])  # 🔹 Convertir a string para evitar errores en el diccionario
