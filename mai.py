@@ -228,7 +228,7 @@ elif pagina == "Análisis por base":
             columns_to_drop = ["DOI", "Volume", "Issue", "Art._No.", "Page_start", "Page_end", "Page_count", "Link", "ISBN", "CODEN", "Funding_Texts", "ISSN", "Open_Access", "Publisher"]
             df_grouped = df_grouped.drop(columns=columns_to_drop, errors="ignore")
             st.markdown("""
-            Como primer paso, se separa la base original, pasando de tener una fila por artículo a una fila por cada autor resgitrado en la base de datos. De esta manera se crea un registro del historial de publicaciones de cada autor registrado. Debido a que es posible que una persona aparzca con distinta sversiones de su nombre y distintos identificadores de Scopus, se normalizaron los nombres (eliminando mayúsculas y caracteres especiales, y se unificaron todos los trabajos de cada autor en el ID de Scopus mas reciente. Además, se usó el registro de direcciones de correo para depurar la base y conservar solo a aquellos autores que tengan una dirección que pueda asociarse con la Universidad (esto último implicó una revisión por parte de la **Dirección General de Investigación Científica** para quitar del registro a colaboradores que no pertenezcan a la Universidad de Colima).
+            Como primer paso, se separa la base original, pasando de tener una fila por artículo a una fila por cada autor resgitrado en la base de datos. De esta manera se crea un registro del historial de publicaciones de cada autor registrado. Debido a que es posible que una persona aparzca con distinta sversiones de su nombre y distintos identificadores de Scopus, se normalizaron los nombres (eliminando mayúsculas y caracteres especiales, y se unificaron todos los trabajos de cada autor en el ID de Scopus mas reciente. Además, se usó el registro de direcciones de correo para depurar la base y conservar solo a aquellos autores que tengan una dirección que pueda asociarse con la Universidad (esto último implicó una revisión por parte de la **Dirección General de Investigación Científica** para quitar del registro a colaboradores que no pertenezcan a la Universidad de Colima) A continuación se muestran las **primeras cinco filas**. El archivo con la base procesada puede descargarse presionando el botón.
             """)
             #st.markdown("""
             #    Después del procesamiento, se agrupa la información a nivel de autor ("Author(s)_ID") y se generan estadísticas:
@@ -523,7 +523,7 @@ elif pagina == "Análisis por base":
         import plotly.express as px
         import numpy as np
 
-        st.title("📊 Procesamiento y Análisis de Publicaciones Acumuladas")
+        #st.title("📊 Procesamiento y Análisis de Publicaciones Acumuladas")
 
         # Lista de autores a eliminar
         authors_to_remove = ["crossa,", "murillo zamora, efren", "guzman esquivel,", "martinez fierro,"]
