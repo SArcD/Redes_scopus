@@ -374,7 +374,7 @@ elif pagina == "Análisis por base":
             st.write(df_ucol.columns.tolist())  # Mostrar los nombres de las columnas como una lista
             
         csv_data = df_ucol.to_csv(index=False).encode("utf-8")
-        st.download_button("📥 Descargar datos ucol", csv_data, "unified_ucol_author_data.csv", "text/csv")
+        st.download_button("**Descargar datos ucol**", csv_data, "unified_ucol_author_data.csv", "text/csv")
 
 ##########################################################################
 
