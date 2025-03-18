@@ -108,7 +108,7 @@ elif pagina == "Análisis por base":
             # 📋 **Vista previa**
             st.subheader("📋 Vista previa de los datos procesados")
             st.markdown("""
-            Como primer paso, se procesa la base de datos para crear un registro por autor de cada artículo producido. De esta manera, cada fila correspondea una oacasión en la que un investigador participa en un artículo.
+            Como primer paso, se procesa la base de datos para crear un registro por autor de cada artículo producido. De esta manera, cada fila corresponde a una ocasión en la que un investigador participa en un artículo.
             """)
 
             st.write(df_processed.head())
@@ -166,11 +166,11 @@ elif pagina == "Análisis por base":
         df_processed = process_author_data(df)
 
         if df_processed is not None:
-            st.success("✅ Datos procesados correctamente.")
+            st.success(" ")
         
             # 📋 **Vista previa**
-            st.subheader("📋 Vista previa de los datos procesados")
-            st.write(df_processed.head())
+            #st.subheader("📋 Vista previa de los datos procesados")
+            #st.write(df_processed.head())
 
             # 📊 **Análisis de Editoriales y Publicaciones**
             st.subheader("📊 Análisis de Editoriales y Publicaciones")
