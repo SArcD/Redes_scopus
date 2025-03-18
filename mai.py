@@ -1056,7 +1056,7 @@ elif pagina == "Análisis por base":
                       columns=[f"Predicho {reverse_mapping[c]}" for c in sorted(y.unique())]))
 
             # Reporte de Clasificación
-            st.subheader("Reporte de Clasificación
+            st.subheader("Reporte de Clasificación")
             st.markdown("""
             Resumen de métricas clave del modelo:
 
