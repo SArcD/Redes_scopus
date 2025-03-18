@@ -28,19 +28,12 @@ elif pagina == "Análisis por base":
     # 📌 Título de la aplicación
     st.title("Carga y Visualización de Datos")
     # Cargar el logo desde un archivo en la misma carpeta
-    #st.image("OIP (3).jfif", width=150)  # Ajusta el ancho según necesites
 
     # Ruta o URL del logo
     logo_path = "ucol_logo.PNG"  # Si es local, usa el nombre del archivo
-    
-    # Usar `st.markdown()` para centrar el logo y hacer que sea 2x más grande
-    st.markdown(f"""
-        <div style="display: flex; justify-content: center;">
-            <img src="{logo_path}" width="400">
-        </div>
-        """,
-        unsafe_allow_html=True)
+    st.image("ucol_logo.PNG", width=150)  # Ajusta el ancho según necesites
 
+    
     
     st.markdown("""
     Para poder visualizar el análisis de publicaciones, por favor cargue la base de datos de publicaciones de Scopus.
