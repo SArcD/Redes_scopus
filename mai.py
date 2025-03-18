@@ -473,8 +473,7 @@ elif pagina == "Análisis por base":
 
         
         # Mostrar la gráfica interactiva con la corrección en hover
-        #fig_filtered.show()
-        st.plotly_chart(fig_filtered)
+        #st.plotly_chart(fig_filtered)
 
 
 ###########################################################################################
