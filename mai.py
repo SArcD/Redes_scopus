@@ -1045,6 +1045,7 @@ elif pagina == "Análisis por base":
             st.subheader("Matriz de Confusión")
             ## 📌 Matriz de Confusión
             st.markdown(""" Muestra los aciertos y errores del modelo de clasificación comparando predicciones con valores reales.
+            
             - **TP (True Positive)**: Predicciones correctas de la clase positiva.
             - **FP (False Positive)**: Casos incorrectamente clasificados como positivos.
             - **FN (False Negative)**: Casos incorrectamente clasificados como negativos.
@@ -1069,6 +1070,9 @@ elif pagina == "Análisis por base":
 
             # Importancia de las Variables
             st.subheader("Importancia de las Variables en el Modelo")
+            st.markdown("""
+            Muestra cuánto influye cada variable en las predicciones del modelo.
+            """)
             importances = pd.Series(clf.feature_importances_, index=X.columns)
             fig_importance = px.bar(importances, x=importances.index, y=importances.values,
                         labels={"x": "Variables", "y": "Importancia Relativa"},
