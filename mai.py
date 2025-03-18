@@ -45,7 +45,7 @@ elif pagina == "Análisis por base":
     En esta sección se analizan algunos aspectos claves de los autores de la Universidad de Colima que han participado en publicaciones indizadas en la base de datos de Scopus. Algunos de estos aspectos son: los autores mas prolificos de la Universidad de Colima, la evolución temporal de estos autores, la distribu 
     """)
     st.markdown("""
-    Para poder visualizar el análisis de publicaciones, por favor cargue la base de datos de publicaciones de Scopus.
+    **Para poder visualizar el análisis de publicaciones, por favor cargue la base de datos de publicaciones de Scopus.**
     """)
 
     
