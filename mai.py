@@ -42,7 +42,7 @@ elif pagina == "Análisis por base":
     st.title("Análisis temático de los autores de publicaciones científicas de la Universidad de Colima")
 
     st.markdown("""
-    En esta sección se analizan algunos aspectos claves de los autores de la Universidad de Colima que han participado en publicaciones indizadas en la base de datos de Scopus. Algunos de estos aspectos son: los autores mas prolificos de la Universidad de Colima, la evolución temporal de estos autores, la distribu 
+    En esta sección se analizan algunos aspectos claves de los autores de la Universidad de Colima que han participado en publicaciones indizadas en la base de datos de Scopus. Algunos de estos aspectos son: los autores mas prolificos de la Universidad de Colima, la evolución temporal de estos autores, la distribución de autores de acuerdo a su productividad y un clasificador en el que el usuario puede comparar su productividad con la de los autores de la base. 
     """)
     st.markdown("""
     **Para poder visualizar el análisis de publicaciones, por favor cargue la base de datos de publicaciones de Scopus.**
@@ -64,7 +64,7 @@ elif pagina == "Análisis por base":
 
         
         # 📊 **Mostrar las primeras filas**
-        st.subheader("📋 Vista previa de los datos")
+        #st.subheader("📋 Vista previa de los datos")
         st.markdown("""
         Estas son las primeras cinco filas del archivo con la lista de publicaciones en las que se han involucrado profesores de la Universidad de Colima. En su estado actual, cada fila corresponde a un artículo diferente.
         """)
