@@ -644,7 +644,7 @@ elif pagina == "Análisis por base":
 
         st.subheader("Mapa de dispersion: antigüedad vs. publicaciones")
         st.markdown("""
-        En este diagrama se ha separado el la base de datos de autores de la Universidad en rangos de antigüedad de cinco años. Cada punto representa a un autor. Este gráfico permite tanto comparar la producción de autores que tengan antigüedades comparables como entre autores autores con antigüedades variables.
+        En este diagrama se ha separado la base de datos de autores de la Universidad en **rangos de antigüedad de cinco años**. Cada punto representa a un autor. Este gráfico permite tanto comparar la producción de autores que tengan antigüedades comparables como entre autores autores con antigüedades variables.
         """)
         # Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
@@ -684,7 +684,10 @@ elif pagina == "Análisis por base":
 
         # Mostrar la gráfica interactiva    
         st.plotly_chart(fig_heatmap)
-
+        st.subheader("Diagramas de caja: antigüedad vs. publicaciones")
+        st.markdown("""
+        En este diagrama se ha separado la base de datos de autores de la Universidad en **rangos de antigüedad de cinco años**. Cada punto representa a un autor. El primer gráfico muestra el número de citas, mientras que el segundo muestra el número de publicaciones.
+        """)
 
     #####################################################################################################3
 
@@ -692,8 +695,6 @@ elif pagina == "Análisis por base":
         import pandas as pd
         import plotly.graph_objects as go
         import numpy as np
-
-        st.title("📊 Distribución de Publicaciones y Citas por Antigüedad")
 
         #     Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
