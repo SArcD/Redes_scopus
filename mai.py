@@ -346,7 +346,21 @@ elif pagina == "Análisis por base":
         # Convertir el log en un DataFrame para visualizar las fusiones
         df_merge_ucol_log = pd.DataFrame(list(merge_log.items()), columns=["Normalized_Author_Name", "Merged_Author_IDs"])
 
-        df_merge_ucol_log
+
+
+        st.write(df_ucol.head())
+         
+            with st.expander("Datos del archivo"):
+                st.write(f"**Número de filas:** {df_ucol.shape[0]}")
+                st.write(f"**Número de columnas:** {df_ucol.shape[1]}")
+                st.write("**Lista de columnas:**")
+                st.write(df_ucol.columns.tolist())  # Mostrar los nombres de las columnas como una lista
+
+
+
+            
+            csv_data = df_ucol.to_csv(index=False).encode("utf-8")
+            st.download_button("📥 Descargar datos ucol", csv_data, "unified_ucol_author_data.csv", "text/csv")
 
 ##########################################################################
 
