@@ -32,20 +32,27 @@ elif pagina == "Análisis por base":
 
     # Ruta o URL del logo
     logo_path = "OIP (3).jfif"  # Si es local, usa el nombre del archivo
-    # logo_path = "https://yourwebsite.com/logo.png"  # Si es una URL
+    
 
-    # Centrar el logo con HTML y ajustar tamaño
+    # Centrar el logo y hacerlo más grande con CSS
     st.markdown(
-        f"""
-        <div style="text-align: center;">
-            <img src="{logo_path}" width="300">
-        </div>
+        """
+        <style>
+        .logo-container {
+            display: flex;
+            justify-content: center;
+        }
+        .logo-container img {
+            width: 300px; /* Ajusta el tamaño según sea necesario */
+        }
+        </style>
         """,
         unsafe_allow_html=True
     )
 
-
-    
+    # Mostrar logo centrado
+    st.markdown('<div class="logo-container"><img src="{}"></div>'.format(logo_path), unsafe_allow_html=True)
+  
     st.markdown("""
     Para poder visualizar el análisis de publicaciones, por favor cargue la base de datos de publicaciones de Scopus.
     """)
