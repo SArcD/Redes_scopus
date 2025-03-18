@@ -47,7 +47,6 @@ elif pagina == "Análisis por base":
     st.markdown("""
     **Para poder visualizar el análisis de publicaciones, por favor cargue la base de datos de publicaciones de Scopus.**
     """)
-
     
     # 📂 **Subir archivo CSV**
     uploaded_file = st.file_uploader("Sube un archivo CSV", type=["csv"])
@@ -61,14 +60,11 @@ elif pagina == "Análisis por base":
         # ✅ Mostrar mensaje de éxito
         st.success("✅ Archivo cargado correctamente.")
 
-
-        
         # 📊 **Mostrar las primeras filas**
         #st.subheader("📋 Vista previa de los datos")
         st.markdown("""
         Estas son las **primeras cinco filas** del archivo con la lista de publicaciones en las que se han involucrado profesores de la Universidad de Colima. En su estado actual, cada fila corresponde a un artículo diferente.
         """)
-
         
         st.write(df.head())
         with st.expander("**Datos del archivo**"):
@@ -183,14 +179,14 @@ elif pagina == "Análisis por base":
         df_processed = process_author_data(df)
 
         if df_processed is not None:
-            st.success(" ")
+            st.write(" ")
         
             # 📋 **Vista previa**
             #st.subheader("📋 Vista previa de los datos procesados")
             #st.write(df_processed.head())
 
             # 📊 **Análisis de Editoriales y Publicaciones**
-            st.subheader("📊 Análisis de Productividad: Autores mas prolíficos")
+            st.subheader("Autores mas prolíficos")
 
             def count_unique_publishers(publishers):
                 if isinstance(publishers, float) and pd.isna(publishers):
