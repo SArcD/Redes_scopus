@@ -26,7 +26,7 @@ elif pagina == "Análisis por base":
     import pandas as pd
 
     # 📌 Título de la aplicación
-    st.title("📂 Carga y Visualización de Datos")
+    st.title("Carga y Visualización de Datos")
     st.markdown("""
     Para poder visualizar el análisis de publicaciones, por favor cargue la base de datos de publicaciones de Scopus.
     """)
@@ -54,10 +54,10 @@ elif pagina == "Análisis por base":
 
         
         st.write(df.head())
-        with st.expander("📂 Datos del archivo"):
+        with st.expander("Datos del archivo"):
             st.write(f"**Número de filas:** {df.shape[0]}")
             st.write(f"**Número de columnas:** {df.shape[1]}")
-            st.write("📌 **Lista de columnas:**")
+            st.write("**Lista de columnas:**")
             st.write(df.columns.tolist())  # Mostrar los nombres de las columnas como una lista
 
             
@@ -113,10 +113,10 @@ elif pagina == "Análisis por base":
 
             st.write(df_processed.head())
 
-            with st.expander("📂 Datos del archivo"):
+            with st.expander("Datos del archivo"):
                 st.write(f"**Número de filas:** {df_processed.shape[0]}")
                 st.write(f"**Número de columnas:** {df_processed.shape[1]}")
-                st.write("📌 **Lista de columnas:**")
+                st.write("**Lista de columnas:**")
                 st.write(df_processed.columns.tolist())  # Mostrar los nombres de las columnas como una lista
 
             # 📂 **Descargar el archivo procesado**
