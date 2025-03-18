@@ -31,7 +31,7 @@ elif pagina == "Análisis por base":
     #st.image("OIP (3).jfif", width=150)  # Ajusta el ancho según necesites
 
     # Ruta o URL del logo
-    logo_path = "OIP (3).jfif"  # Si es local, usa el nombre del archivo
+    logo_path = "ucol_logo.PNG"  # Si es local, usa el nombre del archivo
     
 
     # Centrar el logo y hacerlo más grande con CSS
