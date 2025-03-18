@@ -1040,7 +1040,7 @@ elif pagina == "Análisis por base":
         y_pred_original = pd.Series(y_pred).map(reverse_mapping)
 
 
-        with st.expander("**Validación del modelo**")
+        with st.expander("**Validación del modelo**"):
         # Matriz de confusión
             st.subheader("📌 Matriz de Confusión")
             st.write(pd.DataFrame(confusion_matrix(y_test_original, y_pred_original),
