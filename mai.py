@@ -54,7 +54,13 @@ elif pagina == "Análisis por base":
 
         
         st.write(df.head())
+        with st.expander("📂 Datos del archivo"):
+            st.write(f"**Número de filas:** {df.shape[0]}")
+            st.write(f"**Número de columnas:** {df.shape[1]}")
+            st.write("📌 **Lista de columnas:**")
+            st.write(df.columns.tolist())  # Mostrar los nombres de las columnas como una lista
 
+            
         # 📂 **Descargar el archivo procesado**
         csv_data = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Descargar CSV", csv_data, "datos_procesados.csv", "text/csv")
