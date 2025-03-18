@@ -216,8 +216,16 @@ elif pagina == "Análisis por base":
             df_grouped = df_grouped.drop(columns=columns_to_drop, errors="ignore")
 
             st.write("📋 **Resumen de autores agrupados**")
-            st.dataframe(df_grouped)
+            st.dataframe(df_grouped})
+            with st.expander("Datos del archivo"):
+                st.write(f"**Número de filas:** {df_grouped}.shape[0]}")
+                st.write(f"**Número de columnas:** {df_grouped}.shape[1]}")
+                st.write("**Lista de columnas:**")
+                st.write(df_grouped}.columns.tolist())  # Mostrar los nombres de las columnas como una lista
 
+
+
+            
             csv_data = df_grouped.to_csv(index=False).encode("utf-8")
             st.download_button("📥 Descargar datos agrupados", csv_data, "unified_author_data.csv", "text/csv")
 
