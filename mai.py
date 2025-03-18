@@ -642,9 +642,9 @@ elif pagina == "Análisis por base":
         import plotly.express as px
         import numpy as np
 
-        st.subheader("Mapa de dispersion: antigüedad vs. publicaciones")
+        st.subheader("Mapa de dispersión: antigüedad vs. publicaciones")
         st.markdown("""
-        En este diagrama se ha separado la base de datos de autores de la Universidad en **rangos de antigüedad de cinco años**. Cada punto representa a un autor. Este gráfico permite tanto comparar la producción de autores que tengan antigüedades comparables como entre autores autores con antigüedades variables.
+        En este diagrama se ha separado la base de datos de autores de la Universidad en **rangos de antigüedad de cinco años**. Cada circulo representa a un autor. Este gráfico permite comparar tanto la producción de autores que tengan antigüedades comparables como entre autores de toda la base. Gracias a esta gráfica es facil **identificar a los autores mas productivos dentro de cada rango de antigüedad**.
         """)
         # Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
@@ -671,10 +671,10 @@ elif pagina == "Análisis por base":
             size="Size_Metric",  # Tamaño de los puntos escalado
             color="Cited_by",  # Color de los puntos según el número de citas
             labels={
-                "Seniority": "Antigüedad (Años desde Primera Publicación)",
-                "Publications": "Número Total de Publicaciones",
-                "Cited_by": "Número de Citas",
-                "Size_Metric": "Citas (Escalado)"
+                "Seniority": "Antigüedad (años desde la primera publicación)",
+                "Publications": "Total de publicaciones",
+                "Cited_by": "Número de citas",
+                "Size_Metric": "Citas (escalado)"
             },
             title="Mapa de dispersión: antigüedad vs. publicaciones",
             hover_data={"Author(s)_ID": True, "Normalized_Author_Name": True, "Cited_by": True},
