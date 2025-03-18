@@ -1010,8 +1010,8 @@ elif pagina == "Análisis por base":
 
         
         # 🏆 **Árbol de Decisión para Predicción de Clusters**
-        st.header("🌳 Árbol de Decisión para Predicción de Clusters")
-
+        st.header("Árbol de Decisión para Predicción de Clusters")
+        st.markdown("""En esta sección se usa un modelo de árbol de decisión para obtener las reglas que permiten clasificar a los autores dentro de cada cluster. Gracias a esto es posible generar un modelo que permita clasificar a nuevos autores en cada cluster, obtener un perfil para cada uno que permita identificar el nivel de madurez y productividad que los caracteriza y simplificar la identificación de posibles líneas de acción para impulsar la producción científica en la Universidad de Colima""")
         # Filtrar datos válidos
         df_valid = df_ucol.dropna(subset=["Funding_Ratio", "Publications", "Cited_by", "Seniority", "Cluster"])
 
@@ -1039,24 +1039,26 @@ elif pagina == "Análisis por base":
         y_test_original = y_test.map(reverse_mapping)
         y_pred_original = pd.Series(y_pred).map(reverse_mapping)
 
+
+        with st.expander("**Validación del modelo**")
         # Matriz de confusión
-        st.subheader("📌 Matriz de Confusión")
-        st.write(pd.DataFrame(confusion_matrix(y_test_original, y_pred_original),
+            st.subheader("📌 Matriz de Confusión")
+            st.write(pd.DataFrame(confusion_matrix(y_test_original, y_pred_original),
                       index=[f"Actual {reverse_mapping[c]}" for c in sorted(y.unique())],
                       columns=[f"Predicho {reverse_mapping[c]}" for c in sorted(y.unique())]))
 
-        # Reporte de Clasificación
-        st.subheader("📌 Reporte de Clasificación")
-        st.text(classification_report(y_test_original, y_pred_original))
+            # Reporte de Clasificación
+            st.subheader("📌 Reporte de Clasificación")
+            st.text(classification_report(y_test_original, y_pred_original))
 
-        # Importancia de las Variables
-        st.subheader("📌 Importancia de las Variables en el Modelo")
-        importances = pd.Series(clf.feature_importances_, index=X.columns)
-        fig_importance = px.bar(importances, x=importances.index, y=importances.values,
+            # Importancia de las Variables
+            st.subheader("📌 Importancia de las Variables en el Modelo")
+            importances = pd.Series(clf.feature_importances_, index=X.columns)
+            fig_importance = px.bar(importances, x=importances.index, y=importances.values,
                         labels={"x": "Variables", "y": "Importancia Relativa"},
                         title="Importancia de las Variables en el Árbol de Decisión",
                         template="plotly_white")
-        st.plotly_chart(fig_importance)
+            st.plotly_chart(fig_importance)
 
         # Visualización del Árbol de Decisión
         st.subheader("📌 Visualización del Árbol de Decisión")
