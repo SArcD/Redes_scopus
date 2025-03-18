@@ -28,7 +28,24 @@ elif pagina == "Análisis por base":
     # 📌 Título de la aplicación
     st.title("Carga y Visualización de Datos")
     # Cargar el logo desde un archivo en la misma carpeta
-    st.image("OIP (3).jfif", width=150)  # Ajusta el ancho según necesites
+    #st.image("OIP (3).jfif", width=150)  # Ajusta el ancho según necesites
+
+    # Ruta o URL del logo
+    logo_path = "OIP (3).jfif"  # Si es local, usa el nombre del archivo
+    # logo_path = "https://yourwebsite.com/logo.png"  # Si es una URL
+
+    # Centrar el logo con HTML y ajustar tamaño
+    st.markdown(
+        f"""
+        <div style="text-align: center;">
+            <img src="{logo_path}" width="300">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    
     st.markdown("""
     Para poder visualizar el análisis de publicaciones, por favor cargue la base de datos de publicaciones de Scopus.
     """)
