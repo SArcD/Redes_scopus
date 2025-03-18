@@ -1151,7 +1151,7 @@ elif pagina == "Análisis por base":
             #predicted_cluster = str(reverse_mapping[predicted_cluster_idx])  # 🔹 Convertir a string para evitar errores en el diccionario
             predicted_cluster = str(int(reverse_mapping[predicted_cluster_idx]))  # 🔹 Convertimos primero a entero y luego a string
 
-            st.success(f"🎯 Has sido asignado al Cluster {predicted_cluster}")
+            st.success(f"**Has sido asignado al Cluster {predicted_cluster}**")
         
             # Explicación basada en el perfil de publicaciones
             cluster_explanations = {
@@ -1186,11 +1186,13 @@ elif pagina == "Análisis por base":
         ##############################################################################
 
         # 📌 **Comparación Tabular del Usuario con Cluster y Base Completa**
-        st.subheader("📋 Comparación con el Cluster y la Base Completa")
+        #st.subheader("📋 Comparación con el Cluster y la Base Completa")
 
         # 📌 **Comparación Visual Mejorada con Dos Arreglos de Gráficos**
-        st.header("📊 Comparación del Usuario con su Cluster y la Base Completa")
-
+        #st.header("📊 Comparación del Usuario con su Cluster y la Base Completa")
+        st.markdown("""
+        En la siguiente tabla puede verse la comparación entre los datos especificados por el usuario, los integrantes del Cluster que guarda la mayor similitud con estos datos y con los autores de la base de datos completa. Las columnas de interés son: el parámetro a comparar (ya sea el número de publicaciones, citas, la antigüedad o la porporción de publicaciones financiadas), los datos introducidos por el usuario, la media, el cuartil 1 y el cuartil 3 del cluster que corresponda, las medias, cuartil 1 y cuartil 3 de la base completa.
+        """)
         # 📌 **Filtrar Datos del Cluster y Crear DataFrame del Usuario**
         df_cluster = df_valid[df_valid["Cluster"] == int(predicted_cluster)]
 
@@ -1245,7 +1247,9 @@ elif pagina == "Análisis por base":
             "Base - Media": "{:.2f}", "Base - Q1 (P25)": "{:.2f}", "Base - Q3 (P75)": "{:.2f}"
         }))
 
-
+        st.markdown("""
+        Debajo, puede ver las graficas de caja entre los datos registrados para el cluster (primeras cuatro gráficas), la base completa (segundo grupo de cuatro gráficas) y los valores introducidos por el usuario.
+        """)
 
 #############################################################################################################
 
