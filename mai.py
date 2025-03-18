@@ -775,7 +775,7 @@ elif pagina == "Análisis por base":
         from sklearn.cluster import AgglomerativeClustering
         from sklearn.manifold import TSNE
 
-        st.title("📊 Clustering Jerárquico de Autores en Función de su Producción Académica")
+        st.subheader("Clustering Jerárquico de Autores en función de su producción académica")
 
         # Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
