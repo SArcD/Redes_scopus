@@ -919,9 +919,9 @@ elif pagina == "Análisis por base":
         fig_pie = go.Figure(data=[
             go.Pie(labels=labels, values=cluster_percentages, textinfo='label+percent', hole=0.4)
         ])
-        fig_pie.update_layout(title_text=f"Distribución de Clusters en df_ucol\nTotal de autores: {total_count}")
+        fig_pie.update_layout(title_text=f"Porcentaje de publicaciones que aporta cada cluster. Total de autores: {total_count}")
 
-        st.write("**El siguiente gráfico muestra el porcentaje de publicaciones que aporta cada cluster.**")
+        #st.write("**El siguiente gráfico muestra el porcentaje de publicaciones que aporta cada cluster.**")
         st.plotly_chart(fig_pie)
 
 
