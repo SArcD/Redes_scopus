@@ -919,7 +919,7 @@ elif pagina == "Análisis por base":
         fig_pie = go.Figure(data=[
             go.Pie(labels=labels, values=cluster_percentages, textinfo='label+percent', hole=0.4)
         ])
-        fig_pie.update_layout(title_text=f"Porcentaje de publicaciones que aporta cada cluster. Total de autores: {total_count}")
+        fig_pie.update_layout(title_text=f"Número de autores clasificados en cada cluster. Total de autores: {total_count}")
 
         #st.write("**El siguiente gráfico muestra el porcentaje de publicaciones que aporta cada cluster.**")
         st.plotly_chart(fig_pie)
@@ -937,8 +937,12 @@ elif pagina == "Análisis por base":
         from sklearn.manifold import TSNE
         import plotly.colors as pc
 
-        st.title("📊 Clustering Jerárquico de Autores en Función de su Producción Académica")
+        #st.title("📊 Clustering Jerárquico de Autores en Función de su Producción Académica")
 
+        st.markdown("""
+        Los siguienetes gráficos comparan a los clusters en las cuatro variables clave. De arriba a abajo estas son: Número de publicaciones, Citas, Porcentaje de publicaciones financiadas y antigüedad.
+        """)
+        
         # Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
         df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
