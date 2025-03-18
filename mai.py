@@ -1046,10 +1046,10 @@ elif pagina == "Análisis por base":
             ## 📌 Matriz de Confusión
             st.markdown(""" Muestra los aciertos y errores del modelo de clasificación comparando predicciones con valores reales.
             
-            - **TP (True Positive)**: Predicciones correctas de la clase positiva.
-            - **FP (False Positive)**: Casos incorrectamente clasificados como positivos.
-            - **FN (False Negative)**: Casos incorrectamente clasificados como negativos.
-            - **TN (True Negative)**: Predicciones correctas de la clase negativa.
+            - TP (True Positive): Predicciones correctas de la clase positiva.
+            - FP (False Positive): Casos incorrectamente clasificados como positivos.
+            - FN (False Negative): Casos incorrectamente clasificados como negativos.
+            - TN (True Negative): Predicciones correctas de la clase negativa.
             """)
 
             st.write(pd.DataFrame(confusion_matrix(y_test_original, y_pred_original),
