@@ -585,7 +585,7 @@ elif pagina == "Análisis por base":
 
         st.subheader("Correlación entre Número de Artículos y Número de Citas")
         st.markdown("""
-        En esta sección se muestra la grafica de correlación entre las publicaciones y el número de citas. La gráfica es interactiva y puede hacer acercamientos a zonas especificas usando los botones que se muestran en la parte superior derecha al dejar el cursor sobre ella.
+        En esta sección se muestra la grafica de correlación entre las publicaciones y el número de citas. La gráfica es interactiva y puede hacer acercamientos a zonas especificas usando los botones que se muestran en la parte superior derecha al dejar el cursor sobre ella. Si deja el cursor sobre un punto en específico, se desplegarán los datos del autor al que corresponde ese punto. La línea roja representa la línea de tendencia del ajuste a los datos. El coeficiente de person se muestra en la parte superior izquierda.
         """)
         # Convertir a valores numéricos (por si hay valores en string)
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
@@ -627,7 +627,7 @@ elif pagina == "Análisis por base":
 
         # Configurar el diseño
         fig_corr.update_layout(
-            title=f"Correlación entre Número de Artículos y Número de Citas<br>Coeficiente de Pearson: {correlation_coefficient:.2f}, p-valor: {p_value:.3f}",
+            title=f"Correlación entre los números de publicaciones y citas<br>Coeficiente de Pearson: {correlation_coefficient:.2f}, Valor-p: {p_value:.3f}",
             xaxis_title="Número Total de Artículos",
             yaxis_title="Número Total de Citas",
             template="plotly_white"
