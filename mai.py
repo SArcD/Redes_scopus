@@ -757,10 +757,10 @@ elif pagina == "Análisis por base":
             hoverinfo="text+y"
         ))
 
-        st.write("Distribución del Número Total de Citas por Antigüedad")
+        st.write("**Distribución del Número Total de Citas por Antigüedad**")
         st.plotly_chart(fig_cites)
 
-        st.write("Distribución del Número Total de Publicaciones por Antigüedad")
+        st.write("**Distribución del Número Total de Publicaciones por Antigüedad**")
         st.plotly_chart(fig_publications)
 
     
@@ -845,6 +845,7 @@ elif pagina == "Análisis por base":
 
         st.plotly_chart(fig_clusters)
 
+        st.write("**Integrantes del Cluster 0**")
 
         # Filtrar los autores que están en el cluster 1.0
         df_cluster_0 = df_ucol[df_ucol["Cluster"] == 0.0]
@@ -853,6 +854,8 @@ elif pagina == "Análisis por base":
         df_cluster_0 = df_cluster_0.drop(columns=[col for col in columns_to_exclude if col in df_cluster_0.columns])
         df_cluster_0
 
+
+        st.write("**Integrantes del Cluster 1**")
         # Filtrar los autores que están en el cluster 1.0
         df_cluster_1 = df_ucol[df_ucol["Cluster"] == 1.0]
         # Omitir las columnas "Correspondence_Address" y "Year" en el DataFrame df_cluster_1
@@ -860,6 +863,7 @@ elif pagina == "Análisis por base":
         df_cluster_1 = df_cluster_1.drop(columns=[col for col in columns_to_exclude if col in df_cluster_1.columns])
         df_cluster_1
 
+        st.write("**Integrantes del Cluster 2**")
         # Filtrar los autores que están en el cluster 1.0
         df_cluster_2 = df_ucol[df_ucol["Cluster"] == 2.0]
         # Omitir las columnas "Correspondence_Address" y "Year" en el DataFrame df_cluster_1
@@ -867,6 +871,7 @@ elif pagina == "Análisis por base":
         df_cluster_2 = df_cluster_2.drop(columns=[col for col in columns_to_exclude if col in df_cluster_2.columns])
         df_cluster_2
 
+        st.write("**Integrantes del Cluster 3**")
         # Filtrar los autores que están en el cluster 1.0
         df_cluster_3 = df_ucol[df_ucol["Cluster"] == 3.0]
         # Omitir las columnas "Correspondence_Address" y "Year" en el DataFrame df_cluster_1
@@ -874,6 +879,7 @@ elif pagina == "Análisis por base":
         df_cluster_3 = df_cluster_3.drop(columns=[col for col in columns_to_exclude if col in df_cluster_3.columns])
         df_cluster_3
 
+        st.write("**Integrantes del Cluster 4**")
         # Filtrar los autores que están en el cluster 1.0
         df_cluster_4 = df_ucol[df_ucol["Cluster"] == 4.0]
         # Omitir las columnas "Correspondence_Address" y "Year" en el DataFrame df_cluster_1
