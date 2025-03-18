@@ -216,7 +216,7 @@ elif pagina == "Análisis por base":
             df_grouped = df_grouped.drop(columns=columns_to_drop, errors="ignore")
 
             st.write("📋 **Resumen de autores agrupados**")
-            st.dataframe(df_grouped})
+            st.dataframe(df_grouped)
             with st.expander("Datos del archivo"):
                 st.write(f"**Número de filas:** {df_grouped}.shape[0]}")
                 st.write(f"**Número de columnas:** {df_grouped}.shape[1]}")
