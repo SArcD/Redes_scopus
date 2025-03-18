@@ -783,7 +783,7 @@ elif pagina == "Análisis por base":
         - Porcentaje de publicaciones financiadas.
         - Antigüedad en la Universidad de Colima.
         
-        Se utilizó la gráfica de codo para definir el número óptimo de clusters, encontrando que los autores pueden dividirse en 5 clusters distintos. Para visualizar la distribución de los autores en los clusters se utilizó el gráfico t-SNE que se muestra debajo. En est gráfico se puede observar la cercanía de los clusters, que tan compactos son y el número de autores que los conforman.
+        Se utilizó la gráfica de codo para definir el número óptimo de clusters, encontrando que los autores pueden dividirse en **5 clusters distintos**. Para visualizar la distribución de los autores en los clusters se utilizó el **gráfico t-SNE** que se muestra debajo. En est gráfico se puede observar la cercanía de los clusters, que tan compactos son y su tamaño relativo, de acuerdo al número de autores que los conforman.
         """)
         # Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
@@ -941,7 +941,7 @@ elif pagina == "Análisis por base":
         #st.title("📊 Clustering Jerárquico de Autores en Función de su Producción Académica")
 
         st.markdown("""
-        Los siguienetes gráficos comparan a los clusters en las cuatro variables clave. De arriba a abajo estas son: Número de publicaciones, Citas, Porcentaje de publicaciones financiadas y antigüedad.
+        Los siguientes gráficos comparan a los clusters en las cuatro variables clave. De arriba a abajo estas son: el número de publicaciones, el de citas, el porcentaje de publicaciones financiadas y la antigüedad.
         """)
         
         # Convertir a valores numéricos
@@ -970,25 +970,25 @@ elif pagina == "Análisis por base":
         # Crear los diagramas de caja con los colores de los clusters
         fig1 = px.box(df_boxplot, x="Cluster", y="Publications", color="Cluster",
               title="Número de Publicaciones por Cluster",
-              labels={"Cluster": "Cluster", "Publications": "Número de Publicaciones"},
+              labels={"Cluster": "Cluster", "Publications": "Número de publicaciones"},
               notched=True, template="plotly_white",
               color_discrete_map=color_mapping)
 
         fig2 = px.box(df_boxplot, x="Cluster", y="Cited_by", color="Cluster",
               title="Número de Citas por Cluster",
-              labels={"Cluster": "Cluster", "Cited_by": "Número de Citas"},
+              labels={"Cluster": "Cluster", "Cited_by": "Número de citas"},
               notched=True, template="plotly_white",
               color_discrete_map=color_mapping)
 
         fig3 = px.box(df_boxplot, x="Cluster", y="Funding_Ratio", color="Cluster",
               title="Cociente de Publicaciones Financiadas por Cluster",
-              labels={"Cluster": "Cluster", "Funding_Ratio": "Proporción de Publicaciones Financiadas"},
+              labels={"Cluster": "Cluster", "Funding_Ratio": "Proporción de publicaciones financiadas"},
               notched=True, template="plotly_white",
               color_discrete_map=color_mapping)
 
         fig4 = px.box(df_boxplot, x="Cluster", y="Seniority", color="Cluster",
               title="Antigüedad por Cluster",
-              labels={"Cluster": "Cluster", "Seniority": "Años desde la Primera Publicación"},
+              labels={"Cluster": "Cluster", "Seniority": "Años desde la primera publicación"},
               notched=True, template="plotly_white",
               color_discrete_map=color_mapping)
 
@@ -1011,8 +1011,8 @@ elif pagina == "Análisis por base":
 
         
         # 🏆 **Árbol de Decisión para Predicción de Clusters**
-        st.header("Árbol de Decisión para Predicción de Clusters")
-        st.markdown("""En esta sección se usa un modelo de árbol de decisión para obtener las reglas que permiten clasificar a los autores dentro de cada cluster. Gracias a esto es posible generar un modelo que permita clasificar a nuevos autores en cada cluster, obtener un perfil para cada uno que permita identificar el nivel de madurez y productividad que los caracteriza y simplificar la identificación de posibles líneas de acción para impulsar la producción científica en la Universidad de Colima""")
+        st.header("Obtención de reglas de clasificación y puntos de corte a partir de un modelo de árbol de decisión")
+        st.markdown("""En esta sección se usa un modelo de árbol de decisión para obtener las reglas que permiten clasificar a los autores dentro de cada cluster. Gracias a esto, es posible generar un modelo que permita clasificar a nuevos autores en cada cluster, obtener un perfil para cada uno que permita identificar el nivel de madurez y productividad que los caracteriza y simplificar la identificación de posibles líneas de acción para impulsar la producción científica en la Universidad de Colima. Puede ver las matrices de confusión y otris instrumentos de validación de este model si da click al botón "Validación del modelo". """)
         # Filtrar datos válidos
         df_valid = df_ucol.dropna(subset=["Funding_Ratio", "Publications", "Cited_by", "Seniority", "Cluster"])
 
@@ -1083,7 +1083,7 @@ elif pagina == "Análisis por base":
             st.plotly_chart(fig_importance)
 
         # Visualización del Árbol de Decisión
-        st.subheader("Visualización del Árbol de Decisión")
+        st.subheader("Modelo de Árbol de decisión")
         fig, ax = plt.subplots(figsize=(30, 15))
         plot_tree(clf, feature_names=X.columns, class_names=[str(reverse_mapping[c]) for c in sorted(y.unique())],
                   filled=True, fontsize=8, ax=ax)
