@@ -676,7 +676,7 @@ elif pagina == "Análisis por base":
                 "Cited_by": "Número de Citas",
                 "Size_Metric": "Citas (Escalado)"
             },
-            title="Scatter Heatmap: Antigüedad vs. Publicaciones (Citas como color)",
+            title="Mapa de dispersión: antigüedad vs. publicaciones",
             hover_data={"Author(s)_ID": True, "Normalized_Author_Name": True, "Cited_by": True},
             color_continuous_scale="Viridis",
             template="plotly_white"
@@ -776,7 +776,15 @@ elif pagina == "Análisis por base":
         from sklearn.manifold import TSNE
 
         st.subheader("Clustering Jerárquico de Autores en función de su producción académica")
-
+        st.markdown("""
+        En esta sección se utiliza un algoritmo de clustering jerárquico para clasificar a los autores, deacuerdon cuatro variables:
+        - Número de publicaciónes.
+        - Número de citas.
+        - Porcentaje de publicaciones financiadas.
+        - Antigüedad en la Universidad de Colima.
+        Se utilizó la gráfica de codo para definir el número óptimo de clusters, encontrando que los autores pueden dividirse en 5 clusters distintos.
+        
+        """)
         # Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
         df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
