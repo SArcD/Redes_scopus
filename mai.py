@@ -66,12 +66,12 @@ elif pagina == "Análisis por base":
         # 📊 **Mostrar las primeras filas**
         #st.subheader("📋 Vista previa de los datos")
         st.markdown("""
-        Estas son las primeras cinco filas del archivo con la lista de publicaciones en las que se han involucrado profesores de la Universidad de Colima. En su estado actual, cada fila corresponde a un artículo diferente.
+        Estas son las **primeras cinco filas** del archivo con la lista de publicaciones en las que se han involucrado profesores de la Universidad de Colima. En su estado actual, cada fila corresponde a un artículo diferente.
         """)
 
         
         st.write(df.head())
-        with st.expander("Datos del archivo"):
+        with st.expander("**Datos del archivo**"):
             st.write(f"**Número de filas:** {df.shape[0]}")
             st.write(f"**Número de columnas:** {df.shape[1]}")
             st.write("**Lista de columnas:**")
@@ -120,8 +120,8 @@ elif pagina == "Análisis por base":
         df_processed = process_author_data(df)
 
         if df_processed is not None:
-            st.success("✅ Datos procesados correctamente.")
-        
+            #st.success("✅ Datos procesados correctamente.")
+            st.write(" ")
             # 📋 **Vista previa**
             #st.subheader("📋 Vista previa de los datos procesados")
             #st.markdown("""
