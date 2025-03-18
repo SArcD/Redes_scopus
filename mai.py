@@ -686,7 +686,7 @@ elif pagina == "Análisis por base":
         st.plotly_chart(fig_heatmap)
         st.subheader("Diagramas de caja: antigüedad vs. publicaciones")
         st.markdown("""
-        En este diagrama se ha separado la base de datos de autores de la Universidad en **rangos de antigüedad de cinco años**. Cada punto representa a un autor. El primer gráfico muestra el número de citas, mientras que el segundo muestra el número de publicaciones.
+        En este diagrama se ha separado la base de datos de autores de la Universidad en **rangos de antigüedad de cinco años**. Cada punto representa a un autor. El primer gráfico muestra el **número de citas vs la antigüedad**, mientras que el segundo muestra el **número de publicaciones vs la antigüedad**.
         """)
 
     #####################################################################################################3
