@@ -757,10 +757,10 @@ elif pagina == "Análisis por base":
             hoverinfo="text+y"
         ))
 
-        st.subheader("Distribución del Número Total de Citas por Antigüedad")
+        st.write("Distribución del Número Total de Citas por Antigüedad")
         st.plotly_chart(fig_cites)
 
-        st.subheader("Distribución del Número Total de Publicaciones por Antigüedad")
+        st.write("Distribución del Número Total de Publicaciones por Antigüedad")
         st.plotly_chart(fig_publications)
 
     
@@ -782,8 +782,7 @@ elif pagina == "Análisis por base":
         - Número de citas.
         - Porcentaje de publicaciones financiadas.
         - Antigüedad en la Universidad de Colima.
-        Se utilizó la gráfica de codo para definir el número óptimo de clusters, encontrando que los autores pueden dividirse en 5 clusters distintos.
-        
+        Se utilizó la gráfica de codo para definir el número óptimo de clusters, encontrando que los autores pueden dividirse en 5 clusters distintos. Para visualizar la distribución de los autores en los clusters se utilizó el gráfico t-SNE que se muestra debajo. En est grafico se puede observar la cercania de los clusters, que tan compactos son y el número de autores que los conforman.
         """)
         # Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
