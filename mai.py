@@ -215,7 +215,16 @@ elif pagina == "Análisis por base":
             columns_to_drop = ["DOI", "Volume", "Issue", "Art._No.", "Page_start", "Page_end", "Page_count", "Link", "ISBN", "CODEN", "Funding_Texts", "ISSN", "Open_Access", "Publisher"]
             df_grouped = df_grouped.drop(columns=columns_to_drop, errors="ignore")
 
-            st.write("📋 **Resumen de autores agrupados**")
+            st.markdown("""
+                Después del procesamiento, se agrupa la información a nivel de autor ("Author(s)_ID") y se generan estadísticas:
+
+                - "Cited_by": Suma de citas recibidas.
+                - "Publications": Conteo de artículos por autor.
+                - "Journals": Número de fuentes únicas en las que ha publicado.
+                - "Funded_publications": Cantidad de artículos con financiamiento.
+                - "Not_funded_publications": Publicaciones sin financiamiento (Publications - Funded_publications).
+                - "Publisher_Count" y "Most_frequent_publisher": Cantidad y ranking de editoriales (si la columna "Publisher" está en el DataFrame).
+            """)
             st.dataframe(df_grouped)
             with st.expander("Datos del archivo"):
                 st.write(f"**Número de filas:** {df_grouped.shape[0]}")
