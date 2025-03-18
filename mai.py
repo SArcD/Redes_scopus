@@ -39,11 +39,11 @@ elif pagina == "Análisis por base":
     import pandas as pd
 
     # 📌 Título de la aplicación
-    st.title("Carga y Visualización de Datos")
-    # Cargar el logo desde un archivo en la misma carpeta
+    st.title("Análisis temático de los autores de publicaciones científicas de la Universidad de Colima")
 
-
-    
+    st.markdown("""
+    En esta sección se analizan algunos aspectos claves de los autores de la Universidad de Colima que han participado en publicaciones indizadas en la base de datos de Scopus. Algunos de estos aspectos son: los autores mas prolificos de la Universidad de Colima, la evolución temporal de estos autores, la distribu 
+    """)
     st.markdown("""
     Para poder visualizar el análisis de publicaciones, por favor cargue la base de datos de publicaciones de Scopus.
     """)
