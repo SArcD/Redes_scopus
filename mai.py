@@ -27,6 +27,8 @@ elif pagina == "Análisis por base":
 
     # 📌 Título de la aplicación
     st.title("Carga y Visualización de Datos")
+    # Cargar el logo desde un archivo en la misma carpeta
+    st.image("OIP (3).jfif", width=150)  # Ajusta el ancho según necesites
     st.markdown("""
     Para poder visualizar el análisis de publicaciones, por favor cargue la base de datos de publicaciones de Scopus.
     """)
