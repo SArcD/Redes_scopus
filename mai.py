@@ -853,6 +853,11 @@ elif pagina == "Análisis por base":
         columns_to_exclude = ["Correspondence_Address", "Year", "Most_frequent_publisher"]
         df_cluster_0 = df_cluster_0.drop(columns=[col for col in columns_to_exclude if col in df_cluster_0.columns])
         df_cluster_0
+        
+        # 📂 **Descargar el archivo procesado**
+        csv_data = df_cluster_0.to_csv(index=False).encode('utf-8')
+        st.download_button("**Descargar CSV**", csv_data, "df_cluster_0.csv", "text/csv")
+
 
 
         st.write("**Integrantes del Cluster 1**")
@@ -862,6 +867,9 @@ elif pagina == "Análisis por base":
         columns_to_exclude = ["Correspondence_Address", "Year", "Most_frequent_publisher"]
         df_cluster_1 = df_cluster_1.drop(columns=[col for col in columns_to_exclude if col in df_cluster_1.columns])
         df_cluster_1
+        # 📂 **Descargar el archivo procesado**
+        csv_data = df_cluster_1.to_csv(index=False).encode('utf-8')
+        st.download_button("**Descargar CSV**", csv_data, "df_cluster_1.csv", "text/csv")
 
         st.write("**Integrantes del Cluster 2**")
         # Filtrar los autores que están en el cluster 1.0
@@ -870,6 +878,10 @@ elif pagina == "Análisis por base":
         columns_to_exclude = ["Correspondence_Address", "Year", "Most_frequent_publisher"]
         df_cluster_2 = df_cluster_2.drop(columns=[col for col in columns_to_exclude if col in df_cluster_2.columns])
         df_cluster_2
+        # 📂 **Descargar el archivo procesado**
+        csv_data = df_cluster_2.to_csv(index=False).encode('utf-8')
+        st.download_button("**Descargar CSV**", csv_data, "df_cluster_2.csv", "text/csv")
+        
 
         st.write("**Integrantes del Cluster 3**")
         # Filtrar los autores que están en el cluster 1.0
@@ -878,6 +890,9 @@ elif pagina == "Análisis por base":
         columns_to_exclude = ["Correspondence_Address", "Year", "Most_frequent_publisher"]
         df_cluster_3 = df_cluster_3.drop(columns=[col for col in columns_to_exclude if col in df_cluster_3.columns])
         df_cluster_3
+        # 📂 **Descargar el archivo procesado**
+        csv_data = df_cluster_3.to_csv(index=False).encode('utf-8')
+        st.download_button("**Descargar CSV**", csv_data, "df_cluster_3.csv", "text/csv")
 
         st.write("**Integrantes del Cluster 4**")
         # Filtrar los autores que están en el cluster 1.0
@@ -886,7 +901,9 @@ elif pagina == "Análisis por base":
         columns_to_exclude = ["Correspondence_Address", "Year", "Most_frequent_publisher"]
         df_cluster_4 = df_cluster_4.drop(columns=[col for col in columns_to_exclude if col in df_cluster_4.columns])
         df_cluster_4
-
+        # 📂 **Descargar el archivo procesado**
+        csv_data = df_cluster_4.to_csv(index=False).encode('utf-8')
+        st.download_button("**Descargar CSV**", csv_data, "df_cluster_4.csv", "text/csv")
 
         # Contar la cantidad de registros en cada cluster
         cluster_counts = df_ucol["Cluster"].value_counts().sort_index()
@@ -904,6 +921,7 @@ elif pagina == "Análisis por base":
         ])
         fig_pie.update_layout(title_text=f"Distribución de Clusters en df_ucol\nTotal de autores: {total_count}")
 
+        st.write("**El siguiente gráfico muestra el porcentaje de publicaciones que aporta cada cluster.**")
         st.plotly_chart(fig_pie)
 
 
