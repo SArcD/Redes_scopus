@@ -6,6 +6,18 @@ import plotly.graph_objects as go
 
 import streamlit as st
 
+# Ruta o URL del logo
+logo_path = "ucol_logo.PNG"  # Si es local, usa el nombre del archivo
+#st.image("ucol_logo.PNG", width=150)  # Ajusta el ancho según necesites
+#st.image(logo_path, use_container_width=True)
+    
+# Crear un contenedor con tres columnas y colocar la imagen en el centro
+col1, col2, col3 = st.columns([1, 2, 1])  # La columna central es más ancha
+
+with col2:  # Colocar la imagen en la columna central
+    st.image(logo_path, width=400)  # Ajusta el tamaño según necesites
+
+
 st.set_page_config(page_title="App con Múltiples Páginas", layout="wide")
 
 # Crear menú de navegación
@@ -29,16 +41,6 @@ elif pagina == "Análisis por base":
     st.title("Carga y Visualización de Datos")
     # Cargar el logo desde un archivo en la misma carpeta
 
-    # Ruta o URL del logo
-    logo_path = "ucol_logo.PNG"  # Si es local, usa el nombre del archivo
-    #st.image("ucol_logo.PNG", width=150)  # Ajusta el ancho según necesites
-    #st.image(logo_path, use_container_width=True)
-    
-    # Crear un contenedor con tres columnas y colocar la imagen en el centro
-    col1, col2, col3 = st.columns([1, 2, 1])  # La columna central es más ancha
-
-    with col2:  # Colocar la imagen en la columna central
-        st.image(logo_path, width=400)  # Ajusta el tamaño según necesites
 
     
     st.markdown("""
