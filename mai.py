@@ -1637,7 +1637,8 @@ elif pagina == "Análisis por base":
             areas_interes = ["Física y Matemáticas", "Química", "Ingeniería", "Medicina", "Biología", "Humanidades"]
 
 
-            stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation) + custom_stopwords)
+            #stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation) + custom_stopwords)
+            stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
 
             #stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation))
 
