@@ -1142,6 +1142,34 @@ elif pagina == "Análisis por base":
         #@st.cache_data
 
         # Inicializar valores en session_state para mantener la información entre recargas
+        #if "funding_ratio" not in st.session_state:
+        #    st.session_state.funding_ratio = 0.0
+        #if "publications" not in st.session_state:
+        #    st.session_state.publications = 0
+        #if "cited_by" not in st.session_state:
+        #    st.session_state.cited_by = 0
+        #if "seniority" not in st.session_state:
+        #    st.session_state.seniority = 0
+
+        # Campos de entrada con valores persistentes
+        #st.session_state.funding_ratio = st.number_input("**Proporción de publicaciones financiadas**", 
+        #                                                 min_value=0.0, max_value=1.0, step=0.01, 
+        #                                                 value=st.session_state.funding_ratio)
+
+        #st.session_state.publications = st.number_input("**Número de publicaciones**", 
+        #                                                min_value=0, step=1, 
+        #                                                value=st.session_state.publications)
+
+        #st.session_state.cited_by = st.number_input("**Número de citas**", 
+        #                                            min_value=0, step=1, 
+        #                                            value=st.session_state.cited_by)
+
+        #st.session_state.seniority = st.number_input("**Antigüedad (años desde la primera publicación**)", 
+        #                                             min_value=0, max_value=100, step=1, 
+        #                                             value=st.session_state.seniority)
+
+
+        # Inicializar valores en session_state solo si no existen
         if "funding_ratio" not in st.session_state:
             st.session_state.funding_ratio = 0.0
         if "publications" not in st.session_state:
@@ -1151,24 +1179,32 @@ elif pagina == "Análisis por base":
         if "seniority" not in st.session_state:
             st.session_state.seniority = 0
 
-        # Campos de entrada con valores persistentes
-        st.session_state.funding_ratio = st.number_input("**Proporción de publicaciones financiadas**", 
-                                                         min_value=0.0, max_value=1.0, step=0.01, 
-                                                         value=st.session_state.funding_ratio)
+        # 📌 **Formulario Inteligente para Asignación de Cluster**
+        st.header("📝 Predicción de Cluster Basado en Estadísticas de Autor")
 
-        st.session_state.publications = st.number_input("**Número de publicaciones**", 
-                                                        min_value=0, step=1, 
-                                                        value=st.session_state.publications)
+        st.markdown("""
+        En el siguiente formulario es posible que el usuario introduzca sus datos y obtenga su clasificación dentro de alguno de los clusters de autores descritos arriba.
+        """)
 
-        st.session_state.cited_by = st.number_input("**Número de citas**", 
-                                                    min_value=0, step=1, 
-                                                    value=st.session_state.cited_by)
+        # Campos de entrada con valores persistentes usando `key`
+        funding_ratio = st.number_input("**Proporción de publicaciones financiadas**", 
+                                min_value=0.0, max_value=1.0, step=0.01, 
+                                value=st.session_state.funding_ratio, key="funding_ratio")
 
-        st.session_state.seniority = st.number_input("**Antigüedad (años desde la primera publicación**)", 
-                                                     min_value=0, max_value=100, step=1, 
-                                                     value=st.session_state.seniority)
+        publications = st.number_input("**Número de publicaciones**", 
+                               min_value=0, step=1, 
+                               value=st.session_state.publications, key="publications")
+
+        cited_by = st.number_input("**Número de citas**", 
+                           min_value=0, step=1, 
+                           value=st.session_state.cited_by, key="cited_by")
+
+        seniority = st.number_input("**Antigüedad (años desde la primera publicación)**", 
+                            min_value=0, max_value=100, step=1, 
+                            value=st.session_state.seniority, key="seniority")
 
 
+        
 
         #funding_ratio = st.number_input("**Proporción de publicaciones financiadas**", min_value=0.0, max_value=1.0, step=0.01)
         #publications = st.number_input("**Número de publicaciones**", min_value=0, step=1)
@@ -1419,7 +1455,7 @@ elif pagina == "Análisis por base":
         df.to_csv("scopus_procesado.csv", index=False, encoding='utf-8')
         #st.download_button("Descargar Base Procesada", "scopus_procesado.csv")
 
-
+    
         import streamlit as st
         import pandas as pd
         import os
@@ -1437,57 +1473,57 @@ elif pagina == "Análisis por base":
         #df = None
         #uploaded_file = st.file_uploader("Sube tu archivo CSV", type=["csv"])
         #if uploaded_file:
-            #df = pd.read_csv(uploaded_file, encoding='latin1')
-            #st.success("Archivo cargado correctamente.")
+        #    df = pd.read_csv(uploaded_file, encoding='latin1')
+        #    st.success("Archivo cargado correctamente.")
 
         # Diccionario extendido de palabras clave por área temática
         area_mapping_extended = {
-                "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
-                "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
-                "Ingeniería": ["Engineering", "Robotics", "Technology", "Automation", "Materials Science"],
-                "Medicina": ["Medicine", "Oncology", "Neurology", "Public Health", "Epidemiology"],
-                "Biología": ["Biology", "Microbiology", "Genomics", "Ecology", "Botany"],
-                "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
+            "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
+            "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
+            "Ingeniería": ["Engineering", "Robotics", "Technology", "Automation", "Materials Science"],
+            "Medicina": ["Medicine", "Oncology", "Neurology", "Public Health", "Epidemiology"],
+            "Biología": ["Biology", "Microbiology", "Genomics", "Ecology", "Botany"],
+            "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
         }
 
-            # Función para asignar un área temática
+        # Función para asignar un área temática
         def assign_area_extended_v2(row):
             source_title = str(row["Source title"])
             title = str(row["Title"])
-    
+
             for area, keywords in area_mapping_extended.items():
                 if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
                     return area
             return "Otras"
 
-            # Aplicar clasificación inicial
-            df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
+        # Aplicar clasificación inicial
+        df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
 
-            # Entrenar el modelo SVM si hay datos etiquetados
-            df_labeled = df[df["Área Temática"] != "Otras"]
-            if not df_labeled.empty:
-                X = df_labeled["Title"].astype(str)
-                y = df_labeled["Área Temática"]
-                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+        # Entrenar el modelo SVM si hay datos etiquetados
+        df_labeled = df[df["Área Temática"] != "Otras"]
+        if not df_labeled.empty:
+            X = df_labeled["Title"].astype(str)
+            y = df_labeled["Área Temática"]
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
-                # Modelo SVM
-                vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1,2), max_features=5000)
-                model_svm = Pipeline([
-                    ("vectorizer", vectorizer),
-                    ("classifier", SVC(kernel="linear", probability=True))
-                ])
+            # Modelo SVM
+            vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1,2), max_features=5000)
+            model_svm = Pipeline([
+                ("vectorizer", vectorizer),
+                ("classifier", SVC(kernel="linear", probability=True))
+            ])
 
-                model_svm.fit(X_train, y_train)
-                df_otros = df[df["Área Temática"] == "Otras"].copy()
-                df_otros["Área Temática"] = model_svm.predict(df_otros["Title"].astype(str))
-                df.update(df_otros)
+            model_svm.fit(X_train, y_train)
+            df_otros = df[df["Área Temática"] == "Otras"].copy()
+            df_otros["Área Temática"] = model_svm.predict(df_otros["Title"].astype(str))
+            df.update(df_otros)
 
-            # Función para generar nubes de palabras
+        # Función para generar nubes de palabras
         def generar_nubes_palabras(df):
             st.subheader("Nubes de Palabras por Área Temática")
             años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)[:5]
             areas_interes = ["Física y Matemáticas", "Química", "Ingeniería", "Medicina", "Biología", "Humanidades"]
-    
+
             for año in años_disponibles:
                 df_año = df[df["Year"] == año]
                 if df_año.empty:
@@ -1511,21 +1547,8 @@ elif pagina == "Análisis por base":
                 plt.tight_layout()
                 st.pyplot(fig)
 
-            # Botón para generar nubes
-        #generar_nubes = st.button("Generar Nubes de Palabras")
-        #if generar_nubes and df is not None:
+        # Generar nubes automáticamente sin necesidad de botón
         generar_nubes_palabras(df)
-
-
-
-
-
-
-
-
-
-
-
     
     else:
         st.info("📂 **Sube un archivo CSV para comenzar**")
