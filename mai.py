@@ -1139,7 +1139,7 @@ elif pagina == "Análisis por base":
         st.markdown("""
         En el siguiente formulario es posible que el usuario introduzca sus datos y obtenga su clasificación dentro de alguno de los clusters de autores descritos arriba.
         """)
-        @st.cache_data
+        #@st.cache_data
         funding_ratio = st.number_input("**Proporción de publicaciones financiadas**", min_value=0.0, max_value=1.0, step=0.01)
         publications = st.number_input("**Número de publicaciones**", min_value=0, step=1)
         cited_by = st.number_input("**Número de citas**", min_value=0, step=1)
