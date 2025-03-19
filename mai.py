@@ -1310,7 +1310,9 @@ elif pagina == "Análisis por base":
         from sklearn.metrics import classification_report
 
         # Cargar el archivo CSV
-        file_path = "/mnt/data/scopusUdeC con financiamiento 17 feb-2.csv"
+        file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
+
+        #file_path = "/mnt/data/scopusUdeC con financiamiento 17 feb-2.csv"
         df = pd.read_csv(file_path, encoding='latin1')
 
         # Diccionario extendido de palabras clave por área temática
