@@ -1140,13 +1140,48 @@ elif pagina == "Análisis por base":
         En el siguiente formulario es posible que el usuario introduzca sus datos y obtenga su clasificación dentro de alguno de los clusters de autores descritos arriba.
         """)
         #@st.cache_data
-        funding_ratio = st.number_input("**Proporción de publicaciones financiadas**", min_value=0.0, max_value=1.0, step=0.01)
-        publications = st.number_input("**Número de publicaciones**", min_value=0, step=1)
-        cited_by = st.number_input("**Número de citas**", min_value=0, step=1)
-        seniority = st.number_input("**Antigüedad (años desde la primera publicación**)", min_value=0, max_value=100, step=1)
+
+        # Inicializar valores en session_state para mantener la información entre recargas
+        if "funding_ratio" not in st.session_state:
+            st.session_state.funding_ratio = 0.0
+        if "publications" not in st.session_state:
+            st.session_state.publications = 0
+        if "cited_by" not in st.session_state:
+            st.session_state.cited_by = 0
+        if "seniority" not in st.session_state:
+            st.session_state.seniority = 0
+
+        # Campos de entrada con valores persistentes
+        st.session_state.funding_ratio = st.number_input("**Proporción de publicaciones financiadas**", 
+                                                         min_value=0.0, max_value=1.0, step=0.01, 
+                                                         value=st.session_state.funding_ratio)
+
+        st.session_state.publications = st.number_input("**Número de publicaciones**", 
+                                                        min_value=0, step=1, 
+                                                        value=st.session_state.publications)
+
+        st.session_state.cited_by = st.number_input("**Número de citas**", 
+                                                    min_value=0, step=1, 
+                                                    value=st.session_state.cited_by)
+
+        st.session_state.seniority = st.number_input("**Antigüedad (años desde la primera publicación**)", 
+                                                     min_value=0, max_value=100, step=1, 
+                                                     value=st.session_state.seniority)
+
+
+
+        #funding_ratio = st.number_input("**Proporción de publicaciones financiadas**", min_value=0.0, max_value=1.0, step=0.01)
+        #publications = st.number_input("**Número de publicaciones**", min_value=0, step=1)
+        #cited_by = st.number_input("**Número de citas**", min_value=0, step=1)
+        #seniority = st.number_input("**Antigüedad (años desde la primera publicación**)", min_value=0, max_value=100, step=1)
 
         if st.button("**Asignar Cluster**"):
-            user_data = np.array([[funding_ratio, publications, cited_by, seniority]])
+            #user_data = np.array([[funding_ratio, publications, cited_by, seniority]])
+            user_data = np.array([[st.session_state.funding_ratio, 
+                        st.session_state.publications, 
+                        st.session_state.cited_by, 
+                        st.session_state.seniority]])
+    
             predicted_cluster_idx = clf.predict(user_data)[0]
             #predicted_cluster = str(reverse_mapping[predicted_cluster_idx])  # 🔹 Convertir a string para evitar errores en el diccionario
             predicted_cluster = str(int(reverse_mapping[predicted_cluster_idx]))  # 🔹 Convertimos primero a entero y luego a string
