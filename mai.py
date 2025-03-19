@@ -1215,12 +1215,18 @@ elif pagina == "Análisis por base":
 
             st.success(f"**Has sido asignado al Cluster {st.session_state.predicted_cluster}**")
 
-
-            # Evitar error si `predicted_cluster` no se ha asignado todavía
-        if st.session_state.predicted_cluster is not None:
+        if st.session_state.predicted_cluster is not None and st.session_state.predicted_cluster.isdigit():
             df_cluster = df_valid[df_valid["Cluster"] == int(st.session_state.predicted_cluster)]
         else:
-            df_cluster = pd.DataFrame()  # Si no hay cluster aún, crear DataFrame vacío
+            df_cluster = pd.DataFrame()  # Evita error si el cluster no es un número
+
+
+
+       #     # Evitar error si `predicted_cluster` no se ha asignado todavía
+       # if st.session_state.predicted_cluster is not None:
+       #     df_cluster = df_valid[df_valid["Cluster"] == int(st.session_state.predicted_cluster)]
+       # else:
+       #     df_cluster = pd.DataFrame()  # Si no hay cluster aún, crear DataFrame vacío
 
 
         #if st.button("**Asignar Cluster**"):
@@ -1490,6 +1496,95 @@ elif pagina == "Análisis por base":
         #    st.success("Archivo cargado correctamente.")
 
         # Diccionario extendido de palabras clave por área temática
+#        area_mapping_extended = {
+#            "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
+#            "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
+#            "Ingeniería": ["Engineering", "Robotics", "Technology", "Automation", "Materials Science"],
+#            "Medicina": ["Medicine", "Oncology", "Neurology", "Public Health", "Epidemiology"],
+#            "Biología": ["Biology", "Microbiology", "Genomics", "Ecology", "Botany"],
+#            "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
+#        }
+
+#        # Función para asignar un área temática
+#        def assign_area_extended_v2(row):
+#            source_title = str(row["Source title"])
+#            title = str(row["Title"])
+
+#            for area, keywords in area_mapping_extended.items():
+#                if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
+#                    return area
+#            return "Otras"
+
+#        # Aplicar clasificación inicial
+#        df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
+
+#        # Entrenar el modelo SVM si hay datos etiquetados
+#        df_labeled = df[df["Área Temática"] != "Otras"]
+#        if not df_labeled.empty:
+#            X = df_labeled["Title"].astype(str)
+#            y = df_labeled["Área Temática"]
+#            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
+#            # Modelo SVM
+#            vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1,2), max_features=5000)
+#            model_svm = Pipeline([
+#                ("vectorizer", vectorizer),
+#                ("classifier", SVC(kernel="linear", probability=True))
+#            ])
+
+#            model_svm.fit(X_train, y_train)
+#            df_otros = df[df["Área Temática"] == "Otras"].copy()
+#            df_otros["Área Temática"] = model_svm.predict(df_otros["Title"].astype(str))
+#            df.update(df_otros)
+
+#        # Función para generar nubes de palabras
+#        def generar_nubes_palabras(df):
+#            st.subheader("Nubes de Palabras por Área Temática")
+#            años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)[:8]
+#            areas_interes = ["Física y Matemáticas", "Química", "Ingeniería", "Medicina", "Biología", "Humanidades"]
+
+#            for año in años_disponibles:
+#                df_año = df[df["Year"] == año]
+#                if df_año.empty:
+#                    continue
+
+#                st.subheader(f"Año {año}")
+#                fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+#                axes = axes.flatten()
+
+#                for i, area in enumerate(areas_interes):
+#                    df_area = df_año[df_año["Área Temática"] == area]
+#                    if not df_area.empty:
+#                        text = " ".join(df_area["Title"].dropna())
+#                        wordcloud = WordCloud(width=800, height=400, background_color="white").generate(text)
+#                        axes[i].imshow(wordcloud, interpolation="bilinear")
+#                        axes[i].set_title(f"{area} ({año})", fontsize=14)
+#                        axes[i].axis("off")
+#                    else:
+#                        axes[i].axis("off")
+
+#                plt.tight_layout()
+#                st.pyplot(fig)
+
+        # Generar nubes automáticamente sin necesidad de botón
+#        generar_nubes_palabras(df)
+##################################################################################
+
+        import streamlit as st
+        import pandas as pd
+        import matplotlib.pyplot as plt
+        from wordcloud import WordCloud
+        import nltk
+        from nltk.corpus import stopwords
+        import string
+
+        # Descargar stopwords si es la primera vez ejecutando el código
+        nltk.download("stopwords")
+
+        # Configuración de la aplicación en Streamlit
+        st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
+
+        # Diccionario extendido de palabras clave por área temática
         area_mapping_extended = {
             "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
             "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
@@ -1503,7 +1598,7 @@ elif pagina == "Análisis por base":
         def assign_area_extended_v2(row):
             source_title = str(row["Source title"])
             title = str(row["Title"])
-
+    
             for area, keywords in area_mapping_extended.items():
                 if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
                     return area
@@ -1531,11 +1626,13 @@ elif pagina == "Análisis por base":
             df_otros["Área Temática"] = model_svm.predict(df_otros["Title"].astype(str))
             df.update(df_otros)
 
-        # Función para generar nubes de palabras
+        # Función para generar nubes de palabras con stopwords eliminadas
         def generar_nubes_palabras(df):
             st.subheader("Nubes de Palabras por Área Temática")
             años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)[:8]
             areas_interes = ["Física y Matemáticas", "Química", "Ingeniería", "Medicina", "Biología", "Humanidades"]
+
+            stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation))
 
             for año in años_disponibles:
                 df_año = df[df["Year"] == año]
@@ -1549,8 +1646,9 @@ elif pagina == "Análisis por base":
                 for i, area in enumerate(areas_interes):
                     df_area = df_año[df_año["Área Temática"] == area]
                     if not df_area.empty:
-                        text = " ".join(df_area["Title"].dropna())
-                        wordcloud = WordCloud(width=800, height=400, background_color="white").generate(text)
+                        text = " ".join(df_area["Title"].dropna()).lower()
+                        filtered_text = " ".join([word for word in text.split() if word not in stop_words])
+                        wordcloud = WordCloud(width=800, height=400, background_color="white").generate(filtered_text)
                         axes[i].imshow(wordcloud, interpolation="bilinear")
                         axes[i].set_title(f"{area} ({año})", fontsize=14)
                         axes[i].axis("off")
@@ -1563,6 +1661,11 @@ elif pagina == "Análisis por base":
         # Generar nubes automáticamente sin necesidad de botón
         generar_nubes_palabras(df)
 
+
+
+
+
+###################################################################################
 
         import streamlit as st
         import pandas as pd
