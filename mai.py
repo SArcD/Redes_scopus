@@ -1278,7 +1278,7 @@ elif pagina == "Análisis por base":
         En la siguiente tabla puede verse la comparación entre los datos especificados por el usuario, los integrantes del Cluster que guarda la mayor similitud con estos datos y con los autores de la base de datos completa. Las columnas de interés son: el parámetro a comparar (ya sea el número de publicaciones, citas, la antigüedad o la porporción de publicaciones financiadas), los datos introducidos por el usuario, la media, el cuartil 1 y el cuartil 3 del cluster que corresponda, las medias, cuartil 1 y cuartil 3 de la base completa.
         """)
         # 📌 **Filtrar Datos del Cluster y Crear DataFrame del Usuario**
-        df_cluster = df_valid[df_valid["Cluster"] == int(predicted_cluster)]
+        df_cluster = df_valid[df_valid["Cluster"] == int(st.session_state.predicted_cluster)]
 
         #df_user = pd.DataFrame({
         #    "Métrica": ["Publications", "Cited_by", "Seniority", "Funding_Ratio"],
