@@ -1237,7 +1237,7 @@ elif pagina == "Análisis por base":
         #})
 
         df_user = pd.DataFrame({
-            "Métrica": ["Publicaciones", "Citas", "Antigüedad", "Ratio de Financiamiento"],
+            "Métrica": ["Publications", "Cited_by", "Seniority", "Funding_Ratio"],
             "Valor del Usuario": [
                 st.session_state.publications, 
                 st.session_state.cited_by, 
@@ -1248,7 +1248,7 @@ elif pagina == "Análisis por base":
 
         # 📌 **Calcular Estadísticas**
         comparison_data = {
-            "Métrica": ["Publicaciones", "Citas", "Antigüedad", "Ratio de Financiamiento"],
+            "Métrica": ["Publications", "Cited_by", "Seniority", "Funding_Ratio"],
             "Valor del Usuario": [
                 st.session_state.publications, 
                 st.session_state.cited_by, 
@@ -1331,14 +1331,14 @@ elif pagina == "Análisis por base":
             return fig_cluster, fig_base
 
         # 📌 **Comparaciones por Métrica**
-        #fig_pub_cluster, fig_pub_base = plot_comparison("Publications", "Número de Publicaciones", "Publicaciones")
-        #fig_cite_cluster, fig_cite_base = plot_comparison("Cited_by", "Número de Citas", "Citas")
-        #fig_sen_cluster, fig_sen_base = plot_comparison("Seniority", "Antigüedad", "Años desde la Primera Publicación")
-        #fig_fund_cluster, fig_fund_base = plot_comparison("Funding_Ratio", "Proporción de Publicaciones Financiadas", "Ratio de Financiamiento")
-        fig_pub_cluster, fig_pub_base = plot_comparison("Publicaciones", "Número de Publicaciones", "Publicaciones")
-        fig_cite_cluster, fig_cite_base = plot_comparison("Citas", "Número de Citas", "Citas")
-        fig_sen_cluster, fig_sen_base = plot_comparison("Antigüedad", "Años desde la Primera Publicación", "Antigüedad")
-        fig_fund_cluster, fig_fund_base = plot_comparison("Ratio de Financiamiento", "Proporción de Publicaciones Financiadas", "Ratio de Financiamiento")
+        fig_pub_cluster, fig_pub_base = plot_comparison("Publications", "Número de Publicaciones", "Publicaciones")
+        fig_cite_cluster, fig_cite_base = plot_comparison("Cited_by", "Número de Citas", "Citas")
+        fig_sen_cluster, fig_sen_base = plot_comparison("Seniority", "Antigüedad", "Años desde la Primera Publicación")
+        fig_fund_cluster, fig_fund_base = plot_comparison("Funding_Ratio", "Proporción de Publicaciones Financiadas", "Ratio de Financiamiento")
+        #fig_pub_cluster, fig_pub_base = plot_comparison("Publicaciones", "Número de Publicaciones", "Publicaciones")
+        #fig_cite_cluster, fig_cite_base = plot_comparison("Citas", "Número de Citas", "Citas")
+        #fig_sen_cluster, fig_sen_base = plot_comparison("Antigüedad", "Años desde la Primera Publicación", "Antigüedad")
+        #fig_fund_cluster, fig_fund_base = plot_comparison("Ratio de Financiamiento", "Proporción de Publicaciones Financiadas", "Ratio de Financiamiento")
 
 
 
