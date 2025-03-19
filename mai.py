@@ -1567,18 +1567,18 @@ elif pagina == "Análisis por base":
         nltk.download("stopwords")
 
         # Cargar el archivo CSV
-        file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
-        df = pd.read_csv(file_path, encoding='latin1')
+        #file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
+        #df = pd.read_csv(file_path, encoding='latin1')
 
         # Diccionario extendido de palabras clave por área temática
-        area_mapping_extended = {
-            "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
-            "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
-            "Ingeniería": ["Engineering", "Robotics", "Technology", "Automation", "Materials Science"],
-            "Medicina": ["Medicine", "Oncology", "Neurology", "Public Health", "Epidemiology"],
-            "Biología": ["Biology", "Microbiology", "Genomics", "Ecology", "Botany"],
-            "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
-        }
+        #area_mapping_extended = {
+        #    "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
+        #    "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
+        #    "Ingeniería": ["Engineering", "Robotics", "Technology", "Automation", "Materials Science"],
+        #    "Medicina": ["Medicine", "Oncology", "Neurology", "Public Health", "Epidemiology"],
+        #    "Biología": ["Biology", "Microbiology", "Genomics", "Ecology", "Botany"],
+        #    "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
+        #}
 
         # Función para asignar un área temática
         def assign_area(row):
@@ -1594,7 +1594,7 @@ elif pagina == "Análisis por base":
 
         # Seleccionar el rango de años en Streamlit
         años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)
-        años_seleccionados = st.multiselect("Selecciona los años a analizar", años_disponibles, default=años_disponibles[:5])
+        años_seleccionados = st.multiselect("Selecciona los años a analizar", años_disponibles, default=años_disponibles[:8])
         df_filtrado = df[df["Year"].isin(años_seleccionados)]
 
         # Definir stopwords en inglés y español
