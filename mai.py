@@ -1354,7 +1354,7 @@ elif pagina == "Análisis por base":
         # 📌 **Definir Función para Graficar Comparaciones**
         def plot_comparison(metric, title, y_label):
             fig_cluster = px.box(df_cluster, y=metric, points="all", 
-                         title=f"{title} en el Cluster {predicted_cluster}",
+                         title=f"{title} en el Cluster {st.session_state.predicted_cluster}",
                          labels={metric: y_label},
                          template="plotly_white")
     
@@ -1386,7 +1386,7 @@ elif pagina == "Análisis por base":
         fig_fund_cluster, fig_fund_base = plot_comparison("Funding_Ratio", "Proporción de Publicaciones Financiadas", "Ratio de Financiamiento")
 
         # 📌 **Mostrar Gráficos**
-        st.subheader(f"📊 Comparación con Autores del Cluster {predicted_cluster}")
+        st.subheader(f"📊 Comparación con Autores del Cluster {st.session_state.predicted_cluster}")
         st.plotly_chart(fig_pub_cluster)
         st.plotly_chart(fig_cite_cluster)
         st.plotly_chart(fig_sen_cluster)
