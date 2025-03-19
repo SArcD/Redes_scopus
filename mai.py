@@ -1231,17 +1231,37 @@ elif pagina == "Análisis por base":
         # 📌 **Filtrar Datos del Cluster y Crear DataFrame del Usuario**
         df_cluster = df_valid[df_valid["Cluster"] == int(predicted_cluster)]
 
+        #df_user = pd.DataFrame({
+        #    "Métrica": ["Publications", "Cited_by", "Seniority", "Funding_Ratio"],
+        #    "Valor": [publications, cited_by, seniority, funding_ratio]
+        #})
+
         df_user = pd.DataFrame({
-            "Métrica": ["Publications", "Cited_by", "Seniority", "Funding_Ratio"],
-            "Valor": [publications, cited_by, seniority, funding_ratio]
+            "Métrica": ["Publicaciones", "Citas", "Antigüedad", "Ratio de Financiamiento"],
+            "Valor del Usuario": [
+                st.session_state.publications, 
+                st.session_state.cited_by, 
+                st.session_state.seniority, 
+                st.session_state.funding_ratio
+            ]
         })
 
-
-        
         # 📌 **Calcular Estadísticas**
         comparison_data = {
             "Métrica": ["Publicaciones", "Citas", "Antigüedad", "Ratio de Financiamiento"],
-            "Valor del Usuario": [publications, cited_by, seniority, funding_ratio],
+            "Valor del Usuario": [
+                st.session_state.publications, 
+                st.session_state.cited_by, 
+                st.session_state.seniority, 
+                st.session_state.funding_ratio
+            ],
+
+
+        
+        ## 📌 **Calcular Estadísticas**
+        #comparison_data = {
+        #    "Métrica": ["Publicaciones", "Citas", "Antigüedad", "Ratio de Financiamiento"],
+        #    "Valor del Usuario": [publications, cited_by, seniority, funding_ratio],
     
             # 📌 **Estadísticas del Cluster**
             "Cluster - Media": [
