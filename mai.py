@@ -1335,12 +1335,6 @@ elif pagina == "Análisis por base":
         fig_cite_cluster, fig_cite_base = plot_comparison("Cited_by", "Número de Citas", "Citas")
         fig_sen_cluster, fig_sen_base = plot_comparison("Seniority", "Antigüedad", "Años desde la Primera Publicación")
         fig_fund_cluster, fig_fund_base = plot_comparison("Funding_Ratio", "Proporción de Publicaciones Financiadas", "Ratio de Financiamiento")
-        #fig_pub_cluster, fig_pub_base = plot_comparison("Publicaciones", "Número de Publicaciones", "Publicaciones")
-        #fig_cite_cluster, fig_cite_base = plot_comparison("Citas", "Número de Citas", "Citas")
-        #fig_sen_cluster, fig_sen_base = plot_comparison("Antigüedad", "Años desde la Primera Publicación", "Antigüedad")
-        #fig_fund_cluster, fig_fund_base = plot_comparison("Ratio de Financiamiento", "Proporción de Publicaciones Financiadas", "Ratio de Financiamiento")
-
-
 
         # 📌 **Mostrar Gráficos**
         st.subheader(f"📊 Comparación con Autores del Cluster {predicted_cluster}")
@@ -1421,10 +1415,10 @@ elif pagina == "Análisis por base":
         # Actualizar la base de datos
         df.update(df_otros)
         df
-        # Guardar la base de datos procesada
-        #df.to_csv("/mnt/data/scopus_procesado.csv", index=False, encoding='utf-8')
+        # Guardar archivo procesado
+        df.to_csv("scopus_procesado.csv", index=False, encoding='utf-8')
+        #st.download_button("Descargar Base Procesada", "scopus_procesado.csv")
 
-        #print("Procesamiento completado. Archivo guardado como 'scopus_procesado.csv'")
 
         import streamlit as st
         import pandas as pd
@@ -1518,13 +1512,9 @@ elif pagina == "Análisis por base":
                 st.pyplot(fig)
 
             # Botón para generar nubes
-        generar_nubes = st.button("Generar Nubes de Palabras")
-        if generar_nubes and df is not None:
-            generar_nubes_palabras(df)
-
-            # Guardar archivo procesado
-        df.to_csv("scopus_procesado.csv", index=False, encoding='utf-8')
-        st.download_button("Descargar Base Procesada", "scopus_procesado.csv")
+        #generar_nubes = st.button("Generar Nubes de Palabras")
+        #if generar_nubes and df is not None:
+        generar_nubes_palabras(df)
 
 
 
