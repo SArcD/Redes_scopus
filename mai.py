@@ -1364,7 +1364,7 @@ elif pagina == "Análisis por base":
 
         # Actualizar la base de datos
         df.update(df_otros)
-    
+        df
         # Guardar la base de datos procesada
         #df.to_csv("/mnt/data/scopus_procesado.csv", index=False, encoding='utf-8')
 
