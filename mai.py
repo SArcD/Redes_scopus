@@ -1578,6 +1578,10 @@ elif pagina == "Análisis por base":
         from nltk.corpus import stopwords
         import string
 
+
+        custom_stopwords = {"study", "method", "analysis", "model", "data", "results", "research", "approach"}
+
+
         # Descargar stopwords si es la primera vez ejecutando el código
         nltk.download("stopwords")
 
@@ -1632,7 +1636,10 @@ elif pagina == "Análisis por base":
             años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)[:8]
             areas_interes = ["Física y Matemáticas", "Química", "Ingeniería", "Medicina", "Biología", "Humanidades"]
 
-            stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation))
+
+            stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation) + custom_stopwords)
+
+            #stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation))
 
             for año in años_disponibles:
                 df_año = df[df["Year"] == año]
