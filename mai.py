@@ -1256,13 +1256,6 @@ elif pagina == "Análisis por base":
                 st.session_state.funding_ratio
             ],
 
-
-        
-        ## 📌 **Calcular Estadísticas**
-        #comparison_data = {
-        #    "Métrica": ["Publicaciones", "Citas", "Antigüedad", "Ratio de Financiamiento"],
-        #    "Valor del Usuario": [publications, cited_by, seniority, funding_ratio],
-    
             # 📌 **Estadísticas del Cluster**
             "Cluster - Media": [
                 df_cluster["Publications"].mean(), df_cluster["Cited_by"].mean(),
@@ -1317,7 +1310,7 @@ elif pagina == "Análisis por base":
                          template="plotly_white")
     
             fig_cluster.add_trace(go.Scatter(
-                x=["Usuario"], y=[df_user[df_user["Métrica"] == metric]["Valor"].values[0]], 
+                x=["Usuario"], y=[df_user[df_user["Métrica"] == metric]["Valor del Usuario"].values[0]], 
                 mode="markers+text", text="📍", textposition="top center",
                 marker=dict(color="red", size=12),
                 name="Usuario"
@@ -1329,7 +1322,7 @@ elif pagina == "Análisis por base":
                       template="plotly_white")
     
             fig_base.add_trace(go.Scatter(
-                x=["Usuario"], y=[df_user[df_user["Métrica"] == metric]["Valor"].values[0]], 
+                x=["Usuario"], y=[df_user[df_user["Métrica"] == metric]["Valor del Usuario"].values[0]], 
                 mode="markers+text", text="📍", textposition="top center",
                 marker=dict(color="red", size=12),
                 name="Usuario"
