@@ -1139,7 +1139,7 @@ elif pagina == "Análisis por base":
         st.markdown("""
         En el siguiente formulario es posible que el usuario introduzca sus datos y obtenga su clasificación dentro de alguno de los clusters de autores descritos arriba.
         """)
-        
+        @st.cache_data
         funding_ratio = st.number_input("**Proporción de publicaciones financiadas**", min_value=0.0, max_value=1.0, step=0.01)
         publications = st.number_input("**Número de publicaciones**", min_value=0, step=1)
         cited_by = st.number_input("**Número de citas**", min_value=0, step=1)
@@ -1372,13 +1372,12 @@ elif pagina == "Análisis por base":
 
         #print("Procesamiento completado. Archivo guardado como 'scopus_procesado.csv'")
 
-
         import streamlit as st
         import pandas as pd
         import os
         from wordcloud import WordCloud
         import matplotlib.pyplot as plt
-        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.feature_extraction.text import TfidfVectorizer        
         from sklearn.svm import SVC
         from sklearn.pipeline import Pipeline
         from sklearn.model_selection import train_test_split
@@ -1389,19 +1388,19 @@ elif pagina == "Análisis por base":
         # Subir archivo CSV
         #df = None
         #uploaded_file = st.file_uploader("Sube tu archivo CSV", type=["csv"])
-        if uploaded_file:
+        #if uploaded_file:
             #df = pd.read_csv(uploaded_file, encoding='latin1')
             #st.success("Archivo cargado correctamente.")
 
-            # Diccionario extendido de palabras clave por área temática
-            area_mapping_extended = {
+        # Diccionario extendido de palabras clave por área temática
+        area_mapping_extended = {
                 "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
                 "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
                 "Ingeniería": ["Engineering", "Robotics", "Technology", "Automation", "Materials Science"],
                 "Medicina": ["Medicine", "Oncology", "Neurology", "Public Health", "Epidemiology"],
                 "Biología": ["Biology", "Microbiology", "Genomics", "Ecology", "Botany"],
                 "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
-            }
+        }
 
             # Función para asignar un área temática
         def assign_area_extended_v2(row):
@@ -1435,7 +1434,8 @@ elif pagina == "Análisis por base":
                 df_otros["Área Temática"] = model_svm.predict(df_otros["Title"].astype(str))
                 df.update(df_otros)
 
-            # Generar nubes de palabras
+            # Función para generar nubes de palabras
+        def generar_nubes_palabras(df):
             st.subheader("Nubes de Palabras por Área Temática")
             años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)[:5]
             areas_interes = ["Física y Matemáticas", "Química", "Ingeniería", "Medicina", "Biología", "Humanidades"]
@@ -1462,6 +1462,11 @@ elif pagina == "Análisis por base":
 
                 plt.tight_layout()
                 st.pyplot(fig)
+
+            # Botón para generar nubes
+        generar_nubes = st.button("Generar Nubes de Palabras")
+        if generar_nubes and df is not None:
+            generar_nubes_palabras(df)
 
             # Guardar archivo procesado
         df.to_csv("scopus_procesado.csv", index=False, encoding='utf-8')
