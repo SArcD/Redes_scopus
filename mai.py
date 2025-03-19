@@ -1521,7 +1521,7 @@ elif pagina == "Análisis por base":
         # Función para generar nubes de palabras
         def generar_nubes_palabras(df):
             st.subheader("Nubes de Palabras por Área Temática")
-            años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)[:5]
+            años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)[:8]
             areas_interes = ["Física y Matemáticas", "Química", "Ingeniería", "Medicina", "Biología", "Humanidades"]
 
             for año in años_disponibles:
