@@ -1186,6 +1186,24 @@ elif pagina == "Análisis por base":
         #cited_by = st.number_input("**Número de citas**", min_value=0, step=1)
         #seniority = st.number_input("**Antigüedad (años desde la primera publicación**)", min_value=0, max_value=100, step=1)
 
+#        if st.button("**Asignar Cluster**"):
+#            user_data = np.array([[st.session_state.funding_ratio, 
+#                           st.session_state.publications, 
+#                           st.session_state.cited_by, 
+#                           st.session_state.seniority]])#
+
+#            predicted_cluster_idx = clf.predict(user_data)[0]
+#            st.session_state.predicted_cluster = str(int(reverse_mapping[predicted_cluster_idx]))  # Guardar en session_state
+
+#            st.success(f"**Has sido asignado al Cluster {st.session_state.predicted_cluster}**")
+
+            #         Explicación basada en el perfil de publicaciones
+
+          # Inicializar valores en session_state solo si no existen
+        if "predicted_cluster" not in st.session_state:
+            st.session_state.predicted_cluster = None  # Se inicializa con None
+
+        # Botón para asignar cluster
         if st.button("**Asignar Cluster**"):
             user_data = np.array([[st.session_state.funding_ratio, 
                            st.session_state.publications, 
@@ -1197,8 +1215,12 @@ elif pagina == "Análisis por base":
 
             st.success(f"**Has sido asignado al Cluster {st.session_state.predicted_cluster}**")
 
-            #         Explicación basada en el perfil de publicaciones
 
+            # Evitar error si `predicted_cluster` no se ha asignado todavía
+        if st.session_state.predicted_cluster is not None:
+            df_cluster = df_valid[df_valid["Cluster"] == int(st.session_state.predicted_cluster)]
+        else:
+            df_cluster = pd.DataFrame()  # Si no hay cluster aún, crear DataFrame vacío
 
 
         #if st.button("**Asignar Cluster**"):
