@@ -1549,6 +1549,96 @@ elif pagina == "Análisis por base":
 
         # Generar nubes automáticamente sin necesidad de botón
         generar_nubes_palabras(df)
+
+
+        import streamlit as st
+        import pandas as pd
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        from wordcloud import WordCloud
+        from collections import Counter
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        import plotly.express as px
+        import nltk
+        from nltk.corpus import stopwords
+        import string
+
+        # Descargar stopwords si es la primera vez ejecutando el código
+        nltk.download("stopwords")
+
+        # Cargar el archivo CSV
+        file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
+        df = pd.read_csv(file_path, encoding='latin1')
+
+        # Diccionario extendido de palabras clave por área temática
+        area_mapping_extended = {
+            "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
+            "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
+            "Ingeniería": ["Engineering", "Robotics", "Technology", "Automation", "Materials Science"],
+            "Medicina": ["Medicine", "Oncology", "Neurology", "Public Health", "Epidemiology"],
+            "Biología": ["Biology", "Microbiology", "Genomics", "Ecology", "Botany"],
+            "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
+        }
+
+        # Función para asignar un área temática
+        def assign_area(row):
+            source_title = str(row["Source title"])
+            title = str(row["Title"])
+            for area, keywords in area_mapping_extended.items():
+                if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
+                    return area
+            return "Otras"
+
+        # Aplicar clasificación inicial
+        df["Área Temática"] = df.apply(assign_area, axis=1)
+
+        # Seleccionar el rango de años en Streamlit
+        años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)
+        años_seleccionados = st.multiselect("Selecciona los años a analizar", años_disponibles, default=años_disponibles[:5])
+        df_filtrado = df[df["Year"].isin(años_seleccionados)]
+
+        # Definir stopwords en inglés y español
+        stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation))
+
+        # Obtener los términos más usados en cada área temática
+        def obtener_terminos(df, area):
+            df_area = df[df["Área Temática"] == area]
+            if df_area.empty:
+                return None
+    
+            textos = " ".join(df_area["Title"].dropna()).lower()
+            palabras = [word for word in textos.split() if word not in stop_words and len(word) > 3]
+            conteo = Counter(palabras)
+            terminos_comunes = conteo.most_common(10)
+    
+            autores_frecuentes = df_area["Authors"].value_counts().head(5).to_dict()
+            return terminos_comunes, autores_frecuentes
+
+        # Generar tablas por área temática
+        st.subheader("🔹 Términos más usados y autores destacados")
+        for area in area_mapping_extended.keys():
+            resultado = obtener_terminos(df_filtrado, area)
+            if resultado:
+                terminos, autores = resultado
+                df_terminos = pd.DataFrame(terminos, columns=["Término", "Frecuencia"])
+                st.write(f"**{area}**")
+                st.dataframe(df_terminos)
+                st.write("**Autores más frecuentes en estos artículos:**")
+                for autor, conteo in autores.items():
+                    st.write(f"- {autor}: {conteo} artículos")
+
+        # Gráfico de pastel: proporción de artículos por área temática
+        st.subheader("📊 Distribución de artículos por área temática")
+        df_areas = df_filtrado["Área Temática"].value_counts().reset_index()
+        df_areas.columns = ["Área Temática", "Cantidad"]
+        fig = px.pie(df_areas, names="Área Temática", values="Cantidad", title="Proporción de artículos por área temática")
+        st.plotly_chart(fig)
+
+
+
+
+
+
     
     else:
         st.info("📂 **Sube un archivo CSV para comenzar**")
