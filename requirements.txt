@@ -12,3 +12,4 @@ imageio
 kaleido
 moviepy
 imageio
+nltk
