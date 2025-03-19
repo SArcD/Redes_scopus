@@ -1373,6 +1373,101 @@ elif pagina == "Análisis por base":
         #print("Procesamiento completado. Archivo guardado como 'scopus_procesado.csv'")
 
 
+        import streamlit as st
+        import pandas as pd
+        import os
+        from wordcloud import WordCloud
+        import matplotlib.pyplot as plt
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.svm import SVC
+        from sklearn.pipeline import Pipeline
+        from sklearn.model_selection import train_test_split
+
+        # Configuración de la aplicación en Streamlit
+        st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
+
+        # Subir archivo CSV
+        df = None
+        uploaded_file = st.file_uploader("Sube tu archivo CSV", type=["csv"])
+        if uploaded_file:
+            df = pd.read_csv(uploaded_file, encoding='latin1')
+            st.success("Archivo cargado correctamente.")
+
+            # Diccionario extendido de palabras clave por área temática
+            area_mapping_extended = {
+                "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
+                "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
+                "Ingeniería": ["Engineering", "Robotics", "Technology", "Automation", "Materials Science"],
+                "Medicina": ["Medicine", "Oncology", "Neurology", "Public Health", "Epidemiology"],
+                "Biología": ["Biology", "Microbiology", "Genomics", "Ecology", "Botany"],
+                "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
+            }
+
+            # Función para asignar un área temática
+        def assign_area_extended_v2(row):
+            source_title = str(row["Source title"])
+            title = str(row["Title"])
+    
+            for area, keywords in area_mapping_extended.items():
+                if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
+                    return area
+            return "Otras"
+
+            # Aplicar clasificación inicial
+            df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
+
+            # Entrenar el modelo SVM si hay datos etiquetados
+            df_labeled = df[df["Área Temática"] != "Otras"]
+            if not df_labeled.empty:
+                X = df_labeled["Title"].astype(str)
+                y = df_labeled["Área Temática"]
+                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
+                # Modelo SVM
+                vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1,2), max_features=5000)
+                model_svm = Pipeline([
+                    ("vectorizer", vectorizer),
+                    ("classifier", SVC(kernel="linear", probability=True))
+                ])
+
+                model_svm.fit(X_train, y_train)
+                df_otros = df[df["Área Temática"] == "Otras"].copy()
+                df_otros["Área Temática"] = model_svm.predict(df_otros["Title"].astype(str))
+                df.update(df_otros)
+
+            # Generar nubes de palabras
+            st.subheader("Nubes de Palabras por Área Temática")
+            años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)[:5]
+            areas_interes = ["Física y Matemáticas", "Química", "Ingeniería", "Medicina", "Biología", "Humanidades"]
+    
+            for año in años_disponibles:
+                df_año = df[df["Year"] == año]
+                if df_año.empty:
+                    continue
+
+                st.subheader(f"Año {año}")
+                fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+                axes = axes.flatten()
+
+                for i, area in enumerate(areas_interes):
+                    df_area = df_año[df_año["Área Temática"] == area]
+                    if not df_area.empty:
+                        text = " ".join(df_area["Title"].dropna())
+                        wordcloud = WordCloud(width=800, height=400, background_color="white").generate(text)
+                        axes[i].imshow(wordcloud, interpolation="bilinear")
+                        axes[i].set_title(f"{area} ({año})", fontsize=14)
+                        axes[i].axis("off")
+                    else:
+                        axes[i].axis("off")
+
+                plt.tight_layout()
+                st.pyplot(fig)
+
+            # Guardar archivo procesado
+        df.to_csv("scopus_procesado.csv", index=False, encoding='utf-8')
+        st.download_button("Descargar Base Procesada", "scopus_procesado.csv")
+
+
 
 
 
