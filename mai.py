@@ -1579,7 +1579,7 @@ elif pagina == "Análisis por base":
         import string
 
 
-        custom_stopwords = {"study", "method", "analysis", "model", "data", "results", "research", "approach"}
+        custom_stopwords = {"study", "method", "analysis", "model", "data", "results", "research", "approach", "colima", "Mexico", "asses", "assessment", "design", "Mexican", "cómo", "using", "partial", "méxico", "effect", "comment", "based", "central", "evaluation", "employing", "transformation", "application", "system", "approach", "n"}
 
 
         # Descargar stopwords si es la primera vez ejecutando el código
