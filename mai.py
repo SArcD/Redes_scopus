@@ -1579,16 +1579,28 @@ elif pagina == "Análisis por base":
         import string
 
 
-        custom_stopwords = {"study", "method", "analysis", "model", "data", "results", "research", "approach", "colima", "Mexico", "asses", "assessment", "design", "Mexican", "cómo", "using", "partial", "méxico", "effect", "comment", "based", "central", "evaluation", "employing", "transformation", "application", "system", "approach", "n"}
-
+        import streamlit as st
+        import pandas as pd
+        import matplotlib.pyplot as plt
+        from wordcloud import WordCloud
+        import nltk
+        from nltk.corpus import stopwords
+        import string
 
         # Descargar stopwords si es la primera vez ejecutando el código
         nltk.download("stopwords")
 
+        # Lista adicional de palabras comunes a excluir (convertidas a minúsculas para evitar problemas de coincidencia)
+        custom_stopwords = {word.lower() for word in [
+            "study", "method", "analysis", "model", "data", "results", "research", "approach", 
+            "colima", "mexico", "asses", "assessment", "design", "mexican", "cómo", "using", 
+            "partial", "méxico", "effect", "comment", "based", "central", "evaluation", "employing", 
+            "transformation", "application", "system", "approach", "n", "effects"]}
+
         # Configuración de la aplicación en Streamlit
         st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
 
-        # Diccionario extendido de palabras clave por área temática
+        # Diccionario extendido de palabras clave por área temática        
         area_mapping_extended = {
             "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
             "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
@@ -1608,11 +1620,11 @@ elif pagina == "Análisis por base":
                     return area
             return "Otras"
 
-        # Aplicar clasificación inicial
+            # Aplicar clasificación inicial
         df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
 
         # Entrenar el modelo SVM si hay datos etiquetados
-        df_labeled = df[df["Área Temática"] != "Otras"]
+        df_labeled = df[df["Área Temática"] != "Otras"]    
         if not df_labeled.empty:
             X = df_labeled["Title"].astype(str)
             y = df_labeled["Área Temática"]
@@ -1636,11 +1648,7 @@ elif pagina == "Análisis por base":
             años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)[:8]
             areas_interes = ["Física y Matemáticas", "Química", "Ingeniería", "Medicina", "Biología", "Humanidades"]
 
-
-            #stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation) + custom_stopwords)
             stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
-
-            #stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation))
 
             for año in años_disponibles:
                 df_año = df[df["Year"] == año]
@@ -1668,7 +1676,6 @@ elif pagina == "Análisis por base":
 
         # Generar nubes automáticamente sin necesidad de botón
         generar_nubes_palabras(df)
-
 
 
 
