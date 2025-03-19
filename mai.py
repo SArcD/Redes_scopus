@@ -1387,11 +1387,11 @@ elif pagina == "Análisis por base":
         st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
 
         # Subir archivo CSV
-        df = None
-        uploaded_file = st.file_uploader("Sube tu archivo CSV", type=["csv"])
+        #df = None
+        #uploaded_file = st.file_uploader("Sube tu archivo CSV", type=["csv"])
         if uploaded_file:
-            df = pd.read_csv(uploaded_file, encoding='latin1')
-            st.success("Archivo cargado correctamente.")
+            #df = pd.read_csv(uploaded_file, encoding='latin1')
+            #st.success("Archivo cargado correctamente.")
 
             # Diccionario extendido de palabras clave por área temática
             area_mapping_extended = {
