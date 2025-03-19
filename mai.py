@@ -1139,34 +1139,6 @@ elif pagina == "Análisis por base":
         st.markdown("""
         En el siguiente formulario es posible que el usuario introduzca sus datos y obtenga su clasificación dentro de alguno de los clusters de autores descritos arriba.
         """)
-        #@st.cache_data
-
-        # Inicializar valores en session_state para mantener la información entre recargas
-        #if "funding_ratio" not in st.session_state:
-        #    st.session_state.funding_ratio = 0.0
-        #if "publications" not in st.session_state:
-        #    st.session_state.publications = 0
-        #if "cited_by" not in st.session_state:
-        #    st.session_state.cited_by = 0
-        #if "seniority" not in st.session_state:
-        #    st.session_state.seniority = 0
-
-        # Campos de entrada con valores persistentes
-        #st.session_state.funding_ratio = st.number_input("**Proporción de publicaciones financiadas**", 
-        #                                                 min_value=0.0, max_value=1.0, step=0.01, 
-        #                                                 value=st.session_state.funding_ratio)
-
-        #st.session_state.publications = st.number_input("**Número de publicaciones**", 
-        #                                                min_value=0, step=1, 
-        #                                                value=st.session_state.publications)
-
-        #st.session_state.cited_by = st.number_input("**Número de citas**", 
-        #                                            min_value=0, step=1, 
-        #                                            value=st.session_state.cited_by)
-
-        #st.session_state.seniority = st.number_input("**Antigüedad (años desde la primera publicación**)", 
-        #                                             min_value=0, max_value=100, step=1, 
-        #                                             value=st.session_state.seniority)
 
 
         # Inicializar valores en session_state solo si no existen
@@ -1178,13 +1150,18 @@ elif pagina == "Análisis por base":
             st.session_state.cited_by = 0
         if "seniority" not in st.session_state:
             st.session_state.seniority = 0
-
-        # 📌 **Formulario Inteligente para Asignación de Cluster**
-        st.header("📝 Predicción de Cluster Basado en Estadísticas de Autor")
-
-        st.markdown("""
-        En el siguiente formulario es posible que el usuario introduzca sus datos y obtenga su clasificación dentro de alguno de los clusters de autores descritos arriba.
-        """)
+        if "predicted_cluster" not in st.session_state:  # <-- Inicializar el cluster
+            st.session_state.predicted_cluster = "Sin asignar"
+        
+        # Inicializar valores en session_state solo si no existen
+        #if "funding_ratio" not in st.session_state:
+        #    st.session_state.funding_ratio = 0.0
+        #if "publications" not in st.session_state:
+        #    st.session_state.publications = 0
+        #if "cited_by" not in st.session_state:
+        #    st.session_state.cited_by = 0
+        #if "seniority" not in st.session_state:
+        #    st.session_state.seniority = 0
 
         # Campos de entrada con valores persistentes usando `key`
         funding_ratio = st.number_input("**Proporción de publicaciones financiadas**", 
@@ -1204,25 +1181,38 @@ elif pagina == "Análisis por base":
                             value=st.session_state.seniority, key="seniority")
 
 
-        
-
         #funding_ratio = st.number_input("**Proporción de publicaciones financiadas**", min_value=0.0, max_value=1.0, step=0.01)
         #publications = st.number_input("**Número de publicaciones**", min_value=0, step=1)
         #cited_by = st.number_input("**Número de citas**", min_value=0, step=1)
         #seniority = st.number_input("**Antigüedad (años desde la primera publicación**)", min_value=0, max_value=100, step=1)
 
         if st.button("**Asignar Cluster**"):
-            #user_data = np.array([[funding_ratio, publications, cited_by, seniority]])
             user_data = np.array([[st.session_state.funding_ratio, 
-                        st.session_state.publications, 
-                        st.session_state.cited_by, 
-                        st.session_state.seniority]])
-    
-            predicted_cluster_idx = clf.predict(user_data)[0]
-            #predicted_cluster = str(reverse_mapping[predicted_cluster_idx])  # 🔹 Convertir a string para evitar errores en el diccionario
-            predicted_cluster = str(int(reverse_mapping[predicted_cluster_idx]))  # 🔹 Convertimos primero a entero y luego a string
+                           st.session_state.publications, 
+                           st.session_state.cited_by, 
+                           st.session_state.seniority]])
 
-            st.success(f"**Has sido asignado al Cluster {predicted_cluster}**")
+            predicted_cluster_idx = clf.predict(user_data)[0]
+            st.session_state.predicted_cluster = str(int(reverse_mapping[predicted_cluster_idx]))  # Guardar en session_state
+
+            st.success(f"**Has sido asignado al Cluster {st.session_state.predicted_cluster}**")
+
+            #         Explicación basada en el perfil de publicaciones
+
+
+
+        #if st.button("**Asignar Cluster**"):
+        #    #user_data = np.array([[funding_ratio, publications, cited_by, seniority]])
+        #    user_data = np.array([[st.session_state.funding_ratio, 
+        #                st.session_state.publications, 
+        #                st.session_state.cited_by, 
+        #                st.session_state.seniority]])
+    
+        #    predicted_cluster_idx = clf.predict(user_data)[0]
+        #    #predicted_cluster = str(reverse_mapping[predicted_cluster_idx])  # 🔹 Convertir a string para evitar errores en el diccionario
+        #    predicted_cluster = str(int(reverse_mapping[predicted_cluster_idx]))  # 🔹 Convertimos primero a entero y luego a string
+
+        #    st.success(f"**Has sido asignado al Cluster {predicted_cluster}**")
         
             # Explicación basada en el perfil de publicaciones
             cluster_explanations = {
@@ -1251,8 +1241,9 @@ elif pagina == "Análisis por base":
                      "Suelen tener una antigüedad alta, con equipos de trabajo consolidados y un alto impacto en citas."
             }
 
-    
-            st.info(cluster_explanations.get(predicted_cluster, "Descripción no disponible."))
+            st.info(cluster_explanations.get(st.session_state.predicted_cluster, "Descripción no disponible."))
+
+            #st.info(cluster_explanations.get(predicted_cluster, "Descripción no disponible."))
 
         ##############################################################################
 
