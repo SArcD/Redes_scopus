@@ -42,7 +42,7 @@ elif pagina == "Análisis por base":
     st.title("Análisis temático de los autores de publicaciones científicas de la Universidad de Colima")
 
     st.markdown("""
-    En esta sección se analizan algunos aspectos claves de los autores de la Universidad de Colima que han participado en publicaciones indizadas en la base de datos de Scopus. Algunos de estos aspectos son: la identificación de los autores mas prolificos de la Universidad de Colima, la evolución temporal de estos autores, su distribución de autores de acuerdo a su productividad y un clasificador en el que el usuario puede comparar su productividad con la de los autores de la base. 
+    En esta sección se analizan algunos aspectos claves de los autores de la **Universidad de Colima** que han participado en publicaciones indizadas en la base de datos de **Scopus**. Algunos de estos aspectos son: la identificación de los autores mas prolíficos de la Universidad de Colima, la evolución temporal de estos autores, su distribución de autores de acuerdo a su productividad y un clasificador en el que el usuario puede comparar su productividad con la de los autores de la base. 
     """)
     st.markdown("""
     **Para poder visualizar el análisis de publicaciones, por favor cargue la base de datos de publicaciones de Scopus.**
@@ -63,7 +63,7 @@ elif pagina == "Análisis por base":
         # 📊 **Mostrar las primeras filas**
         #st.subheader("📋 Vista previa de los datos")
         st.markdown("""
-        Estas son las **primeras cinco filas** del archivo con la lista de publicaciones en las que se han involucrado profesores de la Universidad de Colima. En su estado actual, cada fila corresponde a un artículo diferente. En las secciones posteriores, esta base se separará por autor para poder generar un registro de la productividad científica de los profesores de la Universidad de Colima.
+        Estas son las **primeras cinco filas** del archivo con la lista de publicaciones en las que se han involucrado profesores de la Universidad de Colima. Cada fila corresponde a un artículo diferente. En las secciones posteriores, esta base se separará para generar un registro de la productividad científica individual de los profesores de la Universidad de Colima.
         """)
         
         st.write(df.head())
@@ -186,7 +186,7 @@ elif pagina == "Análisis por base":
             #st.write(df_processed.head())
 
             # 📊 **Análisis de Editoriales y Publicaciones**
-            st.subheader("Autores mas prolíficos")
+            st.subheader("Autores con mayor producción")
 
             def count_unique_publishers(publishers):
                 if isinstance(publishers, float) and pd.isna(publishers):
@@ -228,7 +228,7 @@ elif pagina == "Análisis por base":
             columns_to_drop = ["DOI", "Volume", "Issue", "Art._No.", "Page_start", "Page_end", "Page_count", "Link", "ISBN", "CODEN", "Funding_Texts", "ISSN", "Open_Access", "Publisher"]
             df_grouped = df_grouped.drop(columns=columns_to_drop, errors="ignore")
             st.markdown("""
-            Como primer paso, se separa la base original, generando una fila para cada participación de un autor o autora de la Universidad en un artículo indizado en Scopus. Debido a que es posible que una persona aparzca con distintas versiones de su nombre, así como con distintos identificadores de Scopus, se normalizaron los nombres (eliminando mayúsculas y caracteres especiales), y se unificaron todos los trabajos de cada autor en el ID de Scopus mas reciente. Además, se usó el registro de direcciones de correo para depurar la base y conservar solo a aquellos autores que tengan una dirección que pueda asociarse con la Universidad de Colima (esto último implicó una revisión por parte de la **Dirección General de Investigación Científica** para quitar del registro a colaboradores que no pertenezcan a la Universidad de Colima). A continuación se muestran las **primeras cinco filas** de la base con los autores ya separados..
+            Como primer paso, se separa la base original, generando una fila para cada participación de un autor o autora de la Universidad en un artículo indizado en Scopus. **Debido a que es posible que una persona aparezca con distintas versiones de su nombre, así como con distintos identificadores de Scopus, se normalizaron los nombres (eliminando mayúsculas y caracteres especiales), y se unificaron todos los trabajos de cada autor en el ID de Scopus mas reciente. Además, se usó el registro de direcciones de correo para depurar la base y conservar solo a aquellos autores que tengan una dirección que pueda asociarse con la Universidad de Colima (esto último implicó una revisión por parte de la **Dirección General de Investigación Científica** para quitar del registro a colaboradores que no pertenezcan a la Universidad de Colima). A continuación se muestran las **primeras cinco filas** de la base con los autores ya separados..
             """)
             #st.markdown("""
             #    Después del procesamiento, se agrupa la información a nivel de autor ("Author(s)_ID") y se generan estadísticas:
@@ -1300,6 +1300,76 @@ elif pagina == "Análisis por base":
         st.plotly_chart(fig_cite_base)
         st.plotly_chart(fig_sen_base)
         st.plotly_chart(fig_fund_base)
+
+
+        import pandas as pd
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.svm import SVC
+        from sklearn.pipeline import Pipeline
+        from sklearn.model_selection import train_test_split
+        from sklearn.metrics import classification_report
+
+        # Cargar el archivo CSV
+        file_path = "/mnt/data/scopusUdeC con financiamiento 17 feb-2.csv"
+        df = pd.read_csv(file_path, encoding='latin1')
+
+        # Diccionario extendido de palabras clave por área temática
+        area_mapping_extended = {
+            "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
+            "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
+            "Ingeniería": ["Engineering", "Robotics", "Technology", "Automation", "Materials Science"],
+            "Medicina": ["Medicine", "Oncology", "Neurology", "Public Health", "Epidemiology"],
+            "Biología": ["Biology", "Microbiology", "Genomics", "Ecology", "Botany"],
+            "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
+        }
+
+        # Función para asignar un área temática basada en palabras clave
+        def assign_area_extended_v2(row):
+            source_title = str(row["Source title"])
+            title = str(row["Title"])
+    
+            for area, keywords in area_mapping_extended.items():
+                if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
+                    return area
+            return "Otras"
+
+        # Aplicar clasificación inicial
+        df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
+
+        # Filtrar solo artículos con área temática definida
+        df_labeled = df[df["Área Temática"] != "Otras"]
+
+        # Datos de entrenamiento y prueba
+        X = df_labeled["Title"].astype(str)
+        y = df_labeled["Área Temática"]
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
+        # Modelo SVM con mejor preprocesamiento
+        vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1,2), max_features=5000)
+        model_svm = Pipeline([
+            ("vectorizer", vectorizer),
+            ("classifier", SVC(kernel="linear", probability=True))
+        ])
+
+        # Entrenar el modelo
+        model_svm.fit(X_train, y_train)
+
+        # Evaluar el modelo
+        y_pred_svm = model_svm.predict(X_test)
+        print(classification_report(y_test, y_pred_svm))
+
+        # Aplicar el modelo a los artículos en "Otras"
+        df_otros = df[df["Área Temática"] == "Otras"].copy()
+        df_otros["Área Temática"] = model_svm.predict(df_otros["Title"].astype(str))
+
+        # Actualizar la base de datos
+        df.update(df_otros)
+    
+        # Guardar la base de datos procesada
+        #df.to_csv("/mnt/data/scopus_procesado.csv", index=False, encoding='utf-8')
+
+        #print("Procesamiento completado. Archivo guardado como 'scopus_procesado.csv'")
+
 
 
 
