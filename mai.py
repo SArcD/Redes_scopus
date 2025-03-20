@@ -1916,7 +1916,7 @@ elif pagina == "Análisis por base":
                         word_frequencies[area] += word_counts
 
         # Generar nubes automáticamente
-        generar_nubes_palabras(df)
+        #generar_nubes_palabras(df)
 
         # Generar gráfica de barras animada separada por área
         def generar_animacion_palabras(word_frequencies):
