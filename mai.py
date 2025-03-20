@@ -1735,6 +1735,22 @@ elif pagina == "Análisis por base":
 
         # Descargar stopwords si es la primera vez ejecutando el código
         nltk.download("stopwords")
+        nltk.download("wordnet")
+        nltk.download("omw-1.4")
+
+        # Inicializar lematizador y traductor
+        lemmatizer = WordNetLemmatizer()
+        #translator = GoogleTranslator(source='auto', target='english')  # Traducir todo a inglés
+
+        # Lista adicional de palabras comunes a excluir (convertidas a minúsculas para evitar problemas de coincidencia)
+        custom_stopwords = {word.lower() for word in [
+            "study", "method", "analysis", "model", "data", "results", "research", "approach", 
+            "colima", "mexico", "asses", "assessment", "design", "mexican", "cómo", "using", 
+            "partial", "méxico", "effect", "comment", "based", "central", "evaluation", "employing", 
+            "transformation", "application", "system", "approach", "n", "effects"]}
+
+
+
 
         # Cargar el archivo CSV
         #file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
@@ -1769,6 +1785,7 @@ elif pagina == "Análisis por base":
 
         # Definir stopwords en inglés y español
         #stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation))
+        stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
 
         # Obtener los términos más usados en cada área temática
         def obtener_terminos(df, area):
