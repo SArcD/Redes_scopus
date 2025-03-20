@@ -1616,7 +1616,7 @@ elif pagina == "Análisis por base":
 
         # Inicializar lematizador y traductor
         lemmatizer = WordNetLemmatizer()
-        translator = GoogleTranslator(source='auto', target='english')  # Traducir todo a inglés
+        #translator = GoogleTranslator(source='auto', target='english')  # Traducir todo a inglés
 
         # Lista adicional de palabras comunes a excluir (convertidas a minúsculas para evitar problemas de coincidencia)
         custom_stopwords = {word.lower() for word in [
@@ -1683,7 +1683,9 @@ elif pagina == "Análisis por base":
                 texto = re.sub(r"[\W_]+", " ", texto)  # Remover puntuación y caracteres especiales
                 palabras = texto.split()
                 palabras_filtradas = [lemmatizer.lemmatize(word) for word in palabras if word not in stop_words and len(word) > 2]
-                palabras_traducidas = [translator.translate(word) for word in palabras_filtradas]
+                #palabras_traducidas = [translator.translate(word) for word in palabras_filtradas]
+                palabras_traducidas = palabras_filtradas  # Mantener palabras originales sin traducir
+
                 return " ".join(palabras_traducidas)
 
             for año in años_disponibles:
