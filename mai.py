@@ -1851,7 +1851,7 @@ elif pagina == "Análisis por base":
             "partial", "méxico", "effect", "comment", "based", "central", "evaluation", "employing", 
             "transformation", "application", "system", "approach", "n", "effects"]}
 
-        #   Configuración de la aplicación en Streamlit
+        # Configuración de la aplicación en Streamlit
         st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
 
         # Diccionario extendido de palabras clave por área temática
@@ -1864,7 +1864,7 @@ elif pagina == "Análisis por base":
             "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
         }
 
-        # Función para asignar un área temática
+        # Función para asignar un área temática    
         def assign_area_extended_v2(row):
             source_title = str(row["Source title"])
             title = str(row["Title"])
@@ -1877,11 +1877,15 @@ elif pagina == "Análisis por base":
         # Aplicar clasificación inicial
         df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
 
+        # Selección del año más antiguo para visualizar
+        año_minimo = st.slider("Selecciona el año más antiguo para visualizar:", int(df["Year"].min()), int(df["Year"].max()), int(df["Year"].min()))
+
         # Función para generar nubes de palabras con stopwords eliminadas y lematización
         def generar_nubes_palabras(df):
             st.subheader("Nubes de Palabras por Área Temática")
-            años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)[:8]
-            areas_interes = ["Física y Matemáticas", "Química", "Ingeniería", "Medicina", "Biología", "Humanidades"]
+            años_disponibles = sorted(df["Year"].dropna().unique())
+            años_disponibles = [a for a in años_disponibles if a >= año_minimo]
+            areas_interes = list(area_mapping_extended.keys())
 
             stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
     
@@ -1924,8 +1928,8 @@ elif pagina == "Análisis por base":
                 plt.tight_layout()
                 st.pyplot(fig)
 
-        # Generar nubes automáticamente sin necesidad de botón    
-        generar_nubes_palabras(df)
+        # Generar nubes automáticamente sin necesidad de botón
+        #generar_nubes_palabras(df)
 
         # Generar gráfica de barras animada con evolución temporal del uso de palabras
         def generar_animacion_palabras(word_frequencies):
@@ -1933,10 +1937,12 @@ elif pagina == "Análisis por base":
     
             data = []
             for (año, area), palabras in word_frequencies.items():
-                for palabra, frecuencia in palabras:
-                    data.append({"Año": año, "Área Temática": area, "Palabra": palabra, "Frecuencia": frecuencia})
+                if año >= año_minimo:
+                    for palabra, frecuencia in palabras:
+                        data.append({"Año": año, "Área Temática": area, "Palabra": palabra, "Frecuencia": frecuencia})
     
             df_animacion = pd.DataFrame(data)
+            df_animacion = df_animacion.sort_values(by="Año")  # Asegurar orden cronológico
     
             fig = px.bar(
                 df_animacion,
