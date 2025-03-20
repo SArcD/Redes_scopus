@@ -1821,6 +1821,140 @@ elif pagina == "Análisis por base":
         fig = px.pie(df_areas, names="Área Temática", values="Cantidad", title="Proporción de artículos por área temática")
         st.plotly_chart(fig)
 
+#############################################################################################################################################
+
+        import streamlit as st
+        import pandas as pd
+        import matplotlib.pyplot as plt
+        from wordcloud import WordCloud
+        import nltk
+        from nltk.corpus import stopwords
+        from nltk.stem import WordNetLemmatizer
+        import string
+        import re
+        import plotly.express as px
+        import plotly.graph_objects as go
+        from collections import Counter
+
+        # Descargar recursos de NLTK
+        nltk.download("stopwords")
+        nltk.download("wordnet")
+        nltk.download("omw-1.4")
+
+        # Inicializar lematizador
+        lemmatizer = WordNetLemmatizer()
+
+        # Lista adicional de palabras comunes a excluir (convertidas a minúsculas para evitar problemas de coincidencia)
+        custom_stopwords = {word.lower() for word in [
+            "study", "method", "analysis", "model", "data", "results", "research", "approach", 
+            "colima", "mexico", "asses", "assessment", "design", "mexican", "cómo", "using", 
+            "partial", "méxico", "effect", "comment", "based", "central", "evaluation", "employing", 
+            "transformation", "application", "system", "approach", "n", "effects"]}
+
+        #   Configuración de la aplicación en Streamlit
+        st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
+
+        # Diccionario extendido de palabras clave por área temática
+        area_mapping_extended = {
+            "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
+            "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
+            "Ingeniería": ["Engineering", "Robotics", "Technology", "Automation", "Materials Science"],
+            "Medicina": ["Medicine", "Oncology", "Neurology", "Public Health", "Epidemiology"],
+            "Biología": ["Biology", "Microbiology", "Genomics", "Ecology", "Botany"],
+            "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
+        }
+
+        # Función para asignar un área temática
+        def assign_area_extended_v2(row):
+            source_title = str(row["Source title"])
+            title = str(row["Title"])
+    
+            for area, keywords in area_mapping_extended.items():
+                if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
+                    return area
+            return "Otras"
+
+        # Aplicar clasificación inicial
+        df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
+
+        # Función para generar nubes de palabras con stopwords eliminadas y lematización
+        def generar_nubes_palabras(df):
+            st.subheader("Nubes de Palabras por Área Temática")
+            años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)[:8]
+            areas_interes = ["Física y Matemáticas", "Química", "Ingeniería", "Medicina", "Biología", "Humanidades"]
+
+            stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
+    
+            def limpiar_texto(texto):
+                texto = texto.lower()
+                texto = re.sub(r"[\W_]+", " ", texto)  # Remover puntuación y caracteres especiales
+                palabras = texto.split()
+                palabras_filtradas = [lemmatizer.lemmatize(word) for word in palabras if word not in stop_words and len(word) > 2]
+                return " ".join(palabras_filtradas)
+
+            global word_frequencies
+            word_frequencies = {}
+
+            for año in años_disponibles:
+                df_año = df[df["Year"] == año]
+                if df_año.empty:
+                    continue
+
+                st.subheader(f"Año {año}")
+                fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+                axes = axes.flatten()
+
+                for i, area in enumerate(areas_interes):
+                    df_area = df_año[df_año["Área Temática"] == area]
+                    if not df_area.empty:
+                        text = " ".join(df_area["Title"].dropna())
+                        filtered_text = limpiar_texto(text)
+                        wordcloud = WordCloud(width=800, height=400, background_color="white").generate(filtered_text)
+                
+                        # Contar las palabras más frecuentes
+                        word_counts = Counter(filtered_text.split())
+                        word_frequencies[(año, area)] = word_counts.most_common(20)
+
+                        axes[i].imshow(wordcloud, interpolation="bilinear")
+                        axes[i].set_title(f"{area} ({año})", fontsize=14)
+                        axes[i].axis("off")
+                    else:
+                        axes[i].axis("off")
+
+                plt.tight_layout()
+                st.pyplot(fig)
+
+        # Generar nubes automáticamente sin necesidad de botón    
+        generar_nubes_palabras(df)
+
+        # Generar gráfica de barras animada con evolución temporal del uso de palabras
+        def generar_animacion_palabras(word_frequencies):
+            st.subheader("📊 Evolución del Uso de Palabras Clave en Áreas Temáticas")
+    
+            data = []
+            for (año, area), palabras in word_frequencies.items():
+                for palabra, frecuencia in palabras:
+                    data.append({"Año": año, "Área Temática": area, "Palabra": palabra, "Frecuencia": frecuencia})
+    
+            df_animacion = pd.DataFrame(data)
+    
+            fig = px.bar(
+                df_animacion,
+                x="Frecuencia",
+                y="Palabra",
+                color="Área Temática",
+                animation_frame="Año",
+                orientation="h",
+                title="Top 20 Palabras Más Usadas por Área a lo Largo del Tiempo",
+                labels={"Frecuencia": "Frecuencia de Uso", "Palabra": "Palabras Clave"},
+                template="plotly_white"
+            )
+
+            fig.update_layout(height=900, xaxis=dict(range=[0, df_animacion["Frecuencia"].max() * 1.1]))
+            st.plotly_chart(fig)
+
+        # Generar la animación
+        generar_animacion_palabras(word_frequencies)
 
 
 
