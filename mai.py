@@ -1874,7 +1874,7 @@ elif pagina == "Análisis por base":
                     return area
             return "Otras"
 
-            # Aplicar clasificación inicial
+        # Aplicar clasificación inicial
         df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
 
         # Selección del año más antiguo para visualizar
@@ -1897,7 +1897,7 @@ elif pagina == "Análisis por base":
                 return " ".join(palabras_filtradas)
 
             global word_frequencies
-            word_frequencies = {}
+            word_frequencies = {area: Counter() for area in areas_interes}
 
             for año in años_disponibles:
                 df_año = df[df["Year"] == año]
@@ -1911,9 +1911,9 @@ elif pagina == "Análisis por base":
                         text = " ".join(df_area["Title"].dropna())
                         filtered_text = limpiar_texto(text)
                 
-                        # Contar las palabras más frecuentes
+                        # Acumular las frecuencias de palabras
                         word_counts = Counter(filtered_text.split())
-                        word_frequencies[(año, area)] = word_counts.most_common(30)
+                        word_frequencies[area] += word_counts
 
         # Generar nubes automáticamente
         generar_nubes_palabras(df)
@@ -1922,22 +1922,17 @@ elif pagina == "Análisis por base":
         def generar_animacion_palabras(word_frequencies):
             st.subheader("📊 Evolución del Uso de Palabras Clave en Áreas Temáticas")
     
-            for area in area_mapping_extended.keys():
+            for area, counter in word_frequencies.items():
                 data = []
-                for (año, area_tema), palabras in word_frequencies.items():
-                    if año >= año_minimo and area_tema == area:
-                        for palabra, frecuencia in palabras:
-                            data.append({"Año": año, "Palabra": palabra, "Frecuencia": frecuencia})
+                for palabra, frecuencia in counter.most_common(30):
+                    data.append({"Palabra": palabra, "Frecuencia": frecuencia})
         
                 df_animacion = pd.DataFrame(data)
-                df_animacion = df_animacion.sort_values(by=["Año", "Frecuencia"], ascending=[True, False])
-        
                 if not df_animacion.empty:
                     fig = px.bar(
                         df_animacion,
                         x="Frecuencia",
                         y="Palabra",
-                        animation_frame="Año",
                         orientation="h",
                         title=f"Top 30 Palabras Más Usadas en {area}",
                         labels={"Frecuencia": "Frecuencia de Uso", "Palabra": "Palabras Clave"},
