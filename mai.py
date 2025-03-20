@@ -1751,16 +1751,16 @@ elif pagina == "Análisis por base":
         #}
 
         # Función para asignar un área temática
-        def assign_area(row):
-            source_title = str(row["Source title"])
-            title = str(row["Title"])
-            for area, keywords in area_mapping_extended.items():
-                if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
-                    return area
-            return "Otras"
+        #def assign_area(row):
+        #    source_title = str(row["Source title"])
+        #    title = str(row["Title"])
+        #    for area, keywords in area_mapping_extended.items():
+        #        if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
+        #            return area
+        #    return "Otras"
 
         # Aplicar clasificación inicial
-        df["Área Temática"] = df.apply(assign_area, axis=1)
+        #df["Área Temática"] = df.apply(assign_area, axis=1)
 
         # Seleccionar el rango de años en Streamlit
         años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)
@@ -1768,7 +1768,7 @@ elif pagina == "Análisis por base":
         df_filtrado = df[df["Year"].isin(años_seleccionados)]
 
         # Definir stopwords en inglés y español
-        stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation))
+        #stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation))
 
         # Obtener los términos más usados en cada área temática
         def obtener_terminos(df, area):
