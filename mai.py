@@ -1608,7 +1608,7 @@ elif pagina == "Análisis por base":
 #            "Medicina": ["Medicine", "Oncology", "Neurology", "Public Health", "Epidemiology"],
 #            "Biología": ["Biology", "Microbiology", "Genomics", "Ecology", "Botany"],
 #            "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
-        }
+#        }
 
 #        # Función para asignar un área temática
 #        def assign_area_extended_v2(row):
