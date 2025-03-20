@@ -13,3 +13,5 @@ kaleido
 moviepy
 imageio
 nltk
+deep-translator
+
