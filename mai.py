@@ -1904,7 +1904,7 @@ elif pagina == "Análisis por base":
                 if df_año.empty:
                     continue
 
-                st.subheader(f"Año {año}")
+                #st.subheader(f"Año {año}")
                 for area in areas_interes:
                     df_area = df_año[df_año["Área Temática"] == area]
                     if not df_area.empty:
@@ -1916,7 +1916,7 @@ elif pagina == "Análisis por base":
                         word_frequencies[area] += word_counts
 
         # Generar nubes automáticamente
-        #generar_nubes_palabras(df)
+        generar_nubes_palabras(df)
 
         # Generar gráfica de barras animada separada por área
         def generar_animacion_palabras(word_frequencies):
