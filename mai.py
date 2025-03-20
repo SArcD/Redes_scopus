@@ -1929,7 +1929,7 @@ elif pagina == "Análisis por base":
                 st.pyplot(fig)
 
         # Generar nubes automáticamente sin necesidad de botón
-        #generar_nubes_palabras(df)
+        generar_nubes_palabras(df)
 
         # Generar gráfica de barras animada con evolución temporal del uso de palabras
         def generar_animacion_palabras(word_frequencies):
