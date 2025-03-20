@@ -1837,7 +1837,7 @@ elif pagina == "Análisis por base":
         from collections import Counter
 
         # Descargar recursos de NLTK
-        nltk.download("stopwords")    
+        nltk.download("stopwords")
         nltk.download("wordnet")
         nltk.download("omw-1.4")
 
@@ -1874,7 +1874,7 @@ elif pagina == "Análisis por base":
                     return area
             return "Otras"
 
-        # Aplicar clasificación inicial
+            # Aplicar clasificación inicial
         df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
 
         # Selección del año más antiguo para visualizar
@@ -1905,63 +1905,49 @@ elif pagina == "Análisis por base":
                     continue
 
                 st.subheader(f"Año {año}")
-                fig, axes = plt.subplots(2, 3, figsize=(18, 12))
-                axes = axes.flatten()
-
-                for i, area in enumerate(areas_interes):
+                for area in areas_interes:
                     df_area = df_año[df_año["Área Temática"] == area]
                     if not df_area.empty:
                         text = " ".join(df_area["Title"].dropna())
                         filtered_text = limpiar_texto(text)
-                        wordcloud = WordCloud(width=800, height=400, background_color="white").generate(filtered_text)
                 
                         # Contar las palabras más frecuentes
                         word_counts = Counter(filtered_text.split())
-                        word_frequencies[(año, area)] = word_counts.most_common(20)
+                        word_frequencies[(año, area)] = word_counts.most_common(30)
 
-                        axes[i].imshow(wordcloud, interpolation="bilinear")
-                        axes[i].set_title(f"{area} ({año})", fontsize=14)
-                        axes[i].axis("off")
-                    else:
-                        axes[i].axis("off")
+        # Generar nubes automáticamente
+            generar_nubes_palabras(df)
 
-                plt.tight_layout()
-                st.pyplot(fig)
-
-        # Generar nubes automáticamente sin necesidad de botón
-        generar_nubes_palabras(df)
-
-        # Generar gráfica de barras animada con evolución temporal del uso de palabras
+        # Generar gráfica de barras animada separada por área
         def generar_animacion_palabras(word_frequencies):
             st.subheader("📊 Evolución del Uso de Palabras Clave en Áreas Temáticas")
     
-            data = []
-            for (año, area), palabras in word_frequencies.items():
-                if año >= año_minimo:
-                    for palabra, frecuencia in palabras:
-                        data.append({"Año": año, "Área Temática": area, "Palabra": palabra, "Frecuencia": frecuencia})
-    
-            df_animacion = pd.DataFrame(data)
-            df_animacion = df_animacion.sort_values(by=["Año", "Frecuencia"], ascending=[True, False])
-    
-            fig = px.bar(
-                df_animacion,
-                x="Frecuencia",
-                y="Palabra",
-                color="Área Temática",
-                animation_frame="Año",
-                orientation="h",
-                title="Top 20 Palabras Más Usadas por Área a lo Largo del Tiempo",
-                labels={"Frecuencia": "Frecuencia de Uso", "Palabra": "Palabras Clave"},
-                template="plotly_white"
-            )
+            for area in area_mapping_extended.keys():
+                data = []
+                for (año, area_tema), palabras in word_frequencies.items():
+                    if año >= año_minimo and area_tema == area:
+                        for palabra, frecuencia in palabras:
+                            data.append({"Año": año, "Palabra": palabra, "Frecuencia": frecuencia})
+        
+                df_animacion = pd.DataFrame(data)
+                df_animacion = df_animacion.sort_values(by=["Año", "Frecuencia"], ascending=[True, False])
+        
+                if not df_animacion.empty:
+                    fig = px.bar(
+                        df_animacion,
+                        x="Frecuencia",
+                        y="Palabra",
+                        animation_frame="Año",
+                        orientation="h",
+                        title=f"Top 30 Palabras Más Usadas en {area}",
+                        labels={"Frecuencia": "Frecuencia de Uso", "Palabra": "Palabras Clave"},
+                        template="plotly_white"
+                    )
+                    fig.update_layout(height=900, xaxis=dict(range=[0, df_animacion["Frecuencia"].max() * 1.1]))
+                    st.plotly_chart(fig)
 
-            fig.update_layout(height=900, xaxis=dict(range=[0, df_animacion["Frecuencia"].max() * 1.1]))
-            st.plotly_chart(fig)
-
-        # Generar la animación
+        # Generar la animación por área
         generar_animacion_palabras(word_frequencies)
-
 
 
 
