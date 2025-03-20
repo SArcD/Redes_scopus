@@ -1837,7 +1837,7 @@ elif pagina == "Análisis por base":
         from collections import Counter
 
         # Descargar recursos de NLTK
-        nltk.download("stopwords")
+        nltk.download("stopwords")    
         nltk.download("wordnet")
         nltk.download("omw-1.4")
 
@@ -1864,7 +1864,7 @@ elif pagina == "Análisis por base":
             "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
         }
 
-        # Función para asignar un área temática    
+        # Función para asignar un área temática
         def assign_area_extended_v2(row):
             source_title = str(row["Source title"])
             title = str(row["Title"])
@@ -1942,7 +1942,7 @@ elif pagina == "Análisis por base":
                         data.append({"Año": año, "Área Temática": area, "Palabra": palabra, "Frecuencia": frecuencia})
     
             df_animacion = pd.DataFrame(data)
-            df_animacion = df_animacion.sort_values(by="Año")  # Asegurar orden cronológico
+            df_animacion = df_animacion.sort_values(by=["Año", "Frecuencia"], ascending=[True, False])
     
             fig = px.bar(
                 df_animacion,
