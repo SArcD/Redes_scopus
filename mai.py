@@ -1623,7 +1623,7 @@ elif pagina == "Análisis por base":
             "study", "method", "analysis", "model", "data", "results", "research", "approach", 
             "colima", "mexico", "asses", "assessment", "design", "mexican", "cómo", "using", 
             "partial", "méxico", "effect", "comment", "based", "central", "evaluation", "employing", 
-            "transformation", "application", "system", "approach", "n", "effects"]}
+            "transformation", "application", "system", "approach", "n", "effects", "one", "two", "low", "high", "2021", "2020", "2019", "2022", "2018", "2017", "fast", "slow", "large", "small", ]}
 
         # Configuración de la aplicación en Streamlit
         st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
