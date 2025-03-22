@@ -36,7 +36,7 @@ Este análisis puede contribuir a:
 
 - Fortalecer estrategias de vinculación y colaboración.
 
-I- dentificar líneas de investigación consolidadas y emergentes.
+- dentificar líneas de investigación consolidadas y emergentes.
 
 - Apoyar procesos de evaluación y planeación académica.
 
