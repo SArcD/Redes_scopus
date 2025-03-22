@@ -9,7 +9,7 @@ import streamlit as st
 st.set_page_config(page_title="App con Múltiples Páginas", layout="wide")
 
 # Ruta o URL del logo
-logo_path = "ucol_logo.PNG"  # Si es local, usa el nombre del archivo
+logo_path = "Red.jpg"  # Si es local, usa el nombre del archivo
 #st.image("ucol_logo.PNG", width=150)  # Ajusta el ancho según necesites
 #st.image(logo_path, use_container_width=True)
     
