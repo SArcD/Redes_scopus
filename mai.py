@@ -34,6 +34,7 @@ Esta aplicación está ideada para la visualización y análisis de la producci�
 </div>
 """, unsafe_allow_html=True)
 
+    st.subheader("Objetivo")
 
     
     st.markdown("""
