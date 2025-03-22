@@ -1361,6 +1361,8 @@ elif pagina == "Análisis por base":
 
         else:
             st.warning("🕵️‍♂️ Por favor completa el formulario y haz clic en **Asignar Cluster** para ver resultados.")
+    else:
+        st.info("📂 **Sube un archivo CSV para comenzar**")
 
 
 elif pagina == "Análisis de temas por área":
@@ -1911,8 +1913,6 @@ elif pagina == "Análisis de temas por área":
 
 
     
-    else:
-        st.info("📂 **Sube un archivo CSV para comenzar**")
 
 
 
