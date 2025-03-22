@@ -27,11 +27,15 @@ pagina = st.selectbox("Selecciona una página", ["Inicio", "Análisis por base",
 # Mostrar contenido según la página seleccionada
 if pagina == "Inicio":
     st.title("Producción y redes de colaboración científica de la Universidad de Colima")
+
     st.markdown("""
 <div style='text-align: justify'>
-Esta aplicación está ideada para la visualización y análisis de la producción científica de los investigadores de la Universidad de Colima. En su versión mas reciente, se utilizan los datos disponibles en la base de [Scopus](https://www.scopus.com), la cual indexa artículos, libros y patentes derivados del trabajo científico en todo el mundo. Se examinan tendencias de publicación, áreas de conocimiento predominantes, colaboración nacional e internacional, autores más productivos, revistas preferidas, y el impacto de las publicaciones. </div>
+Esta aplicación está ideada para la visualización y análisis de la producción científica de los investigadores de la Universidad de Colima. En su versión más reciente, se utilizan los datos disponibles en la base de <a href="https://www.scopus.com" target="_blank">Scopus</a>, la cual indexa artículos, libros y patentes derivados del trabajo científico en todo el mundo. Se examinan tendencias de publicación, áreas de conocimiento predominantes, colaboración nacional e internacional, autores más productivos, revistas preferidas, y el impacto de las publicaciones.
+</div>
 """, unsafe_allow_html=True)
 
+
+    
     st.markdown("""
     <div style='text-align: justify'>
 El objetivo es proporcionar una herramienta interactiva que permita a investigadores, tomadores de decisiones y público interesado explorar visualmente la evolución y características de la actividad científica institucional.
