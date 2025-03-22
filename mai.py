@@ -22,7 +22,7 @@ with col2:  # Colocar la imagen en la columna central
 
 
 # Crear menú de navegación
-pagina = st.selectbox("Selecciona una página", ["Inicio", "Análisis por base", "Análisis por autor", "Equipo de trabajo"])
+pagina = st.selectbox("Selecciona una página", ["Inicio", "Análisis por base", "Análisis de temas por área", "Análisis por autor", "Equipo de trabajo"])
 
 # Mostrar contenido según la página seleccionada
 if pagina == "Inicio":
@@ -1363,6 +1363,8 @@ elif pagina == "Análisis por base":
             st.warning("🕵️‍♂️ Por favor completa el formulario y haz clic en **Asignar Cluster** para ver resultados.")
 
 
+elif pagina == "Análisis de temas por área":
+        
 
         import pandas as pd
         from sklearn.feature_extraction.text import TfidfVectorizer
