@@ -30,7 +30,7 @@ if pagina == "Inicio":
 
     st.markdown("""
 <div style='text-align: justify'>
-Esta aplicación está ideada para la visualización y análisis de la producción científica de los investigadores de la Universidad de Colima. En su versión más reciente, se utilizan los datos disponibles en la base de <a href="https://www.scopus.com" target="_blank">Scopus</a>, la cual indexa artículos, libros y patentes derivados del trabajo científico en todo el mundo. Se examinan tendencias de publicación, áreas de conocimiento predominantes, colaboración nacional e internacional, autores más productivos, revistas preferidas, y el impacto de las publicaciones.
+Esta aplicación está ideada para la visualización y análisis de la producción científica de los investigadores de la Universidad de Colima. En su versión más reciente, se utilizan los datos disponibles en la base de <a href="https://www.scopus.com" target="_blank"><strong>Scopus</strong></a>, la cual indexa artículos, libros y patentes derivados del trabajo científico en todo el mundo. Se examinan tendencias de publicación, áreas de conocimiento predominantes, colaboración nacional e internacional, autores más productivos, revistas preferidas, y el impacto de las publicaciones.
 </div>
 """, unsafe_allow_html=True)
 
