@@ -59,15 +59,17 @@ Los datos han sido obtenidos mediante consultas específicas a Scopus y procesad
             """
     <div style='text-align: justify'>
 
-### Popósito
+### Propósito
 
-- Interfaz adaptada a necesidades locales: La visualización se limita exlusivamente a la producción científica en la que han participado investigadores de la Universidad de Colima.
+Algunas de las caráctesísticas y propositos de esta aplicación son:
 
-- Visualizaciones personalizadas e interactivas: se muestran pueden usar gráficos, tablas dinámicas, filtros por autor, año o tema, según el interés del usuario.
+- **Interfaz adaptada a necesidades locales:** La visualización se limita exlusivamente a la producción científica en la que han participado investigadores de la Universidad de Colima.
 
-- Enfoque educativo o de difusión institucional: Ideal para estudiantes, comunicadores y responsables de investigación que buscan comprender y comunicar los resultados de manera clara.
+- **Visualizaciones personalizadas e interactivas:** se muestran pueden usar gráficos, tablas dinámicas, filtros por autor, año o tema, según el interés del usuario.
 
-- Promueve el reconocimiento institucional: Es una herramienta que fortalece el vínculo con la comunidad universitaria y externa, mostrando logros científicos de manera accesible.
+- **Enfoque educativo o de difusión institucional:** Ideal para estudiantes, comunicadores y responsables de investigación que buscan comprender y comunicar los resultados de manera clara.
+
+- **Promueve el reconocimiento institucional:** Es una herramienta que fortalece el vínculo con la comunidad universitaria y externa, mostrando logros científicos de manera accesible.
     </div>
     """,
     unsafe_allow_html=True
