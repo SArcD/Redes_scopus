@@ -106,7 +106,7 @@ Algunas de las caráctesísticas y propositos de esta aplicación son:
         ### Nota aclaratoria
         
     <div style='text-align: justify'>
-    Los datos fueron obtenidos de manera autorizada mediante acceso institucional a Scopus. <strong>Esta aplicación no está afiliada ni es respaldada por ElsevierScopus</strong>. Los resultados son con fines educativos e informativos.
+    Los datos fueron obtenidos de manera autorizada mediante acceso institucional a Scopus. <strong>Esta aplicación no está afiliada ni es respaldada por Elsevier</strong>. Los resultados son con fines educativos e informativos.
 
 
     </div>
