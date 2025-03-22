@@ -1195,13 +1195,7 @@ elif pagina == "Análisis por base":
             st.session_state.predicted_cluster = str(int(reverse_mapping[predicted_cluster_idx]))  # Guardar en session_state
 
             st.success(f"**Has sido asignado al Cluster {st.session_state.predicted_cluster}**")
-
-        if st.session_state.predicted_cluster is not None and st.session_state.predicted_cluster.isdigit():
-            df_cluster = df_valid[df_valid["Cluster"] == int(st.session_state.predicted_cluster)]
-        else:
-            df_cluster = pd.DataFrame()  # Evita error si el cluster no es un número
-
-            # Explicación basada en el perfil de publicaciones
+                        # Explicación basada en el perfil de publicaciones
             cluster_explanations = {
                 "0": "Autores con baja producción y pocas citas, posiblemente en inicio de carrera. "
                      "Suelen tener una antigüedad variable, pero con baja producción en publicaciones y un impacto limitado en citas. "
@@ -1228,7 +1222,14 @@ elif pagina == "Análisis por base":
                      "Suelen tener una antigüedad alta, con equipos de trabajo consolidados y un alto impacto en citas."
             }
 
-            st.info(cluster_explanations.get(st.session_state.predicted_cluster, "Descripción no disponible."))
+        if st.session_state.predicted_cluster is not None and st.session_state.predicted_cluster.isdigit():
+            df_cluster = df_valid[df_valid["Cluster"] == int(st.session_state.predicted_cluster)]
+
+        
+        else:
+            df_cluster = pd.DataFrame()  # Evita error si el cluster no es un número
+
+
 
 
         if st.session_state.predicted_cluster and str(st.session_state.predicted_cluster).isdigit():
