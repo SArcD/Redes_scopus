@@ -26,7 +26,7 @@ pagina = st.selectbox("Selecciona una página", ["Inicio", "Análisis por base",
 
 # Mostrar contenido según la página seleccionada
 if pagina == "Inicio":
-    st.title("Análisis Bibliométrico de la Producción Científica de la Universidad de Colima en Scopus")
+    st.title("Producción Científica de la Universidad de Colima en Scopus")
     st.markdown("""
 <div style='text-align: justify'>
 Esta aplicación presenta un análisis detallado de la producción científica de la Universidad de Colima, con base en los datos disponibles en la base de datos Scopus. A través de técnicas bibliométricas, se examinan tendencias de publicación, áreas de conocimiento predominantes, colaboración nacional e internacional, autores más productivos, revistas preferidas, y el impacto de las publicaciones.
