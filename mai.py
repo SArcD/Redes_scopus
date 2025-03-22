@@ -46,6 +46,31 @@ Los datos han sido obtenidos mediante consultas específicas a Scopus y procesad
 """, unsafe_allow_html=True)
 
 
+    st.markdown(
+    """
+    <div style='text-align: justify'>
+
+    ### Técnicas de análisis y visualización empleadas
+
+    Para facilitar la comprensión y exploración de los datos, esta aplicación incorpora diversas técnicas de análisis bibliométrico y visualización de datos:
+
+    **Nubes de palabras:** permiten identificar rápidamente los términos más frecuentes en títulos, resúmenes y palabras clave, revelando temas recurrentes en la producción científica.
+
+    **Clustering jerárquico:** agrupa autores, instituciones o términos clave en función de su similitud, lo que ayuda a descubrir patrones de colaboración o líneas temáticas emergentes.
+
+    **Árboles de decisión:** facilitan la clasificación de datos bibliográficos y la detección de factores asociados a mayores niveles de productividad o impacto.
+
+    **Diagramas de caja (boxplots):** ofrecen una visión clara de la distribución de métricas como el número de citas o documentos por autor, permitiendo identificar *outliers* y analizar la variabilidad.
+
+    **Grafos de correlación:** visualizan relaciones entre variables (como coautorías, coocurrencia de palabras clave o correlaciones entre métricas), destacando estructuras y vínculos relevantes.
+
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+
+
+
 ###############################################################################################################################
 elif pagina == "Análisis por base":
     
