@@ -101,6 +101,16 @@ Algunas de las caráctesísticas y propositos de esta aplicación son:
     unsafe_allow_html=True
     )
 
+    st.markdown(
+        """
+    <div style='text-align: justify'>
+"Los datos fueron obtenidos de manera autorizada mediante acceso institucional a Scopus. Esta aplicación no está afiliada ni es respaldada por Elsevier."
+
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+
 
 
 ###############################################################################################################################
