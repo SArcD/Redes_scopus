@@ -1180,25 +1180,6 @@ elif pagina == "Análisis por base":
                             min_value=0, max_value=100, step=1, 
                             value=st.session_state.seniority, key="seniority")
 
-
-        #funding_ratio = st.number_input("**Proporción de publicaciones financiadas**", min_value=0.0, max_value=1.0, step=0.01)
-        #publications = st.number_input("**Número de publicaciones**", min_value=0, step=1)
-        #cited_by = st.number_input("**Número de citas**", min_value=0, step=1)
-        #seniority = st.number_input("**Antigüedad (años desde la primera publicación**)", min_value=0, max_value=100, step=1)
-
-#        if st.button("**Asignar Cluster**"):
-#            user_data = np.array([[st.session_state.funding_ratio, 
-#                           st.session_state.publications, 
-#                           st.session_state.cited_by, 
-#                           st.session_state.seniority]])#
-
-#            predicted_cluster_idx = clf.predict(user_data)[0]
-#            st.session_state.predicted_cluster = str(int(reverse_mapping[predicted_cluster_idx]))  # Guardar en session_state
-
-#            st.success(f"**Has sido asignado al Cluster {st.session_state.predicted_cluster}**")
-
-            #         Explicación basada en el perfil de publicaciones
-
           # Inicializar valores en session_state solo si no existen
         if "predicted_cluster" not in st.session_state:
             st.session_state.predicted_cluster = None  # Se inicializa con None
@@ -1220,28 +1201,6 @@ elif pagina == "Análisis por base":
         else:
             df_cluster = pd.DataFrame()  # Evita error si el cluster no es un número
 
-
-
-       #     # Evitar error si `predicted_cluster` no se ha asignado todavía
-       # if st.session_state.predicted_cluster is not None:
-       #     df_cluster = df_valid[df_valid["Cluster"] == int(st.session_state.predicted_cluster)]
-       # else:
-       #     df_cluster = pd.DataFrame()  # Si no hay cluster aún, crear DataFrame vacío
-
-
-        #if st.button("**Asignar Cluster**"):
-        #    #user_data = np.array([[funding_ratio, publications, cited_by, seniority]])
-        #    user_data = np.array([[st.session_state.funding_ratio, 
-        #                st.session_state.publications, 
-        #                st.session_state.cited_by, 
-        #                st.session_state.seniority]])
-    
-        #    predicted_cluster_idx = clf.predict(user_data)[0]
-        #    #predicted_cluster = str(reverse_mapping[predicted_cluster_idx])  # 🔹 Convertir a string para evitar errores en el diccionario
-        #    predicted_cluster = str(int(reverse_mapping[predicted_cluster_idx]))  # 🔹 Convertimos primero a entero y luego a string
-
-        #    st.success(f"**Has sido asignado al Cluster {predicted_cluster}**")
-        
             # Explicación basada en el perfil de publicaciones
             cluster_explanations = {
                 "0": "Autores con baja producción y pocas citas, posiblemente en inicio de carrera. "
@@ -1271,138 +1230,147 @@ elif pagina == "Análisis por base":
 
             st.info(cluster_explanations.get(st.session_state.predicted_cluster, "Descripción no disponible."))
 
-            #st.info(cluster_explanations.get(predicted_cluster, "Descripción no disponible."))
 
-        ##############################################################################
+        if st.session_state.predicted_cluster and str(st.session_state.predicted_cluster).isdigit():
+            cluster_id = int(st.session_state.predicted_cluster)
+            df_cluster = df_valid[df_valid["Cluster"] == cluster_id]
 
-        # 📌 **Comparación Tabular del Usuario con Cluster y Base Completa**
-        #st.subheader("📋 Comparación con el Cluster y la Base Completa")
 
-        # 📌 **Comparación Visual Mejorada con Dos Arreglos de Gráficos**
-        #st.header("📊 Comparación del Usuario con su Cluster y la Base Completa")
-        st.markdown("""
-        En la siguiente tabla puede verse la comparación entre los datos especificados por el usuario, los integrantes del Cluster que guarda la mayor similitud con estos datos y con los autores de la base de datos completa. Las columnas de interés son: el parámetro a comparar (ya sea el número de publicaciones, citas, la antigüedad o la porporción de publicaciones financiadas), los datos introducidos por el usuario, la media, el cuartil 1 y el cuartil 3 del cluster que corresponda, las medias, cuartil 1 y cuartil 3 de la base completa.
+
+    
+            st.markdown("### Comparativa con tu Cluster")
+
+            # Ejemplo: mostrar estadísticas comparativas
+            st.dataframe(df_cluster.describe())  # Solo como ejemplo
+
+
+
+
+
+        
+            st.markdown("""
+            En la siguiente tabla puede verse la comparación entre los datos especificados por el usuario, los integrantes del Cluster que guarda la mayor similitud con estos datos y con los autores de la base de datos completa. Las columnas de interés son: el parámetro a comparar (ya sea el número de publicaciones, citas, la antigüedad o la porporción de publicaciones financiadas), los datos introducidos por el usuario, la media, el cuartil 1 y el cuartil 3 del cluster que corresponda, las medias, cuartil 1 y cuartil 3 de la base completa.
         """)
-        # 📌 **Filtrar Datos del Cluster y Crear DataFrame del Usuario**
-        df_cluster = df_valid[df_valid["Cluster"] == int(st.session_state.predicted_cluster)]
+            # 📌 **Filtrar Datos del Cluster y Crear DataFrame del Usuario**
+            df_cluster = df_valid[df_valid["Cluster"] == int(st.session_state.predicted_cluster)]
 
-        #df_user = pd.DataFrame({
-        #    "Métrica": ["Publications", "Cited_by", "Seniority", "Funding_Ratio"],
-        #    "Valor": [publications, cited_by, seniority, funding_ratio]
-        #})
+            df_user = pd.DataFrame({
+                "Métrica": ["Publications", "Cited_by", "Seniority", "Funding_Ratio"],
+                "Valor del Usuario": [
+                    st.session_state.publications, 
+                    st.session_state.cited_by, 
+                    st.session_state.seniority, 
+                    st.session_state.funding_ratio
+                ]
+            })
 
-        df_user = pd.DataFrame({
-            "Métrica": ["Publications", "Cited_by", "Seniority", "Funding_Ratio"],
-            "Valor del Usuario": [
-                st.session_state.publications, 
-                st.session_state.cited_by, 
-                st.session_state.seniority, 
-                st.session_state.funding_ratio
-            ]
-        })
+            # 📌 **Calcular Estadísticas**
+            comparison_data = {
+                "Métrica": ["Publications", "Cited_by", "Seniority", "Funding_Ratio"],
+                "Valor del Usuario": [
+                    st.session_state.publications, 
+                    st.session_state.cited_by, 
+                    st.session_state.seniority, 
+                    st.session_state.funding_ratio
+                ],
 
-        # 📌 **Calcular Estadísticas**
-        comparison_data = {
-            "Métrica": ["Publications", "Cited_by", "Seniority", "Funding_Ratio"],
-            "Valor del Usuario": [
-                st.session_state.publications, 
-                st.session_state.cited_by, 
-                st.session_state.seniority, 
-                st.session_state.funding_ratio
-            ],
+                # 📌 **Estadísticas del Cluster**
+                "Cluster - Media": [
+                    df_cluster["Publications"].mean(), df_cluster["Cited_by"].mean(),
+                    df_cluster["Seniority"].mean(), df_cluster["Funding_Ratio"].mean()
+                ],
+                "Cluster - Q1 (P25)": [
+                    df_cluster["Publications"].quantile(0.25), df_cluster["Cited_by"].quantile(0.25),
+                    df_cluster["Seniority"].quantile(0.25), df_cluster["Funding_Ratio"].quantile(0.25)
+                ],
+                "Cluster - Q3 (P75)": [
+                    df_cluster["Publications"].quantile(0.75), df_cluster["Cited_by"].quantile(0.75),
+                    df_cluster["Seniority"].quantile(0.75), df_cluster["Funding_Ratio"].quantile(0.75)
+                ],
 
-            # 📌 **Estadísticas del Cluster**
-            "Cluster - Media": [
-                df_cluster["Publications"].mean(), df_cluster["Cited_by"].mean(),
-                df_cluster["Seniority"].mean(), df_cluster["Funding_Ratio"].mean()
-            ],
-            "Cluster - Q1 (P25)": [
-                df_cluster["Publications"].quantile(0.25), df_cluster["Cited_by"].quantile(0.25),
-                df_cluster["Seniority"].quantile(0.25), df_cluster["Funding_Ratio"].quantile(0.25)
-            ],
-            "Cluster - Q3 (P75)": [
-                df_cluster["Publications"].quantile(0.75), df_cluster["Cited_by"].quantile(0.75),
-                df_cluster["Seniority"].quantile(0.75), df_cluster["Funding_Ratio"].quantile(0.75)
-            ],
+                # 📌 **Estadísticas de la Base Completa**
+                "Base - Media": [
+                    df_valid["Publications"].mean(), df_valid["Cited_by"].mean(),
+                    df_valid["Seniority"].mean(), df_valid["Funding_Ratio"].mean()
+                ],
+                "Base - Q1 (P25)": [
+                    df_valid["Publications"].quantile(0.25), df_valid["Cited_by"].quantile(0.25),
+                    df_valid["Seniority"].quantile(0.25), df_valid["Funding_Ratio"].quantile(0.25)
+                ],
+                "Base - Q3 (P75)": [
+                    df_valid["Publications"].quantile(0.75), df_valid["Cited_by"].quantile(0.75),
+                    df_valid["Seniority"].quantile(0.75), df_valid["Funding_Ratio"].quantile(0.75)
+                ]
+            }
 
-            # 📌 **Estadísticas de la Base Completa**
-            "Base - Media": [
-                df_valid["Publications"].mean(), df_valid["Cited_by"].mean(),
-                df_valid["Seniority"].mean(), df_valid["Funding_Ratio"].mean()
-            ],
-            "Base - Q1 (P25)": [
-                df_valid["Publications"].quantile(0.25), df_valid["Cited_by"].quantile(0.25),
-                df_valid["Seniority"].quantile(0.25), df_valid["Funding_Ratio"].quantile(0.25)
-            ],
-            "Base - Q3 (P75)": [
-                df_valid["Publications"].quantile(0.75), df_valid["Cited_by"].quantile(0.75),
-                df_valid["Seniority"].quantile(0.75), df_valid["Funding_Ratio"].quantile(0.75)
-            ]
-        }
+            # 📌 **Convertir a DataFrame**
+            df_comparison = pd.DataFrame(comparison_data)
 
-        # 📌 **Convertir a DataFrame**
-        df_comparison = pd.DataFrame(comparison_data)
+            # 📌 **Mostrar la Tabla en Streamlit**
+            st.dataframe(df_comparison.style.format({
+                "Valor del Usuario": "{:.2f}",
+                "Cluster - Media": "{:.2f}", "Cluster - Q1 (P25)": "{:.2f}", "Cluster - Q3 (P75)": "{:.2f}",
+                "Base - Media": "{:.2f}", "Base - Q1 (P25)": "{:.2f}", "Base - Q3 (P75)": "{:.2f}"
+            }))
 
-        # 📌 **Mostrar la Tabla en Streamlit**
-        st.dataframe(df_comparison.style.format({
-            "Valor del Usuario": "{:.2f}",
-            "Cluster - Media": "{:.2f}", "Cluster - Q1 (P25)": "{:.2f}", "Cluster - Q3 (P75)": "{:.2f}",
-            "Base - Media": "{:.2f}", "Base - Q1 (P25)": "{:.2f}", "Base - Q3 (P75)": "{:.2f}"
-        }))
-
-        st.markdown("""
-        Debajo, puede ver las graficas de caja entre los datos registrados para el cluster (primeras cuatro gráficas), la base completa (segundo grupo de cuatro gráficas) y los valores introducidos por el usuario.
-        """)
+            st.markdown("""
+            Debajo, puede ver las graficas de caja entre los datos registrados para el cluster (primeras cuatro gráficas), la base completa (segundo grupo de cuatro gráficas) y los                     valores introducidos por el usuario.
+            """)
 
 #############################################################################################################
 
 
-        # 📌 **Definir Función para Graficar Comparaciones**
-        def plot_comparison(metric, title, y_label):
-            fig_cluster = px.box(df_cluster, y=metric, points="all", 
+            # 📌 **Definir Función para Graficar Comparaciones**
+            def plot_comparison(metric, title, y_label):
+                fig_cluster = px.box(df_cluster, y=metric, points="all", 
                          title=f"{title} en el Cluster {st.session_state.predicted_cluster}",
                          labels={metric: y_label},
                          template="plotly_white")
     
-            fig_cluster.add_trace(go.Scatter(
-                x=["Usuario"], y=[df_user[df_user["Métrica"] == metric]["Valor del Usuario"].values[0]], 
-                mode="markers+text", text="📍", textposition="top center",
-                marker=dict(color="red", size=12),
-                name="Usuario"
-            ))
+                fig_cluster.add_trace(go.Scatter(
+                    x=["Usuario"], y=[df_user[df_user["Métrica"] == metric]["Valor del Usuario"].values[0]], 
+                    mode="markers+text", text="📍", textposition="top center",
+                    marker=dict(color="red", size=12),
+                    name="Usuario"
+                ))
     
-            fig_base = px.box(df_valid, y=metric, points="all", 
+                fig_base = px.box(df_valid, y=metric, points="all", 
                       title=f"{title} en Toda la Base",
                       labels={metric: y_label},
                       template="plotly_white")
     
-            fig_base.add_trace(go.Scatter(
-                x=["Usuario"], y=[df_user[df_user["Métrica"] == metric]["Valor del Usuario"].values[0]], 
-                mode="markers+text", text="📍", textposition="top center",
-                marker=dict(color="red", size=12),
-                name="Usuario"
-            ))
+                fig_base.add_trace(go.Scatter(
+                    x=["Usuario"], y=[df_user[df_user["Métrica"] == metric]["Valor del Usuario"].values[0]], 
+                    mode="markers+text", text="📍", textposition="top center",
+                    marker=dict(color="red", size=12),
+                    name="Usuario"
+                ))
     
-            return fig_cluster, fig_base
+                return fig_cluster, fig_base
 
-        # 📌 **Comparaciones por Métrica**
-        fig_pub_cluster, fig_pub_base = plot_comparison("Publications", "Número de Publicaciones", "Publicaciones")
-        fig_cite_cluster, fig_cite_base = plot_comparison("Cited_by", "Número de Citas", "Citas")
-        fig_sen_cluster, fig_sen_base = plot_comparison("Seniority", "Antigüedad", "Años desde la Primera Publicación")
-        fig_fund_cluster, fig_fund_base = plot_comparison("Funding_Ratio", "Proporción de Publicaciones Financiadas", "Ratio de Financiamiento")
+            # 📌 **Comparaciones por Métrica**
+            fig_pub_cluster, fig_pub_base = plot_comparison("Publications", "Número de Publicaciones", "Publicaciones")
+            fig_cite_cluster, fig_cite_base = plot_comparison("Cited_by", "Número de Citas", "Citas")
+            fig_sen_cluster, fig_sen_base = plot_comparison("Seniority", "Antigüedad", "Años desde la Primera Publicación")
+            fig_fund_cluster, fig_fund_base = plot_comparison("Funding_Ratio", "Proporción de Publicaciones Financiadas", "Ratio de Financiamiento")
 
-        # 📌 **Mostrar Gráficos**
-        st.subheader(f"📊 Comparación con Autores del Cluster {st.session_state.predicted_cluster}")
-        st.plotly_chart(fig_pub_cluster)
-        st.plotly_chart(fig_cite_cluster)
-        st.plotly_chart(fig_sen_cluster)
-        st.plotly_chart(fig_fund_cluster)
+            # 📌 **Mostrar Gráficos**
+            st.subheader(f"📊 Comparación con Autores del Cluster {st.session_state.predicted_cluster}")
+            st.plotly_chart(fig_pub_cluster)
+            st.plotly_chart(fig_cite_cluster)
+            st.plotly_chart(fig_sen_cluster)
+            st.plotly_chart(fig_fund_cluster)
 
-        st.subheader("📊 Comparación con Toda la Base de Datos")
-        st.plotly_chart(fig_pub_base)    
-        st.plotly_chart(fig_cite_base)
-        st.plotly_chart(fig_sen_base)
-        st.plotly_chart(fig_fund_base)
+            st.subheader("📊 Comparación con Toda la Base de Datos")
+            st.plotly_chart(fig_pub_base)    
+            st.plotly_chart(fig_cite_base)
+            st.plotly_chart(fig_sen_base)
+            st.plotly_chart(fig_fund_base)
+
+
+        else:
+            st.warning("🕵️‍♂️ Por favor completa el formulario y haz clic en **Asignar Cluster** para ver resultados.")
+
 
 
         import pandas as pd
