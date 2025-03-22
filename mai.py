@@ -1366,21 +1366,21 @@ elif pagina == "Análisis por base":
 elif pagina == "Análisis de temas por área":
         
 
-        import pandas as pd
-        from sklearn.feature_extraction.text import TfidfVectorizer
-        from sklearn.svm import SVC
-        from sklearn.pipeline import Pipeline
-        from sklearn.model_selection import train_test_split
-        from sklearn.metrics import classification_report
+    import pandas as pd
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.svm import SVC
+    from sklearn.pipeline import Pipeline
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import classification_report
 
-        # Cargar el archivo CSV
-        file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
+    # Cargar el archivo CSV
+    file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
 
-        #file_path = "/mnt/data/scopusUdeC con financiamiento 17 feb-2.csv"
-        df = pd.read_csv(file_path, encoding='utf-8')
+    #file_path = "/mnt/data/scopusUdeC con financiamiento 17 feb-2.csv"
+    df = pd.read_csv(file_path, encoding='utf-8')
 
-        # Diccionario extendido de palabras clave por área temática
-        area_mapping_extended = {
+    # Diccionario extendido de palabras clave por área temática
+    area_mapping_extended = {
             "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
             "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
             "Ingeniería": ["Engineering", "Robotics", "Technology", "Automation", "Materials Science"],
@@ -1389,76 +1389,76 @@ elif pagina == "Análisis de temas por área":
             "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
         }
 
-        # Función para asignar un área temática basada en palabras clave
-        def assign_area_extended_v2(row):
-            source_title = str(row["Source title"])
-            title = str(row["Title"])
+    # Función para asignar un área temática basada en palabras clave
+    def assign_area_extended_v2(row):
+        source_title = str(row["Source title"])
+        title = str(row["Title"])
     
-            for area, keywords in area_mapping_extended.items():
-                if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
-                    return area
-            return "Otras"
+        for area, keywords in area_mapping_extended.items():
+            if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
+                return area
+        return "Otras"
 
-        # Aplicar clasificación inicial
-        df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
+    # Aplicar clasificación inicial
+    df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
 
-        # Filtrar solo artículos con área temática definida
-        df_labeled = df[df["Área Temática"] != "Otras"]
+    # Filtrar solo artículos con área temática definida
+    df_labeled = df[df["Área Temática"] != "Otras"]
 
-        # Datos de entrenamiento y prueba
-        X = df_labeled["Title"].astype(str)
-        y = df_labeled["Área Temática"]
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+    # Datos de entrenamiento y prueba
+    X = df_labeled["Title"].astype(str)
+    y = df_labeled["Área Temática"]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
-        # Modelo SVM con mejor preprocesamiento
-        vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1,2), max_features=5000)
-        model_svm = Pipeline([
-            ("vectorizer", vectorizer),
-            ("classifier", SVC(kernel="linear", probability=True))
-        ])
+    # Modelo SVM con mejor preprocesamiento
+    vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1,2), max_features=5000)
+    model_svm = Pipeline([
+        ("vectorizer", vectorizer),
+        ("classifier", SVC(kernel="linear", probability=True))
+    ])
 
-        # Entrenar el modelo
-        model_svm.fit(X_train, y_train)
+    # Entrenar el modelo
+    model_svm.fit(X_train, y_train)
 
-        # Evaluar el modelo
-        y_pred_svm = model_svm.predict(X_test)
-        print(classification_report(y_test, y_pred_svm))
+    # Evaluar el modelo
+    y_pred_svm = model_svm.predict(X_test)
+    print(classification_report(y_test, y_pred_svm))
 
-        # Aplicar el modelo a los artículos en "Otras"
-        df_otros = df[df["Área Temática"] == "Otras"].copy()
-        df_otros["Área Temática"] = model_svm.predict(df_otros["Title"].astype(str))
+    # Aplicar el modelo a los artículos en "Otras"
+    df_otros = df[df["Área Temática"] == "Otras"].copy()
+    df_otros["Área Temática"] = model_svm.predict(df_otros["Title"].astype(str))
 
-        # Actualizar la base de datos
-        df.update(df_otros)
-        df
-        # Guardar archivo procesado
-        df.to_csv("scopus_procesado.csv", index=False, encoding='utf-8')
-        #st.download_button("Descargar Base Procesada", "scopus_procesado.csv")
+    # Actualizar la base de datos
+    df.update(df_otros)
+    df
+    # Guardar archivo procesado
+    df.to_csv("scopus_procesado.csv", index=False, encoding='utf-8')
+    #st.download_button("Descargar Base Procesada", "scopus_procesado.csv")
 
     
-        import streamlit as st
-        import pandas as pd
-        import os
-        from wordcloud import WordCloud
-        import matplotlib.pyplot as plt
-        from sklearn.feature_extraction.text import TfidfVectorizer        
-        from sklearn.svm import SVC
-        from sklearn.pipeline import Pipeline
-        from sklearn.model_selection import train_test_split
+    import streamlit as st
+    import pandas as pd
+    import os
+    from wordcloud import WordCloud
+    import matplotlib.pyplot as plt
+    from sklearn.feature_extraction.text import TfidfVectorizer        
+    from sklearn.svm import SVC
+    from sklearn.pipeline import Pipeline
+    from sklearn.model_selection import train_test_split
 
-        # Configuración de la aplicación en Streamlit
-        st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
+    # Configuración de la aplicación en Streamlit
+    st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
 
 ##################################################################################
 
-        import streamlit as st
-        import pandas as pd
-        import matplotlib.pyplot as plt
-        from wordcloud import WordCloud
-        import nltk
-        from nltk.corpus import stopwords
-        import string
-        import re
+    import streamlit as st
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    from wordcloud import WordCloud
+    import nltk
+    from nltk.corpus import stopwords
+    import string
+    import re
 
 #        # Descargar stopwords si es la primera vez ejecutando el código
 #        nltk.download("stopwords")
@@ -1559,122 +1559,122 @@ elif pagina == "Análisis de temas por área":
 ###################################################################################
 ###################################################################################
 
-        import streamlit as st
-        import pandas as pd
-        import matplotlib.pyplot as plt
-        from wordcloud import WordCloud
-        import nltk
-        from nltk.corpus import stopwords
-        from nltk.stem import WordNetLemmatizer
-        from deep_translator import GoogleTranslator
-        import string
-        import re
+    import streamlit as st
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    from wordcloud import WordCloud
+    import nltk
+    from nltk.corpus import stopwords
+    from nltk.stem import WordNetLemmatizer
+    from deep_translator import GoogleTranslator
+    import string
+    import re
     
-        # Descargar recursos de NLTK
-        nltk.download("stopwords")
-        nltk.download("wordnet")
-        nltk.download("omw-1.4")
+    # Descargar recursos de NLTK
+    nltk.download("stopwords")
+    nltk.download("wordnet")
+    nltk.download("omw-1.4")
 
-        # Inicializar lematizador y traductor
-        lemmatizer = WordNetLemmatizer()
+    # Inicializar lematizador y traductor
+    lemmatizer = WordNetLemmatizer()
         #translator = GoogleTranslator(source='auto', target='english')  # Traducir todo a inglés
 
-        # Lista adicional de palabras comunes a excluir (convertidas a minúsculas para evitar problemas de coincidencia)
-        custom_stopwords = {word.lower() for word in [
+    # Lista adicional de palabras comunes a excluir (convertidas a minúsculas para evitar problemas de coincidencia)
+    custom_stopwords = {word.lower() for word in [
             "study", "method", "analysis", "model", "data", "results", "research", "approach", 
             "colima", "mexico", "asses", "assessment", "design", "mexican", "cómo", "using", 
             "partial", "méxico", "effect", "comment", "based", "central", "evaluation", "employing", 
             "transformation", "application", "system", "approach", "n", "effects", "one", "two", "low", "high", "2021", "2020", "2019", "2022", "2018", "2017", "fast", "slow", "large", "small", ]}
 
-        # Configuración de la aplicación en Streamlit
-        st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
+    # Configuración de la aplicación en Streamlit
+    st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
 
-        # Diccionario extendido de palabras clave por área temática
-        area_mapping_extended = {
+    # Diccionario extendido de palabras clave por área temática
+    area_mapping_extended = {
             "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
             "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
             "Ingeniería": ["Engineering", "Robotics", "Technology", "Automation", "Materials Science"],
             "Medicina": ["Medicine", "Oncology", "Neurology", "Public Health", "Epidemiology"],
             "Biología": ["Biology", "Microbiology", "Genomics", "Ecology", "Botany"],
             "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
-        }
+    }
 
-        # Función para asignar un área temática
-        def assign_area_extended_v2(row):
-            source_title = str(row["Source title"])
-            title = str(row["Title"])
+    # Función para asignar un área temática
+    def assign_area_extended_v2(row):
+        source_title = str(row["Source title"])
+        title = str(row["Title"])
     
-            for area, keywords in area_mapping_extended.items():
-                if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
-                    return area
-            return "Otras"
+        for area, keywords in area_mapping_extended.items():
+            if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
+                return area
+        return "Otras"
 
-        # Aplicar clasificación inicial
-        df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
+    # Aplicar clasificación inicial
+    df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
 
-        # Entrenar el modelo SVM si hay datos etiquetados
-        df_labeled = df[df["Área Temática"] != "Otras"]
-        if not df_labeled.empty:
-            X = df_labeled["Title"].astype(str)
-            y = df_labeled["Área Temática"]
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+    # Entrenar el modelo SVM si hay datos etiquetados
+    df_labeled = df[df["Área Temática"] != "Otras"]
+    if not df_labeled.empty:
+        X = df_labeled["Title"].astype(str)
+        y = df_labeled["Área Temática"]
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
-            # Modelo SVM
-            vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1,2), max_features=5000)
-            model_svm = Pipeline([
-                ("vectorizer", vectorizer),
-                ("classifier", SVC(kernel="linear", probability=True))
-            ])
+        # Modelo SVM
+        vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1,2), max_features=5000)
+        model_svm = Pipeline([
+            ("vectorizer", vectorizer),
+            ("classifier", SVC(kernel="linear", probability=True))
+        ])
 
-            model_svm.fit(X_train, y_train)
-            df_otros = df[df["Área Temática"] == "Otras"].copy()
-            df_otros["Área Temática"] = model_svm.predict(df_otros["Title"].astype(str))
-            df.update(df_otros)
+        model_svm.fit(X_train, y_train)
+        df_otros = df[df["Área Temática"] == "Otras"].copy()
+        df_otros["Área Temática"] = model_svm.predict(df_otros["Title"].astype(str))
+        df.update(df_otros)
 
-        # Función para generar nubes de palabras con traducción, stopwords eliminadas y lematización
-        def generar_nubes_palabras(df):
-            st.subheader("Nubes de Palabras por Área Temática")
-            años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)[:8]
-            areas_interes = ["Física y Matemáticas", "Química", "Ingeniería", "Medicina", "Biología", "Humanidades"]
+    # Función para generar nubes de palabras con traducción, stopwords eliminadas y lematización
+    def generar_nubes_palabras(df):
+        st.subheader("Nubes de Palabras por Área Temática")
+        años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)[:8]
+        areas_interes = ["Física y Matemáticas", "Química", "Ingeniería", "Medicina", "Biología", "Humanidades"]
 
-            stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
+        stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
     
-            def limpiar_texto(texto):
-                texto = texto.lower()
-                texto = re.sub(r"[\W_]+", " ", texto)  # Remover puntuación y caracteres especiales
-                palabras = texto.split()
-                palabras_filtradas = [lemmatizer.lemmatize(word) for word in palabras if word not in stop_words and len(word) > 2]
-                #palabras_traducidas = [translator.translate(word) for word in palabras_filtradas]
-                palabras_traducidas = palabras_filtradas  # Mantener palabras originales sin traducir
+        def limpiar_texto(texto):
+            texto = texto.lower()
+            texto = re.sub(r"[\W_]+", " ", texto)  # Remover puntuación y caracteres especiales
+            palabras = texto.split()
+            palabras_filtradas = [lemmatizer.lemmatize(word) for word in palabras if word not in stop_words and len(word) > 2]
+            #palabras_traducidas = [translator.translate(word) for word in palabras_filtradas]
+            palabras_traducidas = palabras_filtradas  # Mantener palabras originales sin traducir
 
-                return " ".join(palabras_traducidas)
+            return " ".join(palabras_traducidas)
 
-            for año in años_disponibles:
-                df_año = df[df["Year"] == año]
-                if df_año.empty:
-                    continue
+        for año in años_disponibles:
+            df_año = df[df["Year"] == año]
+            if df_año.empty:
+                continue
 
-                st.subheader(f"Año {año}")
-                fig, axes = plt.subplots(2, 3, figsize=(18, 12))
-                axes = axes.flatten()
+            st.subheader(f"Año {año}")
+            fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+            axes = axes.flatten()
 
-                for i, area in enumerate(areas_interes):
-                    df_area = df_año[df_año["Área Temática"] == area]
-                    if not df_area.empty:
-                        text = " ".join(df_area["Title"].dropna())
-                        filtered_text = limpiar_texto(text)
-                        wordcloud = WordCloud(width=800, height=400, background_color="white").generate(filtered_text)
-                        axes[i].imshow(wordcloud, interpolation="bilinear")
-                        axes[i].set_title(f"{area} ({año})", fontsize=14)
-                        axes[i].axis("off")
-                    else:
-                        axes[i].axis("off")
+            for i, area in enumerate(areas_interes):
+                df_area = df_año[df_año["Área Temática"] == area]
+                if not df_area.empty:
+                    text = " ".join(df_area["Title"].dropna())
+                    filtered_text = limpiar_texto(text)
+                    wordcloud = WordCloud(width=800, height=400, background_color="white").generate(filtered_text)
+                    axes[i].imshow(wordcloud, interpolation="bilinear")
+                    axes[i].set_title(f"{area} ({año})", fontsize=14)
+                    axes[i].axis("off")
+                else:
+                    axes[i].axis("off")
 
-                plt.tight_layout()
-                st.pyplot(fig)
+            plt.tight_layout()
+            st.pyplot(fig)
 
-        # Generar nubes automáticamente sin necesidad de botón
-        generar_nubes_palabras(df)
+    # Generar nubes automáticamente sin necesidad de botón
+    generar_nubes_palabras(df)
 
 
 
@@ -1682,29 +1682,29 @@ elif pagina == "Análisis de temas por área":
 ###################################################################################
 ###################################################################################
 
-        import streamlit as st
-        import pandas as pd
-        import matplotlib.pyplot as plt
-        import seaborn as sns
-        from wordcloud import WordCloud
-        from collections import Counter
-        from sklearn.feature_extraction.text import TfidfVectorizer
-        import plotly.express as px
-        import nltk
-        from nltk.corpus import stopwords
-        import string
+    import streamlit as st
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    from wordcloud import WordCloud
+    from collections import Counter
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    import plotly.express as px
+    import nltk
+    from nltk.corpus import stopwords
+    import string
 
-        # Descargar stopwords si es la primera vez ejecutando el código
-        nltk.download("stopwords")
-        nltk.download("wordnet")
-        nltk.download("omw-1.4")
+    # Descargar stopwords si es la primera vez ejecutando el código
+    nltk.download("stopwords")
+    nltk.download("wordnet")
+    nltk.download("omw-1.4")
 
-        # Inicializar lematizador y traductor
-        lemmatizer = WordNetLemmatizer()
-        #translator = GoogleTranslator(source='auto', target='english')  # Traducir todo a inglés
+    # Inicializar lematizador y traductor
+    lemmatizer = WordNetLemmatizer()
+    #translator = GoogleTranslator(source='auto', target='english')  # Traducir todo a inglés
 
-        # Lista adicional de palabras comunes a excluir (convertidas a minúsculas para evitar problemas de coincidencia)
-        custom_stopwords = {word.lower() for word in [
+    # Lista adicional de palabras comunes a excluir (convertidas a minúsculas para evitar problemas de coincidencia)
+    custom_stopwords = {word.lower() for word in [
             "study", "method", "analysis", "model", "data", "results", "research", "approach", 
             "colima", "mexico", "asses", "assessment", "design", "mexican", "cómo", "using", 
             "partial", "méxico", "effect", "comment", "based", "central", "evaluation", "employing", 
@@ -1740,172 +1740,172 @@ elif pagina == "Análisis de temas por área":
         #df["Área Temática"] = df.apply(assign_area, axis=1)
 
         # Seleccionar el rango de años en Streamlit
-        años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)
-        años_seleccionados = st.multiselect("Selecciona los años a analizar", años_disponibles, default=años_disponibles[:8])
-        df_filtrado = df[df["Year"].isin(años_seleccionados)]
+    años_disponibles = sorted(df["Year"].dropna().unique(), reverse=True)
+    años_seleccionados = st.multiselect("Selecciona los años a analizar", años_disponibles, default=años_disponibles[:8])
+    df_filtrado = df[df["Year"].isin(años_seleccionados)]
 
-        # Definir stopwords en inglés y español
-        #stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation))
-        stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
+    # Definir stopwords en inglés y español
+    #stop_words = set(stopwords.words("english") + stopwords.words("spanish") + list(string.punctuation))
+    stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
 
-        # Obtener los términos más usados en cada área temática
-        def obtener_terminos(df, area):
-            df_area = df[df["Área Temática"] == area]
-            if df_area.empty:
-                return None
+    # Obtener los términos más usados en cada área temática
+    def obtener_terminos(df, area):
+        df_area = df[df["Área Temática"] == area]
+        if df_area.empty:
+            return None
     
-            textos = " ".join(df_area["Title"].dropna()).lower()
-            palabras = [word for word in textos.split() if word not in stop_words and len(word) > 3]
-            conteo = Counter(palabras)
-            terminos_comunes = conteo.most_common(10)
+        textos = " ".join(df_area["Title"].dropna()).lower()
+        palabras = [word for word in textos.split() if word not in stop_words and len(word) > 3]
+        conteo = Counter(palabras)
+        terminos_comunes = conteo.most_common(10)
     
-            autores_frecuentes = df_area["Authors"].value_counts().head(5).to_dict()
-            return terminos_comunes, autores_frecuentes
+        autores_frecuentes = df_area["Authors"].value_counts().head(5).to_dict()
+        return terminos_comunes, autores_frecuentes
 
-        # Generar tablas por área temática
-        st.subheader("🔹 Términos más usados y autores destacados")
-        for area in area_mapping_extended.keys():
-            resultado = obtener_terminos(df_filtrado, area)
-            if resultado:
-                terminos, autores = resultado
-                df_terminos = pd.DataFrame(terminos, columns=["Término", "Frecuencia"])
-                st.write(f"**{area}**")
-                st.dataframe(df_terminos)
-                st.write("**Autores más frecuentes en estos artículos:**")
-                for autor, conteo in autores.items():
-                    st.write(f"- {autor}: {conteo} artículos")
+    # Generar tablas por área temática
+    st.subheader("🔹 Términos más usados y autores destacados")
+    for area in area_mapping_extended.keys():
+        resultado = obtener_terminos(df_filtrado, area)
+        if resultado:
+            terminos, autores = resultado
+            df_terminos = pd.DataFrame(terminos, columns=["Término", "Frecuencia"])
+            st.write(f"**{area}**")
+            st.dataframe(df_terminos)
+            st.write("**Autores más frecuentes en estos artículos:**")
+            for autor, conteo in autores.items():
+                st.write(f"- {autor}: {conteo} artículos")
 
-        # Gráfico de pastel: proporción de artículos por área temática
-        st.subheader("📊 Distribución de artículos por área temática")
-        df_areas = df_filtrado["Área Temática"].value_counts().reset_index()
-        df_areas.columns = ["Área Temática", "Cantidad"]
-        fig = px.pie(df_areas, names="Área Temática", values="Cantidad", title="Proporción de artículos por área temática")
-        st.plotly_chart(fig)
+    # Gráfico de pastel: proporción de artículos por área temática
+    st.subheader("📊 Distribución de artículos por área temática")
+    df_areas = df_filtrado["Área Temática"].value_counts().reset_index()
+    df_areas.columns = ["Área Temática", "Cantidad"]
+    fig = px.pie(df_areas, names="Área Temática", values="Cantidad", title="Proporción de artículos por área temática")
+    st.plotly_chart(fig)
 
 #############################################################################################################################################
 
-        import streamlit as st
-        import pandas as pd
-        import matplotlib.pyplot as plt
-        from wordcloud import WordCloud
-        import nltk
-        from nltk.corpus import stopwords
-        from nltk.stem import WordNetLemmatizer
-        import string
-        import re
-        import plotly.express as px
-        import plotly.graph_objects as go
-        from collections import Counter
+    import streamlit as st
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    from wordcloud import WordCloud
+    import nltk
+    from nltk.corpus import stopwords
+    from nltk.stem import WordNetLemmatizer
+    import string
+    import re
+    import plotly.express as px
+    import plotly.graph_objects as go
+    from collections import Counter
 
-        # Descargar recursos de NLTK
-        nltk.download("stopwords")
-        nltk.download("wordnet")
-        nltk.download("omw-1.4")
+    # Descargar recursos de NLTK
+    nltk.download("stopwords")
+    nltk.download("wordnet")
+    nltk.download("omw-1.4")
 
-        # Inicializar lematizador
-        lemmatizer = WordNetLemmatizer()
+    # Inicializar lematizador
+    lemmatizer = WordNetLemmatizer()
 
-        # Lista adicional de palabras comunes a excluir (convertidas a minúsculas para evitar problemas de coincidencia)
+    # Lista adicional de palabras comunes a excluir (convertidas a minúsculas para evitar problemas de coincidencia)
 
-        custom_stopwords = {word.lower() for word in [
+    custom_stopwords = {word.lower() for word in [
             "study", "method", "analysis", "model", "data", "results", "research", "approach", 
             "colima", "mexico", "asses", "assessment", "design", "mexican", "cómo", "using", 
             "partial", "méxico", "effect", "comment", "based", "central", "evaluation", "employing", 
             "transformation", "application", "system", "approach", "n", "effects", "one", "two", "low", "high", "2021", "2020", "2019", "2022", "2018", "2017", "fast", "slow", "large", "small", ]}
 
 
-        # Configuración de la aplicación en Streamlit
-        st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
+    # Configuración de la aplicación en Streamlit
+    st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
 
-        # Diccionario extendido de palabras clave por área temática
-        area_mapping_extended = {
+    # Diccionario extendido de palabras clave por área temática
+    area_mapping_extended = {
             "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
             "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
             "Ingeniería": ["Engineering", "Robotics", "Technology", "Automation", "Materials Science"],
             "Medicina": ["Medicine", "Oncology", "Neurology", "Public Health", "Epidemiology"],
             "Biología": ["Biology", "Microbiology", "Genomics", "Ecology", "Botany"],
             "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
-        }
+    }
 
-        # Función para asignar un área temática
-        def assign_area_extended_v2(row):
-            source_title = str(row["Source title"])
-            title = str(row["Title"])
+    # Función para asignar un área temática
+    def assign_area_extended_v2(row):
+        source_title = str(row["Source title"])
+        title = str(row["Title"])
     
-            for area, keywords in area_mapping_extended.items():
-                if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
-                    return area
-            return "Otras"
+        for area, keywords in area_mapping_extended.items():
+            if any(keyword in source_title for keyword in keywords) or any(keyword in title for keyword in keywords):
+                return area
+        return "Otras"
 
-        # Aplicar clasificación inicial
-        df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
+    # Aplicar clasificación inicial
+    df["Área Temática"] = df.apply(assign_area_extended_v2, axis=1)
 
-        # Selección del año más antiguo para visualizar
-        año_minimo = st.slider("Selecciona el año más antiguo para visualizar:", int(df["Year"].min()), int(df["Year"].max()), int(df["Year"].min()))
+    # Selección del año más antiguo para visualizar
+    año_minimo = st.slider("Selecciona el año más antiguo para visualizar:", int(df["Year"].min()), int(df["Year"].max()), int(df["Year"].min()))
 
-        # Función para generar nubes de palabras con stopwords eliminadas y lematización
-        def generar_nubes_palabras(df):
-            st.subheader("Nubes de Palabras por Área Temática")
-            años_disponibles = sorted(df["Year"].dropna().unique())
-            años_disponibles = [a for a in años_disponibles if a >= año_minimo]
-            areas_interes = list(area_mapping_extended.keys())
+    # Función para generar nubes de palabras con stopwords eliminadas y lematización
+    def generar_nubes_palabras(df):
+        st.subheader("Nubes de Palabras por Área Temática")
+        años_disponibles = sorted(df["Year"].dropna().unique())
+        años_disponibles = [a for a in años_disponibles if a >= año_minimo]
+        areas_interes = list(area_mapping_extended.keys())
 
-            stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
+        stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
     
-            def limpiar_texto(texto):
-                texto = texto.lower()
-                texto = re.sub(r"[\W_]+", " ", texto)  # Remover puntuación y caracteres especiales
-                palabras = texto.split()
-                palabras_filtradas = [lemmatizer.lemmatize(word) for word in palabras if word not in stop_words and len(word) > 2]
-                return " ".join(palabras_filtradas)
+        def limpiar_texto(texto):
+            texto = texto.lower()
+            texto = re.sub(r"[\W_]+", " ", texto)  # Remover puntuación y caracteres especiales
+            palabras = texto.split()
+            palabras_filtradas = [lemmatizer.lemmatize(word) for word in palabras if word not in stop_words and len(word) > 2]
+            return " ".join(palabras_filtradas)
 
-            global word_frequencies
-            word_frequencies = {area: Counter() for area in areas_interes}
+        global word_frequencies
+        word_frequencies = {area: Counter() for area in areas_interes}
 
-            for año in años_disponibles:
-                df_año = df[df["Year"] == año]
-                if df_año.empty:
-                    continue
+        for año in años_disponibles:
+            df_año = df[df["Year"] == año]
+            if df_año.empty:
+                continue
 
-                #st.subheader(f"Año {año}")
-                for area in areas_interes:
-                    df_area = df_año[df_año["Área Temática"] == area]
-                    if not df_area.empty:
-                        text = " ".join(df_area["Title"].dropna())
-                        filtered_text = limpiar_texto(text)
+            #st.subheader(f"Año {año}")
+            for area in areas_interes:
+                df_area = df_año[df_año["Área Temática"] == area]
+                if not df_area.empty:
+                    text = " ".join(df_area["Title"].dropna())
+                    filtered_text = limpiar_texto(text)
                 
-                        # Acumular las frecuencias de palabras
-                        word_counts = Counter(filtered_text.split())
-                        word_frequencies[area] += word_counts
+                    # Acumular las frecuencias de palabras
+                    word_counts = Counter(filtered_text.split())
+                    word_frequencies[area] += word_counts
 
-        # Generar nubes automáticamente
-        generar_nubes_palabras(df)
+    # Generar nubes automáticamente
+    generar_nubes_palabras(df)
 
-        # Generar gráfica de barras animada separada por área
-        def generar_animacion_palabras(word_frequencies):
-            st.subheader("📊 Evolución del Uso de Palabras Clave en Áreas Temáticas")
+    # Generar gráfica de barras animada separada por área
+    def generar_animacion_palabras(word_frequencies):
+        st.subheader("📊 Evolución del Uso de Palabras Clave en Áreas Temáticas")
     
-            for area, counter in word_frequencies.items():
-                data = []
-                for palabra, frecuencia in counter.most_common(30):
-                    data.append({"Palabra": palabra, "Frecuencia": frecuencia})
+        for area, counter in word_frequencies.items():
+            data = []
+            for palabra, frecuencia in counter.most_common(30):
+                 data.append({"Palabra": palabra, "Frecuencia": frecuencia})
         
-                df_animacion = pd.DataFrame(data)
-                if not df_animacion.empty:
-                    fig = px.bar(
-                        df_animacion,
-                        x="Frecuencia",
-                        y="Palabra",
-                        orientation="h",
-                        title=f"Top 30 Palabras Más Usadas en {area}",
-                        labels={"Frecuencia": "Frecuencia de Uso", "Palabra": "Palabras Clave"},
-                        template="plotly_white"
-                    )
-                    fig.update_layout(height=900, xaxis=dict(range=[0, df_animacion["Frecuencia"].max() * 1.1]))
-                    st.plotly_chart(fig)
+            df_animacion = pd.DataFrame(data)
+            if not df_animacion.empty:
+                fig = px.bar(
+                    df_animacion,
+                    x="Frecuencia",
+                    y="Palabra",
+                    orientation="h",
+                    title=f"Top 30 Palabras Más Usadas en {area}",
+                    labels={"Frecuencia": "Frecuencia de Uso", "Palabra": "Palabras Clave"},
+                    template="plotly_white"
+                )
+                fig.update_layout(height=900, xaxis=dict(range=[0, df_animacion["Frecuencia"].max() * 1.1]))
+                st.plotly_chart(fig)
 
-        # Generar la animación por área
-        generar_animacion_palabras(word_frequencies)
+    # Generar la animación por área
+    generar_animacion_palabras(word_frequencies)
 
 
 
