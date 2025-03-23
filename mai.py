@@ -649,7 +649,7 @@ elif pagina == "Análisis por base":
             df_final_filtered,
             x="Yearly_Publications",
             #y="Normalized_Author_Name",
-            y="Folio"
+            y="Folio",
             color="Normalized_Author_Name",
             animation_frame="Year",
             orientation="h",
