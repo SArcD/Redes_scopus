@@ -586,14 +586,14 @@ elif pagina == "Análisis por base":
         last_year = df_final_filtered["Year"].max()
 
 #        # Extraer el orden final de los autores basado en el último año
-#        final_order = df_final_filtered[df_final_filtered["Year"] == last_year].sort_values(
-#            by="Cumulative_Publications", ascending=False
-#        )["Normalized_Author_Name"].tolist()
-
-        # Extraer el orden final de los autores basado en el último año
         final_order = df_final_filtered[df_final_filtered["Year"] == last_year].sort_values(
             by="Cumulative_Publications", ascending=False
         )["Normalized_Author_Name"].tolist()
+
+#        # Extraer el orden final de los autores basado en el último año
+#        final_order = df_final_filtered[df_final_filtered["Year"] == last_year].sort_values(
+#            by="Cumulative_Publications", ascending=False
+#        )["Normalized_Author_Name"].tolist()
 
 
         
