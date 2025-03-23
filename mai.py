@@ -492,11 +492,11 @@ elif pagina == "Análisis por base":
         # Crear diccionario de correspondencia entre Folio y Author(s) ID
         diccionario_folios = dict(zip(df_ucol['Folio'], df_ucol['Author(s)_ID']))
 
-        with st.expander("**Datos del archivo**"):
-            st.write(f"**Número de filas:** {df_ucol.shape[0]}")
-            st.write(f"**Número de columnas:** {df_ucol.shape[1]}")
-            st.write("**Lista de columnas:**")
-            st.write(df_ucol.columns.tolist())  # Mostrar los nombres de las columnas como una lista
+        #with st.expander("**Datos del archivo**"):
+        #    st.write(f"**Número de filas:** {df_ucol.shape[0]}")
+        #    st.write(f"**Número de columnas:** {df_ucol.shape[1]}")
+        #    st.write("**Lista de columnas:**")
+        #    st.write(df_ucol.columns.tolist())  # Mostrar los nombres de las columnas como una lista
             
         #csv_data = df_ucol.to_csv(index=False).encode("utf-8")
         #st.download_button("**Descargar datos ucol**", csv_data, "unified_ucol_author_data.csv", "text/csv")
@@ -630,7 +630,7 @@ elif pagina == "Análisis por base":
 
         #st.title("📊 Procesamiento y Análisis de Publicaciones Acumuladas")
         st.markdown("""
-        A continuación se muestra la evolución temporal de los 30 autores mas productivos de la Universidad de Colima. La animación puede pasarse o reproducirse al presionar los botones de la parte superior izquierda. Puede ajustar el año a visualizar mediante el deslizador de la parte inferior.
+        A continuación se muestra <strong>la evolución temporal de los 30 autores mas productivos de la Universidad de Colima</strong>. La animación puede reproducirse al presionar el botón de la parte superior izquierda del gráfico. Puede ajustar el año a visualizar mediante el deslizador de la parte inferior.
         """)
         # Lista de autores a eliminar
         authors_to_remove = ["crossa,", "murillo zamora, efren", "guzman esquivel,", "martinez fierro,"]
@@ -648,7 +648,8 @@ elif pagina == "Análisis por base":
         fig = px.bar(
             df_final_filtered,
             x="Yearly_Publications",
-            y="Normalized_Author_Name",
+            #y="Normalized_Author_Name",
+            y="Folio"
             color="Normalized_Author_Name",
             animation_frame="Year",
             orientation="h",
@@ -662,7 +663,7 @@ elif pagina == "Análisis por base":
             year = frame.name
             frame.data += (go.Scatter(
                 x=[df_final_filtered["Yearly_Publications"].max() * 1.05], 
-                y=[df_final_filtered["Normalized_Author_Name"].min()],
+                y=[df_final_filtered["Folio"].min()],
                 mode="lines",
                 line=dict(color="black", width=2),
                 name=f"Año {year}"
