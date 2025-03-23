@@ -580,7 +580,7 @@ elif pagina == "Análisis por base":
         df_max_values_filtered["Cumulative_Publications"] = df_max_values_filtered["Cumulative_Publications"] * 1.1  # Añadir margen del 10%
 
         # Agregar el Author(s)_ID al DataFrame antes de generar la gráfica
-        df_final_filtered = df_final_filtered.merge(df_ucol[["Normalized_Author_Name", "Folio"]], on="Normalized_Author_Name", how="left")
+        df_final_filtered = df_final_filtered.merge(df_ucol[["Normalized_Author_Name", "Authors_ID"]], on="Normalized_Author_Name", how="left")
 
         # Obtener el último año de la animación
         last_year = df_final_filtered["Year"].max()
