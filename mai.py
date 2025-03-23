@@ -124,12 +124,12 @@ elif pagina == "Análisis por base":
     import pandas as pd
 
     # 📌 Título de la aplicación
-    st.title("Análisis temático de los autores de publicaciones científicas de la Universidad de Colima")
+    st.title("Análisis temático de autores de publicaciones científicas")
 
     st.markdown(
     """
     <div style='text-align: justify'>
-    En esta sección se analizan algunos aspectos claves de los autores de la <strong>Universidad de Colima</strong> que han participado en publicaciones indizadas en la base de datos de <strong>Scopus</strong>. Algunos de estos aspectos son: la identificación de los autores mas prolíficos de la Universidad de Colima, la evolución temporal de estos autores, su distribución de autores de acuerdo a su productividad y un clasificador en el que el usuario puede comparar su productividad con la de los autores de la base. 
+    En esta sección se analizan algunos aspectos claves de los autores de la <strong>Universidad de Colima</strong> de publicaciones indizadas en la base de datos de <strong>Scopus</strong>. Algunos de estos aspectos son: la identificación de los autores mas prolíficos, la evolución temporal de sus publicaciones, su distribución de autores de acuerdo a su productividad y un clasificador en el que el usuario puede comparar su productividad con la de los autores de la base. 
     </div>
     """,
     unsafe_allow_html=True
@@ -334,10 +334,20 @@ elif pagina == "Análisis por base":
  
             #""")
 
+#            st.markdown(
+#            """
+#            <div style='text-align: justify'>
+#           Como primer paso, se separa la base original, generando una fila para cada participación de un autor o autora de la Universidad en un artículo indizado. Debido a que es posible que una persona aparezca con distintas versiones de su nombre, así como con distintos identificadores, se normalizaron los nombres (eliminando mayúsculas y caracteres especiales), y se unificaron todos los trabajos de cada autor en el ID mas reciente. Además, se usó el registro de direcciones de correo para depurar la base y conservar solo a aquellos autores que tengan una dirección que pueda asociarse con la Universidad de Colima (esto último implicó una revisión por parte de la Dirección General de Investigación Científica para quitar del registro a colaboradores que no pertenezcan a la Universidad de Colima). A continuación se muestran las <strong>primeras cinco filas</strong> de la base con los autores ya separados.
+#            </div>
+#            """,
+#            unsafe_allow_html=True
+#            )
+
+            
             st.markdown(
             """
             <div style='text-align: justify'>
-           Como primer paso, se separa la base original, generando una fila para cada participación de un autor o autora de la Universidad en un artículo indizado. Debido a que es posible que una persona aparezca con distintas versiones de su nombre, así como con distintos identificadores, se normalizaron los nombres (eliminando mayúsculas y caracteres especiales), y se unificaron todos los trabajos de cada autor en el ID mas reciente. Además, se usó el registro de direcciones de correo para depurar la base y conservar solo a aquellos autores que tengan una dirección que pueda asociarse con la Universidad de Colima (esto último implicó una revisión por parte de la Dirección General de Investigación Científica para quitar del registro a colaboradores que no pertenezcan a la Universidad de Colima). A continuación se muestran las <strong>primeras cinco filas</strong> de la base con los autores ya separados.
+           Como primer paso, se separa la base original, generando una fila para cada participación de un autor o autora en un artículo indizado. Debido a que es posible que una persona aparezca con distintas versiones de su nombre, así como con distintos identificadores, se normalizaron los nombres (eliminando mayúsculas y caracteres especiales), y se unificaron todos los trabajos de cada autor en el ID mas reciente. Además, se usó el registro de direcciones de correo para depurar la base y conservar solo a aquellos autores que tengan una dirección que pueda asociarse con la Universidad de Colima (esto último implicó una revisión por parte de la Dirección General de Investigación Científica para quitar del registro a colaboradores que no pertenezcan a la Universidad de Colima). Debido a las políticas de reproducción de datos protegidos, no se muestra directamente la tabla de autores. Además, se reemplaza el identificador de scopus por un Folio. Si desea conocer el nombre de la persona ala que pertenece un folio, consulte el diccionario.
             </div>
             """,
             unsafe_allow_html=True
