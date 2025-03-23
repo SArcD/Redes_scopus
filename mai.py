@@ -155,12 +155,6 @@ elif pagina == "Análisis por base":
         # Asegurar que el índice esté limpio
         df = df.reset_index(drop=True)
 
-        # Crear columna Folio tipo UCOL-0001, UCOL-0002, ...
-        df['Folio'] = ['UCOL-' + str(i).zfill(4) for i in range(1, len(df) + 1)]
-
-        # Crear diccionario de correspondencia entre Folio y Author(s) ID
-        diccionario_folios = dict(zip(df['Folio'], df['Author(s) ID']))
-
         # Eliminar columnas que no quieres conservar
         columnas_a_eliminar = [
             'DOI', 'Link', 'Page start', 'Page end', 'Page count',
@@ -364,9 +358,14 @@ elif pagina == "Análisis por base":
 
             # Reordenar el DataFrame con las columnas prioritarias primero
             df_grouped = df_grouped[priority_columns + remaining_columns]
+            # Crear columna Folio tipo UCOL-0001, UCOL-0002, ...
+            df_grouped['Folio'] = ['UCOL-' + str(i).zfill(4) for i in range(1, len(df) + 1)]
+
+            # Crear diccionario de correspondencia entre Folio y Author(s) ID
+            diccionario_folios = dict(zip(df_grouped['Folio'], df_grouped['Author(s)_ID']))
 
             # Mostrar las primeras filas para verificar
-            #st.write(df_grouped.head())
+            st.write(df_grouped.head())
 
 
             
