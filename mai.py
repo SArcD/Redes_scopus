@@ -594,13 +594,13 @@ elif pagina == "Análisis por base":
         fig_filtered = px.bar(
             df_final_filtered,
             x="Cumulative_Publications",
-            y="Normalized_Author_Name",
-            color="Normalized_Author_Name",
+            y="Folio",
+            color="Folio",
             animation_frame="Year",
             orientation="h",
             title="Evolución de Publicaciones Acumuladas - Top 30 Autores",
-            labels={"Cumulative_Publications": "Número Acumulado de Publicaciones", "Normalized_Author_Name": "Autores"},
-            hover_data={"Author(s)_ID": True},  # Agregar el ID del autor en el hover
+            #labels={"Cumulative_Publications": "Número Acumulado de Publicaciones", "Normalized_Author_Name": "Autores"},
+            hover_data={"Folio": True},  # Agregar el ID del autor en el hover
             template="plotly_white"
         )
 
