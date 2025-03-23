@@ -375,14 +375,9 @@ elif pagina == "Análisis por base":
 
             # Reordenar el DataFrame con las columnas prioritarias primero
             df_grouped = df_grouped[priority_columns + remaining_columns]
-            # Crear columna Folio tipo UCOL-0001, UCOL-0002, ...
-            df_grouped['Folio'] = ['UCOL-' + str(i).zfill(4) for i in range(1, len(df_grouped) + 1)]
-
-            # Crear diccionario de correspondencia entre Folio y Author(s) ID
-            diccionario_folios = dict(zip(df_grouped['Folio'], df_grouped['Author(s)_ID']))
 
             # Mostrar las primeras filas para verificar
-            st.write(df_grouped.head())
+            #st.write(df_grouped.head())
 
 
             
@@ -481,6 +476,12 @@ elif pagina == "Análisis por base":
 
         # Convertir el log en un DataFrame para visualizar las fusiones
         df_merge_ucol_log = pd.DataFrame(list(merge_log.items()), columns=["Normalized_Author_Name", "Merged_Author_IDs"])
+
+        # Crear columna Folio tipo UCOL-0001, UCOL-0002, ...
+        df_ucol['Folio'] = ['UCOL-' + str(i).zfill(4) for i in range(1, len(df_ucol) + 1)]
+
+        # Crear diccionario de correspondencia entre Folio y Author(s) ID
+        diccionario_folios = dict(zip(df_ucol['Folio'], df_ucol['Author(s)_ID']))
 
 
 
