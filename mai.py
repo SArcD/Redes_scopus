@@ -40,7 +40,7 @@ Esta aplicación está ideada para la visualización y análisis de la producci�
     
     st.markdown("""
     <div style='text-align: justify'>
-El objetivo es proporcionar una herramienta interactiva que permita a investigadores, tomadores de decisiones y público interesado **explorar visualmente la evolución y características de la actividad científica institucional**.
+El objetivo es proporcionar una herramienta interactiva que permita a investigadores, tomadores de decisiones y público interesado <strong>explorar visualmente la evolución y características de la actividad científica institucional</strong>.
 
 Este análisis puede contribuir a:
 
