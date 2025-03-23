@@ -152,12 +152,12 @@ elif pagina == "Análisis por base":
         #Estas son las **primeras cinco filas** del archivo con la lista de publicaciones en las que se han involucrado profesores de la Universidad de Colima. Cada fila corresponde a un artículo diferente. En las secciones posteriores, esta base se separará para generar un registro de la productividad científica individual de los profesores de la Universidad de Colima.
         #""")
         
-        #st.write(df.head())
-        #with st.expander("**Datos del archivo**"):
-        #    st.write(f"**Número de filas:** {df.shape[0]}")
-        #    st.write(f"**Número de columnas:** {df.shape[1]}")
-        #    st.write("**Lista de columnas:**")
-        #    st.write(df.columns.tolist())  # Mostrar los nombres de las columnas como una lista
+        st.write(df.head())
+        with st.expander("**Datos del archivo**"):
+            st.write(f"**Número de filas:** {df.shape[0]}")
+            st.write(f"**Número de columnas:** {df.shape[1]}")
+            st.write("**Lista de columnas:**")
+            st.write(df.columns.tolist())  # Mostrar los nombres de las columnas como una lista
 
             
         # 📂 **Descargar el archivo procesado**
