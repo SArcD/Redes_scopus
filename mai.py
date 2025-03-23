@@ -151,6 +151,23 @@ elif pagina == "Análisis por base":
         #st.markdown("""
         #Estas son las **primeras cinco filas** del archivo con la lista de publicaciones en las que se han involucrado profesores de la Universidad de Colima. Cada fila corresponde a un artículo diferente. En las secciones posteriores, esta base se separará para generar un registro de la productividad científica individual de los profesores de la Universidad de Colima.
         #""")
+
+        # Asegurar que el índice esté limpio
+        df = df.reset_index(drop=True)
+
+        # Crear columna Folio tipo UCOL-0001, UCOL-0002, ...
+        df['Folio'] = ['UCOL-' + str(i).zfill(4) for i in range(1, len(df) + 1)]
+
+        # Crear diccionario de correspondencia entre Folio y Author(s) ID
+        diccionario_folios = dict(zip(df['Folio'], df['Author(s) ID']))
+
+        # Eliminar columnas que no quieres conservar
+        columnas_a_eliminar = [
+            'DOI', 'Link', 'Page start', 'Page end', 'Page count',
+            'Funding Texts', 'ISSN', 'ISBN', 'CODEN', 'Open Access'
+        ]
+        df = df.drop(columns=columnas_a_eliminar, errors='ignore')
+
         
         st.write(df.head())
         with st.expander("**Datos del archivo**"):
