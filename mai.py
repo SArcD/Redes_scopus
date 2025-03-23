@@ -580,27 +580,34 @@ elif pagina == "Análisis por base":
         df_max_values_filtered["Cumulative_Publications"] = df_max_values_filtered["Cumulative_Publications"] * 1.1  # Añadir margen del 10%
 
         # Agregar el Author(s)_ID al DataFrame antes de generar la gráfica
-        df_final_filtered = df_final_filtered.merge(df_ucol[["Normalized_Author_Name", "Author(s)_ID"]], on="Normalized_Author_Name", how="left")
+        df_final_filtered = df_final_filtered.merge(df_ucol[["Normalized_Author_Name", "Folio"]], on="Normalized_Author_Name", how="left")
 
         # Obtener el último año de la animación
         last_year = df_final_filtered["Year"].max()
+
+#        # Extraer el orden final de los autores basado en el último año
+#        final_order = df_final_filtered[df_final_filtered["Year"] == last_year].sort_values(
+#            by="Cumulative_Publications", ascending=False
+#        )["Normalized_Author_Name"].tolist()
 
         # Extraer el orden final de los autores basado en el último año
         final_order = df_final_filtered[df_final_filtered["Year"] == last_year].sort_values(
             by="Cumulative_Publications", ascending=False
         )["Normalized_Author_Name"].tolist()
 
+
+        
         # Crear la gráfica de barras animada con acumulación, orden final fijo y Author(s)_ID en hover
         fig_filtered = px.bar(
             df_final_filtered,
             x="Cumulative_Publications",
-            y="Folio",
-            color="Folio",
+            y="Normalized_Author_Name",
+            color="Normalized_Author_Name",
             animation_frame="Year",
             orientation="h",
             title="Evolución de Publicaciones Acumuladas - Top 30 Autores",
-            #labels={"Cumulative_Publications": "Número Acumulado de Publicaciones", "Normalized_Author_Name": "Autores"},
-            hover_data={"Folio": True},  # Agregar el ID del autor en el hover
+            labels={"Cumulative_Publications": "Número Acumulado de Publicaciones", "Normalized_Author_Name": "Autores"},
+            hover_data={"Authors_ID": True},  # Agregar el ID del autor en el hover
             template="plotly_white"
         )
 
