@@ -163,12 +163,12 @@ elif pagina == "Análisis por base":
         df = df.drop(columns=columnas_a_eliminar, errors='ignore')
 
         
-        st.write(df.head())
-        with st.expander("**Datos del archivo**"):
-            st.write(f"**Número de filas:** {df.shape[0]}")
-            st.write(f"**Número de columnas:** {df.shape[1]}")
-            st.write("**Lista de columnas:**")
-            st.write(df.columns.tolist())  # Mostrar los nombres de las columnas como una lista
+        #st.write(df.head())
+        #with st.expander("**Datos del archivo**"):
+        #    st.write(f"**Número de filas:** {df.shape[0]}")
+        #    st.write(f"**Número de columnas:** {df.shape[1]}")
+        #    st.write("**Lista de columnas:**")
+        #    st.write(df.columns.tolist())  # Mostrar los nombres de las columnas como una lista
 
             
         # 📂 **Descargar el archivo procesado**
@@ -324,9 +324,19 @@ elif pagina == "Análisis por base":
 
             columns_to_drop = ["DOI", "Volume", "Issue", "Art._No.", "Page_start", "Page_end", "Page_count", "Link", "ISBN", "CODEN", "Funding_Texts", "ISSN", "Open_Access", "Publisher"]
             df_grouped = df_grouped.drop(columns=columns_to_drop, errors="ignore")
-            st.markdown("""
-            Como primer paso, se separa la base original, generando una fila para cada participación de un autor o autora de la Universidad en un artículo indizado en Scopus. **Debido a que es posible que una persona aparezca con distintas versiones de su nombre, así como con distintos identificadores de Scopus, se normalizaron los nombres (eliminando mayúsculas y caracteres especiales), y se unificaron todos los trabajos de cada autor en el ID de Scopus mas reciente. Además, se usó el registro de direcciones de correo para depurar la base y conservar solo a aquellos autores que tengan una dirección que pueda asociarse con la Universidad de Colima (esto último implicó una revisión por parte de la **Dirección General de Investigación Científica** para quitar del registro a colaboradores que no pertenezcan a la Universidad de Colima). A continuación se muestran las **primeras cinco filas** de la base con los autores ya separados..
-            """)
+            #st.markdown("""
+ 
+            #""")
+
+            st.markdown(
+            """
+            <div style='text-align: justify'>
+           Como primer paso, se separa la base original, generando una fila para cada participación de un autor o autora de la Universidad en un artículo indizado en Scopus. **Debido a que es posible que una persona aparezca con distintas versiones de su nombre, así como con distintos identificadores de Scopus, se normalizaron los nombres (eliminando mayúsculas y caracteres especiales), y se unificaron todos los trabajos de cada autor en el ID de Scopus mas reciente. Además, se usó el registro de direcciones de correo para depurar la base y conservar solo a aquellos autores que tengan una dirección que pueda asociarse con la Universidad de Colima (esto último implicó una revisión por parte de la **Dirección General de Investigación Científica** para quitar del registro a colaboradores que no pertenezcan a la Universidad de Colima). A continuación se muestran las **primeras cinco filas** de la base con los autores ya separados.
+            </div>
+            """,
+            unsafe_allow_html=True
+            )
+            
             #st.markdown("""
             #    Después del procesamiento, se agrupa la información a nivel de autor ("Author(s)_ID") y se generan estadísticas:
             #    - "Normalized_Author_Name": Nombre del autor, escrito en minúsculas y sin caracteres especiales.
@@ -467,7 +477,7 @@ elif pagina == "Análisis por base":
 
 
 
-        st.write(df_ucol.head())
+        #st.write(df_ucol.head())
          
         with st.expander("**Datos del archivo**"):
             st.write(f"**Número de filas:** {df_ucol.shape[0]}")
