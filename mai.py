@@ -948,6 +948,7 @@ elif pagina == "Análisis por base":
     """
     <div style='text-align: justify'>
         En esta sección se utiliza un algoritmo de <strong>clustering jerárquico</strong> para clasificar a los autores, de acuerdo a cuatro parámetros:
+        
         - Número de publicaciones.
         - Número de citas.
         - Porcentaje de publicaciones financiadas.
