@@ -2506,7 +2506,7 @@ elif pagina == "Análisis de temas por área":
 # area_seleccionada = "Física y Matemáticas"
 
 #stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation)
-
+    import math
     def limpiar_texto(texto):
         texto = texto.lower()
         texto = re.sub(r"[\W_]+", " ", texto)
