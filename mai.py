@@ -2517,51 +2517,70 @@ elif pagina == "Análisis de temas por área":
         ]
 
     # Subtemas y grafo
-    años_disponibles = sorted(df_area["Year"].unique())
-    años_seleccionados = st.multiselect("Selecciona uno o más años:", años_disponibles, default=años_disponibles[-5:])
+    anos_disponibles = sorted(df_area["Year"].unique())
+    anos_seleccionados = st.multiselect("Selecciona uno o más años:", anos_disponibles, default=anos_disponibles[-5:])
 
     G = nx.DiGraph()
     G.add_node(area_seleccionada)
-    subtemas_por_año = {}
+    subtemas_por_ano = {}
     frecuencia_total = Counter()
+    pos = {}
 
-    for año in años_disponibles:
-        nodo_año = f"Año {año}"
-        G.add_node(nodo_año)
-        G.add_edge(area_seleccionada, nodo_año)
+    # Posiciones radiales con desplazamiento por antigüedad
+    radio_base = 1.5
+    radio_incremento = 0.2
 
-        titulos = df_area[df_area["Year"] == año]["Title"].dropna()
+    for i, ano in enumerate(anos_disponibles):
+        nodo_ano = f"Año {ano}"
+        G.add_node(nodo_ano)
+        G.add_edge(area_seleccionada, nodo_ano)
+
+        angulo = 2 * np.pi * i / len(anos_disponibles)
+        radio = radio_base + i * radio_incremento
+        pos[nodo_ano] = [radio * np.cos(angulo), radio * np.sin(angulo)]
+
+        titulos = df_area[df_area["Year"] == ano]["Title"].dropna()
         palabras = []
         for titulo in titulos:
             palabras.extend(limpiar_texto(str(titulo)))
         conteo = Counter(palabras)
         subtemas = [palabra for palabra, _ in conteo.most_common(10)]
-        subtemas_por_año[año] = subtemas
+        subtemas_por_ano[ano] = subtemas
         frecuencia_total.update(subtemas)
 
         for subtema in subtemas:
             if not G.has_node(subtema):
                 G.add_node(subtema)
-            G.add_edge(nodo_año, subtema)
+            G.add_edge(nodo_ano, subtema)
 
-    # Subtemas en múltiples años
-    subtemas_en_varios_años = Counter()
-    for año in años_seleccionados:
-        for subtema in subtemas_por_año.get(año, []):
-            subtemas_en_varios_años[subtema] += 1
+    # Posiciones de subtemas (posición del año más antiguo donde aparece)
+    subtema_mas_antiguo = {}
+    for ano in anos_disponibles:
+        for subtema in subtemas_por_ano.get(ano, []):
+            if subtema not in subtema_mas_antiguo:
+                subtema_mas_antiguo[subtema] = ano
 
-    # Layout
-    nodo_raiz = area_seleccionada
-    nodos_de_años = [f"Año {a}" for a in años_disponibles]
-    nodos_de_subtemas = [n for n in G.nodes() if n not in nodos_de_años and n != nodo_raiz]
-    pos = nx.shell_layout(G, nlist=[[nodo_raiz], nodos_de_años, nodos_de_subtemas])
+    for subtema, primer_ano in subtema_mas_antiguo.items():
+        i = anos_disponibles.index(primer_ano)
+        angulo = 2 * np.pi * i / len(anos_disponibles) + 0.15 * i
+        radio = radio_base + (i + 1) * radio_incremento + 0.6  # más alejado que los años
+        pos[subtema] = [radio * np.cos(angulo), radio * np.sin(angulo)]
+
+    # Posición del nodo raíz
+    pos[area_seleccionada] = [0, 0]
 
     # Nodos activados
     nodos_activados = set()
-    for año in años_seleccionados:
-        nodos_activados.add(f"Año {año}")
-        nodos_activados.update(subtemas_por_año.get(año, []))
+    for ano in anos_seleccionados:
+        nodos_activados.add(f"Año {ano}")
+        nodos_activados.update(subtemas_por_ano.get(ano, []))
     nodos_activados.add(area_seleccionada)
+
+    # Subtemas compartidos entre varios años seleccionados
+    subtemas_en_varios_anos = Counter()
+    for ano in anos_seleccionados:
+        for subtema in subtemas_por_ano.get(ano, []):
+            subtemas_en_varios_anos[subtema] += 1
 
     # Edges
     edge_x, edge_y = [], []
@@ -2587,10 +2606,10 @@ elif pagina == "Análisis de temas por área":
         x, y = pos[node]
         node_x.append(x)
         node_y.append(y)
-        node_text.append(f"{node} ({frecuencia})")
+        node_text.append(f"{node}")
 
         if node in nodos_activados:
-            if frecuencia > 1 and node not in nodos_de_años and node != area_seleccionada:
+            if frecuencia > 1 and node not in pos or node in subtemas_en_varios_anos and subtemas_en_varios_anos[node] > 1:
                 node_color.append("blue")
             else:
                 node_color.append("green")
@@ -2619,7 +2638,7 @@ elif pagina == "Análisis de temas por área":
     fig = go.Figure(data=[edge_trace, node_trace],
         layout=go.Layout(
             title=dict(
-                text=f"\U0001F331 Subtemas de {area_seleccionada} en {', '.join(map(str, años_seleccionados))}",
+                text=f"\U0001F331 Subtemas de {area_seleccionada} en {', '.join(map(str, anos_seleccionados))}",
                 font=dict(size=16)
             ),
             showlegend=False,
@@ -2631,8 +2650,6 @@ elif pagina == "Análisis de temas por área":
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
-
 
 
 
