@@ -2357,13 +2357,13 @@ elif pagina == "Análisis de temas por área":
     G = nx.DiGraph()
     G.add_node("Física y Matemáticas")
 
-    años_disponibles = sorted(df_fisica["Year"].unique())
+    años_disponibles = sorted(df_area["Year"].unique())
     for año in años_disponibles:
         nodo_año = f"Año {año}"
         G.add_node(nodo_año)
         G.add_edge("Física y Matemáticas", nodo_año)
 
-        titulos = df_fisica[df_fisica["Year"] == año]["Title"].dropna()
+        titulos = df_area[df_area["Year"] == año]["Title"].dropna()
         palabras = []
         for titulo in titulos:
             palabras.extend(limpiar_texto(str(titulo)))
@@ -2377,7 +2377,7 @@ elif pagina == "Análisis de temas por área":
 
     # Visualización con matplotlib
     st.title("🌳 Árbol Temático de Física y Matemáticas")
-    st.markdown("Este árbol muestra cómo han surgido subtemas cada año en el área de Física y Matemáticas.")
+    #st.markdown("Este árbol muestra cómo han surgido subtemas cada año en el área de Física y Matemáticas.")
 
     pos = nx.spring_layout(G, seed=42)
     fig, ax = plt.subplots(figsize=(14, 10))
