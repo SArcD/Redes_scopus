@@ -718,9 +718,17 @@ elif pagina == "Análisis por base":
         import scipy.stats as stats
 
         st.subheader("Correlación entre el número de publicaciones y el número de citas.")
-        st.markdown("""
-        En esta sección se muestra la grafica de **correlación entre las publicaciones y el número de citas** para todos los autores registrados en la base. Cada punto corresponde a un autor y si deja el cursor sobre un punto en específico, se desplegarán los datos del autor al que corresponde ese punto. La línea roja representa la línea de tendencia del ajuste a los datos. El coeficiente de person se muestra en la parte superior izquierda. La gráfica es interactiva y puede hacer acercamientos a zonas especificas usando los botones que se muestran en la parte superior derecha al dejar el cursor sobre ella. 
-        """)
+        st.markdown(
+    """
+    <div style='text-align: justify'>
+        En esta sección se muestra la grafica de 
+<strong>correlación entre las publicaciones y el número de citas</strong> para todos los autores registrados en la base. Cada punto corresponde a un autor y si deja el cursor sobre un punto en específico, se desplegarán los datos del autor al que corresponde ese punto. La línea roja representa la línea de tendencia del ajuste a los datos. El coeficiente de person se muestra en la parte superior izquierda. La gráfica es interactiva y puede hacer acercamientos a zonas especificas usando los botones que se muestran en la parte superior derecha al dejar el cursor sobre ella. 
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+        
+        
         # Convertir a valores numéricos (por si hay valores en string)
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
         df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
