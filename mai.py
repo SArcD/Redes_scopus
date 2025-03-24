@@ -636,9 +636,15 @@ elif pagina == "Análisis por base":
         import numpy as np
 
         #st.title("📊 Procesamiento y Análisis de Publicaciones Acumuladas")
-        st.markdown("""
+        st.markdown(
+    """
+    <div style='text-align: justify'>
         A continuación se muestra <strong>la evolución temporal de los 30 autores mas productivos de la Universidad de Colima</strong>. La animación puede reproducirse al presionar el botón de la parte superior izquierda del gráfico. Puede ajustar el año a visualizar mediante el deslizador de la parte inferior.
-        """)
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+        
         # Lista de autores a eliminar
         authors_to_remove = ["crossa,", "murillo zamora, efren", "guzman esquivel,", "martinez fierro,"]
         df_final_filtered = df_final_filtered[~df_final_filtered["Normalized_Author_Name"].isin(authors_to_remove)]
