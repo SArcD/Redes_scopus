@@ -2663,7 +2663,7 @@ elif pagina == "Análisis de temas por área":
             x=x, y=y,
             text=node,
             showarrow=False,
-            textangle=angle,
+            #textangle=angle,
             font=dict(size=10, color="black"),
             xanchor="center",
             yanchor="middle"
