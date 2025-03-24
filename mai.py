@@ -2557,8 +2557,10 @@ elif pagina == "Análisis de temas por área":
     for subtema in nodos_de_subtemas:
         if subtema in subtema_mas_antiguo:
             ano = subtema_mas_antiguo[subtema]
-            escala = 1 + desplazamiento_base * (anos_seleccionados.index(ano))
-            #escala = 1 + desplazamiento_base * (anos_disponibles.index(ano))
+            if ano in anos_seleccionados:
+                escala = 1 + desplazamiento_base * anos_seleccionados.index(ano)
+            else:
+                escala = 1
             x, y = pos[subtema]
             pos[subtema] = [x * escala, y * escala]
 
@@ -2575,24 +2577,21 @@ elif pagina == "Análisis de temas por área":
         for subtema in subtemas_por_ano.get(ano, []):
             subtemas_en_varios_anos[subtema] += 1
 
-    # Edges: solo los de años seleccionados
+    # Edges
     edge_x, edge_y = [], []
     for edge in G.edges():
-        origen, destino = edge
-        if origen not in nodos_activados or destino not in nodos_activados:
-            continue
-        x0, y0 = pos[origen]
-        x1, y1 = pos[destino]
-        edge_x.extend([x0, x1, None])
-        edge_y.extend([y0, y1, None])
-    
+        if edge[0] in nodos_activados and edge[1] in nodos_activados:
+            x0, y0 = pos[edge[0]]
+            x1, y1 = pos[edge[1]]
+            edge_x.extend([x0, x1, None])
+            edge_y.extend([y0, y1, None])
+
     edge_trace = go.Scatter(
         x=edge_x, y=edge_y,
         line=dict(width=0.5, color='#888'),
         hoverinfo='none',
         mode='lines'
     )
-
 
     # Nodes
     node_x, node_y, node_text = [], [], []
@@ -2651,7 +2650,6 @@ elif pagina == "Análisis de temas por área":
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
 
 
     
