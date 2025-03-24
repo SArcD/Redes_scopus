@@ -671,7 +671,7 @@ elif pagina == "Análisis por base":
             year = frame.name
             frame.data += (go.Scatter(
                 x=[df_final_filtered["Yearly_Publications"].max() * 1.05], 
-                y=[df_final_filtered["Folio"].min()],
+                y=[df_final_filtered["Normalized_Author_Name"].min()],
                 mode="lines",
                 line=dict(color="black", width=2),
                 name=f"Año {year}"
