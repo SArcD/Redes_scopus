@@ -2114,8 +2114,8 @@ elif pagina == "Análisis de temas por área":
     nltk.download("omw-1.4")
 
     # Cargar datos
-    file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
-    df = pd.read_csv(file_path, encoding="utf-8")
+    #file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
+    #df = pd.read_csv(file_path, encoding="utf-8")
 
     # Filtrar por área temática
     df_fisica = df[df["Área Temática"] == "Física y Matemáticas"].copy()
