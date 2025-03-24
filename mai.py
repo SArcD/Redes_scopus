@@ -2536,7 +2536,7 @@ elif pagina == "Análisis de temas por área":
         for titulo in titulos:
             palabras.extend(limpiar_texto(str(titulo)))
         conteo = Counter(palabras)
-        subtemas = [palabra for palabra, _ in conteo.most_common(10)]
+        subtemas = [palabra for palabra, _ in conteo.most_common(5)]
         subtemas_por_ano[ano] = subtemas
         frecuencia_total.update(subtemas)
 
@@ -2558,7 +2558,7 @@ elif pagina == "Análisis de temas por área":
     for subtema in nodos_de_subtemas:
         if subtema in subtema_mas_antiguo:
             ano = subtema_mas_antiguo[subtema]
-            escala = 1 + desplazamiento_base * (anos_disponibles.index(ano))
+            escala = 0.5 + desplazamiento_base * (anos_disponibles.index(ano))
             x, y = pos[subtema]
             pos[subtema] = [x * escala, y * escala]
 
