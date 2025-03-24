@@ -579,17 +579,16 @@ elif pagina == "Análisis por base":
         df_max_values_filtered = df_final_filtered.groupby("Year")["Cumulative_Publications"].max().reset_index()
         df_max_values_filtered["Cumulative_Publications"] = df_max_values_filtered["Cumulative_Publications"] * 1.1  # Añadir margen del 10%
 
-        # Agregar el Author(s)_ID al DataFrame antes de generar la gráfica
-        df_final_filtered = df_final_filtered.merge(df_ucol[["Normalized_Author_Name", "Authors_ID"]], on="Normalized_Author_Name", how="left")
-        #df_final_filtered = df_final_filtered.merge(df_ucol[["Normalized_Author_Name", "Authors_ID"]], on="Normalized_Author_Name", how="left")
+  #      # Agregar el Author(s)_ID al DataFrame antes de generar la gráfica
+  #      df_final_filtered = df_final_filtered.merge(df_ucol[["Normalized_Author_Name", "Authors_ID"]], on="Normalized_Author_Name", how="left")
 
         # Obtener el último año de la animación
-        last_year = df_final_filtered["Year"].max()
+  #      last_year = df_final_filtered["Year"].max()
 
 #        # Extraer el orden final de los autores basado en el último año
-        final_order = df_final_filtered[df_final_filtered["Year"] == last_year].sort_values(
-            by="Cumulative_Publications", ascending=False
-        )["Normalized_Author_Name"].tolist()
+  #      final_order = df_final_filtered[df_final_filtered["Year"] == last_year].sort_values(
+#            by="Cumulative_Publications", ascending=False
+#        )["Normalized_Author_Name"].tolist()
 
 #        # Extraer el orden final de los autores basado en el último año
 #        final_order = df_final_filtered[df_final_filtered["Year"] == last_year].sort_values(
@@ -599,25 +598,25 @@ elif pagina == "Análisis por base":
 
         
         # Crear la gráfica de barras animada con acumulación, orden final fijo y Author(s)_ID en hover
-        fig_filtered = px.bar(
-            df_final_filtered,
-            x="Cumulative_Publications",
-            y="Normalized_Author_Name",
-            color="Normalized_Author_Name",
-            animation_frame="Year",
-            orientation="h",
-            title="Evolución de Publicaciones Acumuladas - Top 30 Autores",
-            labels={"Cumulative_Publications": "Número Acumulado de Publicaciones", "Normalized_Author_Name": "Autores"},
+#        fig_filtered = px.bar(
+#            df_final_filtered,
+ #           x="Cumulative_Publications",
+ #           y="Normalized_Author_Name",
+ #           color="Normalized_Author_Name",
+ #           animation_frame="Year",
+ #           orientation="h",
+ #           title="Evolución de Publicaciones Acumuladas - Top 30 Autores",
+ #           labels={"Cumulative_Publications": "Número Acumulado de Publicaciones", "Normalized_Author_Name": "Autores"},
             #hover_data={"Authors_ID": True},  # Agregar el ID del autor en el hover
-            template="plotly_white"
+ #           template="plotly_white"
         )
 
-        # Aplicar el orden inverso en el eje Y para que los autores con más publicaciones estén abajo
-        fig_filtered.update_layout(
-            xaxis=dict(range=[0, df_max_values_filtered["Cumulative_Publications"].max()]),
-            height=1000,  # Aumentar la altura para evitar que los nombres se aplasten
-            yaxis=dict(categoryorder="array", categoryarray=final_order[::-1])  # Invertir el orden de los autores
-        )
+ #       # Aplicar el orden inverso en el eje Y para que los autores con más publicaciones estén abajo
+ #       fig_filtered.update_layout(
+ #           xaxis=dict(range=[0, df_max_values_filtered["Cumulative_Publications"].max()]),
+ #           height=1000,  # Aumentar la altura para evitar que los nombres se aplasten
+ #           yaxis=dict(categoryorder="array", categoryarray=final_order[::-1])  # Invertir el orden de los autores
+ #       )
 
 
 
