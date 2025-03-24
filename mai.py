@@ -650,19 +650,19 @@ elif pagina == "Análisis por base":
 
         # Calcular publicaciones por año para cada autor
         #df_final_filtered["Yearly_Publications"] = df_final_filtered.groupby(["Normalized_Author_Name", "Year"])["Cumulative_Publications"].diff().fillna(df_final_filtered["Cumulative_Publications"])
-        df_final_filtered["Yearly_Publications"] = df_final_filtered.groupby(["Folio", "Year"])["Cumulative_Publications"].diff().fillna(df_final_filtered["Cumulative_Publications"])
+        df_final_filtered["Yearly_Publications"] = df_final_filtered.groupby(["Normalized_Author_Name", "Year"])["Cumulative_Publications"].diff().fillna(df_final_filtered["Cumulative_Publications"])
 
         # Crear la gráfica de barras animada con estratificación por año
         fig = px.bar(
             df_final_filtered,
             x="Yearly_Publications",
-            #y="Normalized_Author_Name",
-            y="Folio",
-            color="Folio",
+            y="Normalized_Author_Name",
+            #y="Folio",
+            color="Normalized_Author_Name",
             animation_frame="Year",
             orientation="h",
             title="Evolución de Publicaciones Acumuladas - Top 30 Autores",
-            labels={"Yearly_Publications": "Publicaciones en el Año", "Folio": "Autores"},
+            labels={"Yearly_Publications": "Publicaciones en el Año", "Normalized_Author_Name": "Autores"},
             template="plotly_white"
         )
 
