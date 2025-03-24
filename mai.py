@@ -2553,6 +2553,13 @@ elif pagina == "Análisis de temas por área":
     nodos_de_subtemas = [n for n in G.nodes() if n not in nodos_de_anos and n != nodo_raiz]
     pos = nx.shell_layout(G, nlist=[[nodo_raiz], nodos_de_anos, nodos_de_subtemas])
 
+    # Expandir ligeramente los nodos de año para evitar sobreposición de etiquetas
+    escala_anos = 1.5  # Puedes ajustar este valor (1.3–2.0 usualmente funciona bien)
+    for nodo in nodos_de_anos:
+        x, y = pos[nodo]
+        pos[nodo] = [x * escala_anos, y * escala_anos]
+
+
     # Aplicar desplazamiento radial adicional a subtemas según antigüedad
     desplazamiento_base = 0.5
     for subtema in nodos_de_subtemas:
