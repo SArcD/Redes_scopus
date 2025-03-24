@@ -2320,6 +2320,69 @@ elif pagina == "Análisis de temas por área":
             st.info("No se encontraron subtemas frecuentes para esta área.")
 
 
+##########################################################################################################################
+
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import networkx as nx
+import nltk
+from nltk.corpus import stopwords
+import string
+import re
+from collections import Counter
+
+# Descargar recursos de NLTK
+#nltk.download("stopwords")
+
+# Cargar datos
+#file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
+#df = pd.read_csv(file_path, encoding="utf-8")
+
+# Filtrar por área temática
+#df_fisica = df[df["Área Temática"] == "Física y Matemáticas"].copy()
+#df_fisica = df_fisica[df_fisica["Year"].notna()]
+#df_fisica["Year"] = df_fisica["Year"].astype(int)
+
+# Preprocesamiento
+#stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation)
+
+def limpiar_texto(texto):
+    texto = texto.lower()
+    texto = re.sub(r"[\W_]+", " ", texto)
+    palabras = texto.split()
+    return [word for word in palabras if word not in stop_words and len(word) > 2]
+
+# Construcción del grafo tipo árbol
+G = nx.DiGraph()
+G.add_node("Física y Matemáticas")
+
+años_disponibles = sorted(df_fisica["Year"].unique())
+for año in años_disponibles:
+    nodo_año = f"Año {año}"
+    G.add_node(nodo_año)
+    G.add_edge("Física y Matemáticas", nodo_año)
+
+    titulos = df_fisica[df_fisica["Year"] == año]["Title"].dropna()
+    palabras = []
+    for titulo in titulos:
+        palabras.extend(limpiar_texto(str(titulo)))
+    conteo = Counter(palabras)
+    subtemas_comunes = [palabra for palabra, _ in conteo.most_common(5)]
+
+    for subtema in subtemas_comunes:
+        nodo_subtema = f"{subtema} ({año})"
+        G.add_node(nodo_subtema)
+        G.add_edge(nodo_año, nodo_subtema)
+
+# Visualización con matplotlib
+st.title("🌳 Árbol Temático de Física y Matemáticas")
+st.markdown("Este árbol muestra cómo han surgido subtemas cada año en el área de Física y Matemáticas.")
+
+pos = nx.spring_layout(G, seed=42)
+fig, ax = plt.subplots(figsize=(14, 10))
+nx.draw(G, pos, with_labels=True, node_size=1500, node_color="lightgreen", font_size=10, arrows=False, ax=ax)
+st.pyplot(fig)
 
 
 
