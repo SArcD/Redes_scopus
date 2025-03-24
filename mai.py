@@ -2553,7 +2553,7 @@ elif pagina == "Análisis de temas por área":
     pos = nx.shell_layout(G, nlist=[[nodo_raiz], nodos_de_anos, nodos_de_subtemas])
 
     # Aplicar desplazamiento radial adicional a subtemas según antigüedad
-    desplazamiento_base = 0.3
+    desplazamiento_base = 0.5
     for subtema in nodos_de_subtemas:
         if subtema in subtema_mas_antiguo:
             ano = subtema_mas_antiguo[subtema]
