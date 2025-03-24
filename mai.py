@@ -787,9 +787,16 @@ elif pagina == "Análisis por base":
         import numpy as np
 
         st.subheader("Mapa de dispersión: antigüedad vs. publicaciones")
-        st.markdown("""
-        En este diagrama se ha separado la base de datos de autores de la Universidad en **rangos de antigüedad de cinco años**. Cada circulo representa a un autor. Este gráfico permite comparar tanto la producción de autores que tengan antigüedades comparables como entre autores de toda la base. Gracias a esta gráfica es facil **identificar a los autores mas productivos dentro de cada rango de antigüedad**.
-        """)
+        st.markdown(
+    """
+    <div style='text-align: justify'>
+        En este diagrama se ha separado la base de datos de autores de la Universidad en 
+<strong>rangos de antigüedad de cinco años</strong>. Cada circulo representa a un autor. Este gráfico permite comparar tanto la producción de autores que tengan antigüedades comparables como entre autores de toda la base. Gracias a esta gráfica es facil <strong>identificar a los autores mas productivos dentro de cada rango de antigüedad</strong>.
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+        
         #df_ucol
         # Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
