@@ -2113,10 +2113,6 @@ elif pagina == "Análisis de temas por área":
     nltk.download("wordnet")
     nltk.download("omw-1.4")
 
-    # Cargar datos
-    #file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
-    #df = pd.read_csv(file_path, encoding="utf-8")
-
     # Filtrar por área temática
     df_fisica = df[df["Área Temática"] == "Física y Matemáticas"].copy()
     df_fisica = df_fisica[df_fisica["Year"].notna()]
@@ -2171,7 +2167,7 @@ elif pagina == "Análisis de temas por área":
     dist_matrix = 1 - cosine_similarity(embeddings)
 
     # Clustering jerárquico con threshold más amplio (menos grupos)
-    clustering = AgglomerativeClustering(n_clusters=None, distance_threshold=0.8, metric='precomputed', linkage='average')
+    clustering = AgglomerativeClustering(n_clusters=None, distance_threshold=0.6, metric='precomputed', linkage='average')
     labels = clustering.fit_predict(dist_matrix)
 
     # Mapear subtemas a su cluster
