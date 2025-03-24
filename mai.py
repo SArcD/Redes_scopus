@@ -2559,6 +2559,14 @@ elif pagina == "Análisis de temas por área":
         x, y = pos[nodo]
         pos[nodo] = [x * escala_anos, y * escala_anos]
 
+    # Aplicar desplazamiento radial adicional a nodos de año según antigüedad
+    desplazamiento_anos = 0.15  # Puedes ajustar este valor para más separación
+    for i, nodo_ano in enumerate(nodos_de_anos):
+        x, y = pos[nodo_ano]
+        escala = 1 + desplazamiento_anos * i  # Más antiguo, más cerca del centro
+        pos[nodo_ano] = [x * escala, y * escala]
+
+
 
     # Aplicar desplazamiento radial adicional a subtemas según antigüedad
     desplazamiento_base = 0.5
