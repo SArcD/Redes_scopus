@@ -1563,7 +1563,7 @@ elif pagina == "Análisis de temas por área":
 
     #file_path = "/mnt/data/scopusUdeC con financiamiento 17 feb-2.csv"
     df = pd.read_csv(file_path, encoding='utf-8')
-
+    df_ucol
     # Diccionario extendido de palabras clave por área temática
     area_mapping_extended = {
             "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
