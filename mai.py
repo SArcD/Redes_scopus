@@ -2448,7 +2448,7 @@ elif pagina == "Análisis de temas por área":
                     margin=dict(b=20, l=5, r=5, t=40),
                     xaxis=dict(showgrid=False, zeroline=False),
                     yaxis=dict(showgrid=False, zeroline=False)
-                )
+                ))
 
 
 
