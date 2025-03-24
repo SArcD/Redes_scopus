@@ -2324,44 +2324,41 @@ elif pagina == "Análisis de temas por área":
 
     import streamlit as st
     import pandas as pd
-    import matplotlib.pyplot as plt
     import networkx as nx
+    import plotly.graph_objects as go
     import nltk
     from nltk.corpus import stopwords
     import string
     import re
     from collections import Counter
 
-#    # Descargar recursos de NLTK
-#    nltk.download("stopwords")
+    # Descargar recursos
+    nltk.download("stopwords")
 
-# Cargar los datos
-#file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
-#df = pd.read_csv(file_path, encoding="utf-8")
-#df = df[df["Year"].notna()]
-#df["Year"] = df["Year"].astype(int)
+    # Cargar los datos
+    file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
+    df = pd.read_csv(file_path, encoding="utf-8")
+    df = df[df["Year"].notna()]
+    df["Year"] = df["Year"].astype(int)
 
-## Áreas temáticas disponibles
-#areas_disponibles = sorted(df["Área Temática"].dropna().unique())
-#area_seleccionada = st.selectbox("Selecciona un área temática:", areas_disponibles)
-
-    # Filtrar por área temática seleccionada
+    # Selección de área
+    areas_disponibles = sorted(df["Área Temática"].dropna().unique())
+    area_seleccionada = st.selectbox("Selecciona un área temática:", areas_disponibles)
     df_area = df[df["Área Temática"] == area_seleccionada]
 
     # Preprocesamiento
     stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation)
-
     def limpiar_texto(texto):
         texto = texto.lower()
         texto = re.sub(r"[\W_]+", " ", texto)
         palabras = texto.split()
         return [word for word in palabras if word not in stop_words and len(word) > 2]
 
-    # Crear grafo completo
+    # Crear grafo
     G = nx.DiGraph()
     G.add_node(area_seleccionada)
 
-    subtemas_totales = {}
+    subtemas_por_año = {}
     años_disponibles = sorted(df_area["Year"].unique())
 
     for año in años_disponibles:
@@ -2375,40 +2372,83 @@ elif pagina == "Análisis de temas por área":
             palabras.extend(limpiar_texto(str(titulo)))
         conteo = Counter(palabras)
         subtemas = [palabra for palabra, _ in conteo.most_common(5)]
-        subtemas_totales[año] = subtemas
+        subtemas_por_año[año] = subtemas
 
         for subtema in subtemas:
-            nodo_subtema = f"{subtema}"
-            G.add_node(nodo_subtema)
-            G.add_edge(nodo_año, nodo_subtema)
+            if not G.has_node(subtema):
+                G.add_node(subtema)
+            G.add_edge(nodo_año, subtema)
 
-    # Interfaz interactiva
-    st.title("🌐 Evolución Temática por Año")
-    año_seleccionado = st.selectbox("Selecciona un año para visualizar los subtemas activos:", años_disponibles)
+    # Visualización con Plotly
+    año_seleccionado = st.selectbox("Selecciona un año para resaltar subtemas:", años_disponibles)
 
-    # Visualización con énfasis en año seleccionado
     pos = nx.spring_layout(G, seed=42)
-    fig, ax = plt.subplots(figsize=(14, 10))
+    edge_x = []
+    edge_y = []
 
-    nodos_activos = set(subtemas_totales[año_seleccionado])
-    nodos_activos.add(f"Año {año_seleccionado}")
-    nodos_activos.add(area_seleccionada)
+    for edge in G.edges():
+        x0, y0 = pos[edge[0]]
+        x1, y1 = pos[edge[1]]
+        edge_x.extend([x0, x1, None])
+        edge_y.extend([y0, y1, None])
 
-    colores = []
-    tamaños = []
-    for nodo in G.nodes():
-        if nodo in nodos_activos or any(G.has_edge(f"Año {año_seleccionado}", nodo) for nodo in G.nodes()):
-            colores.append("green")
-            tamaños.append(800)
+    edge_trace = go.Scatter(
+        x=edge_x, y=edge_y,
+        line=dict(width=0.5, color='#888'),
+        hoverinfo='none',
+        mode='lines'
+    )
+
+    node_x = []
+    node_y = []
+    node_text = []
+    node_color = []
+    node_opacity = []
+
+    nodos_activados = set(subtemas_por_año[año_seleccionado])
+    nodos_activados.add(area_seleccionada)
+    nodos_activados.add(f"Año {año_seleccionado}")
+
+    for node in G.nodes():
+        x, y = pos[node]
+        node_x.append(x)
+        node_y.append(y)
+        node_text.append(node)
+
+        if node in nodos_activados or (G.nodes[node].get("type") == "subtema" and any(G.has_edge(f"Año {año_seleccionado}", node) for año in años_disponibles)):
+            node_color.append("green")
+            node_opacity.append(1.0)
         else:
-            colores.append("lightgray")
-            tamaños.append(300)
+            node_color.append("lightgray")
+            node_opacity.append(0.2)
 
-    nx.draw(G, pos, with_labels=True, node_color=colores, node_size=tamaños,
-            font_size=10, edge_color="gray", alpha=0.9, arrows=False, ax=ax)
+    node_trace = go.Scatter(
+        x=node_x, y=node_y,
+        mode='markers+text',
+        text=node_text,
+        textposition="top center",
+        hoverinfo='text',
+        marker=dict(
+            showscale=False,
+            color=node_color,
+            opacity=node_opacity,
+            size=14,
+            line_width=2
+        )
+    )
 
-    ax.set_title(f"Subtemas de {area_seleccionada} en el año {año_seleccionado}", fontsize=14)
-    st.pyplot(fig)
+    fig = go.Figure(data=[edge_trace, node_trace],
+                layout=go.Layout(
+                    title=f"🌱 Subtemas de {area_seleccionada} en {año_seleccionado}",
+                    titlefont_size=16,
+                    showlegend=False,
+                    hovermode='closest',
+                    margin=dict(b=20,l=5,r=5,t=40),
+                    xaxis=dict(showgrid=False, zeroline=False),
+                    yaxis=dict(showgrid=False, zeroline=False)
+                ))
+
+    st.plotly_chart(fig, use_container_width=True)
 
 
 
