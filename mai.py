@@ -2220,10 +2220,10 @@ elif pagina == "Análisis de temas por área":
     nltk.download("omw-1.4")
 
     # Cargar los datos
-    file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
-    df = pd.read_csv(file_path, encoding="utf-8")
-    df = df[df["Year"].notna()]
-    df["Year"] = df["Year"].astype(int)
+    #file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
+    #df = pd.read_csv(file_path, encoding="utf-8")
+    #df = df[df["Year"].notna()]
+    #df["Year"] = df["Year"].astype(int)
 
     # Diccionario de áreas temáticas
     area_mapping_extended = {
