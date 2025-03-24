@@ -780,7 +780,7 @@ elif pagina == "Análisis por base":
         st.markdown("""
         En este diagrama se ha separado la base de datos de autores de la Universidad en **rangos de antigüedad de cinco años**. Cada circulo representa a un autor. Este gráfico permite comparar tanto la producción de autores que tengan antigüedades comparables como entre autores de toda la base. Gracias a esta gráfica es facil **identificar a los autores mas productivos dentro de cada rango de antigüedad**.
         """)
-        df_ucol
+        #df_ucol
         # Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
         df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
@@ -793,7 +793,8 @@ elif pagina == "Análisis por base":
         df_ucol["Seniority"] = 2025 - df_ucol["First_Year"]
 
         # Filtrar valores válidos
-        df_heatmap = df_ucol[["Seniority", "Publications", "Cited_by", "Author(s)_ID", "Normalized_Author_Name"]].dropna()
+        #df_heatmap = df_ucol[["Seniority", "Publications", "Cited_by", "Author(s)_ID", "Normalized_Author_Name"]].dropna()
+        df_heatmap = df_ucol[["Seniority", "Publications", "Cited_by", "Folio", "Normalized_Author_Name"]].dropna()
 
         # Ajustar el tamaño de los puntos al cuádruple
         df_heatmap["Size_Metric"] = df_heatmap["Cited_by"] * 10
@@ -812,7 +813,8 @@ elif pagina == "Análisis por base":
                 "Size_Metric": "Citas (escalado)"
             },
             title="Mapa de dispersión: antigüedad vs. publicaciones",
-            hover_data={"Author(s)_ID": True, "Normalized_Author_Name": True, "Cited_by": True},
+            #hover_data={"Author(s)_ID": True, "Normalized_Author_Name": True, "Cited_by": True},
+            hover_data={"Folio": True, "Normalized_Author_Name": True, "Cited_by": True},
             color_continuous_scale="Viridis",
             template="plotly_white"
         )
