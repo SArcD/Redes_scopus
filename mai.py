@@ -2600,8 +2600,8 @@ elif pagina == "Análisis de temas por área":
         hoverinfo='text',
         text=node_text,  # Esto queda solo como tooltip
         marker=dict(
-            size=node_sizes,
-            color=node_colors,
+            size=node_size,
+            color=node_color,
             opacity=node_opacity,
             line_width=1.5
         )
