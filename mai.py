@@ -2348,11 +2348,23 @@ elif pagina == "Análisis de temas por área":
 
     # Preprocesamiento
     #stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation)
+    #def limpiar_texto(texto):
+    #    texto = texto.lower()
+    #    texto = re.sub(r"[\W_]+", " ", texto)
+    #    palabras = texto.split()
+    #    return [word for word in palabras if word not in stop_words and len(word) > 2]
+
     def limpiar_texto(texto):
         texto = texto.lower()
         texto = re.sub(r"[\W_]+", " ", texto)
         palabras = texto.split()
-        return [word for word in palabras if word not in stop_words and len(word) > 2]
+        return [
+            word for word in palabras
+            if word not in stop_words
+            and len(word) > 2
+            and not re.match(r"^(19|20)\d{2}$", word)  # Elimina años
+            and not word.isnumeric()
+        ]    
 
     # Crear grafo
     G = nx.DiGraph()
@@ -2382,7 +2394,9 @@ elif pagina == "Análisis de temas por área":
     # Visualización con Plotly
     año_seleccionado = st.selectbox("Selecciona un año para resaltar subtemas:", años_disponibles)
 
-    pos = nx.spring_layout(G, seed=42)
+    #pos = nx.spring_layout(G, seed=42)
+    pos = nx.shell_layout(G, nlist=[[area_tematica], nodos_de_años, nodos_de_subtemas])
+
     edge_x = []
     edge_y = []
 
