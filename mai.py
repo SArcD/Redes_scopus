@@ -2644,7 +2644,7 @@ elif pagina == "Análisis de temas por área":
                 text=f"\U0001F331 Subtemas de {area_seleccionada} en {', '.join(map(str, anos_seleccionados))}",
                 font=dict(size=16)
             ),
-            showlegend=False,
+            showlegend=True,
             hovermode='closest',
             margin=dict(b=20, l=5, r=5, t=60),
             xaxis=dict(showgrid=False, zeroline=False),
