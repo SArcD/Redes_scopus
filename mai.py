@@ -2587,7 +2587,7 @@ elif pagina == "Análisis de temas por área":
         x, y = pos[node]
         node_x.append(x)
         node_y.append(y)
-        node_text.append(f"{node} ({frecuencia} veces)")
+        node_text.append(f"{node} ({frecuencia})")
 
         if node in nodos_activados:
             if frecuencia > 1 and node not in nodos_de_años and node != area_seleccionada:
