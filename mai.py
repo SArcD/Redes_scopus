@@ -2595,22 +2595,25 @@ elif pagina == "Análisis de temas por área":
     node_color, node_opacity, node_size = [], [], []
 
     for node in G.nodes():
+        if node not in nodos_activados:
+            continue  # Oculta nodos no seleccionados (incluido texto)
+
         frecuencia = frecuencia_total.get(node, 1)
         x, y = pos[node]
         node_x.append(x)
         node_y.append(y)
-        node_text.append(f"{node}")
+        node_text.append(node)
 
-        if node in nodos_activados:
-            if frecuencia > 1 and node in subtemas_en_varios_anos and subtemas_en_varios_anos[node] > 1:
-                node_color.append("blue")
-            else:
-                node_color.append("green")
-            node_opacity.append(1.0)
+        if node in subtemas_en_varios_anos and subtemas_en_varios_anos[node] > 1:
+            node_color.append("blue")
+        elif node.startswith("Año"):
+            node_color.append("orange")
+        elif node == area_seleccionada:
+            node_color.append("darkgreen")
         else:
-            node_color.append("lightgray")
-            node_opacity.append(0.2)
+            node_color.append("green")
 
+        node_opacity.append(1.0)
         node_size.append(10 + 4 * frecuencia)
 
     node_trace = go.Scatter(
@@ -2619,6 +2622,7 @@ elif pagina == "Análisis de temas por área":
         mode='markers+text',
         text=node_text,
         textposition="top center",
+        textfont=dict(size=10),
         hoverinfo='text',
         marker=dict(
             size=node_size,
@@ -2643,6 +2647,7 @@ elif pagina == "Análisis de temas por área":
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
 
 
 
