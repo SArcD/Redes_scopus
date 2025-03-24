@@ -609,7 +609,7 @@ elif pagina == "Análisis por base":
  #           labels={"Cumulative_Publications": "Número Acumulado de Publicaciones", "Normalized_Author_Name": "Autores"},
             #hover_data={"Authors_ID": True},  # Agregar el ID del autor en el hover
  #           template="plotly_white"
-        )
+ #       )
 
  #       # Aplicar el orden inverso en el eje Y para que los autores con más publicaciones estén abajo
  #       fig_filtered.update_layout(
