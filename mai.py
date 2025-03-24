@@ -658,7 +658,7 @@ elif pagina == "Análisis por base":
             x="Yearly_Publications",
             y="Normalized_Author_Name",
             #y="Folio",
-            color="Normalized_Author_Name",
+            #color="Normalized_Author_Name",
             animation_frame="Year",
             orientation="h",
             title="Evolución de Publicaciones Acumuladas - Top 30 Autores",
