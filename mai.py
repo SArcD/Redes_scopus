@@ -780,6 +780,7 @@ elif pagina == "Análisis por base":
         st.markdown("""
         En este diagrama se ha separado la base de datos de autores de la Universidad en **rangos de antigüedad de cinco años**. Cada circulo representa a un autor. Este gráfico permite comparar tanto la producción de autores que tengan antigüedades comparables como entre autores de toda la base. Gracias a esta gráfica es facil **identificar a los autores mas productivos dentro de cada rango de antigüedad**.
         """)
+        df_ucol
         # Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
         df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
