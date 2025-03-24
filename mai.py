@@ -92,7 +92,7 @@ Algunas de las caráctesísticas y propositos de esta aplicación son:
 
     - **Grafos de correlación:** visualizan relaciones entre variables (como coautorías, coocurrencia de palabras clave o correlaciones entre métricas), destacando estructuras y vínculos relevantes.
 
-    - **Nubes de palabras:** permiten identificar rápidamente los términos más frecuentes en títulos, resúmenes y palabras clave, revelando temas recurrentes en la producción científica.
+    - **s de palabras:** permiten identificar rápidamente los términos más frecuentes en títulos, resúmenes y palabras clave, revelando temas recurrentes en la producción científica.
 
 
     </div>
@@ -1632,7 +1632,7 @@ elif pagina == "Análisis de temas por área":
     from sklearn.model_selection import train_test_split
 
     # Configuración de la aplicación en Streamlit
-    st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
+    #st.title("Análisis de Áreas Temáticas y Nubes de Palabras")
 
 ##################################################################################
 
