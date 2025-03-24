@@ -2559,7 +2559,7 @@ elif pagina == "Análisis de temas por área":
     node_sizes = []
 
     for node in G.nodes():
-        frecuencia = frecuencia_nodos.get(node, 1)
+        frecuencia = frecuencia_total.get(node, 1)
         x, y = pos[node]
         node_x.append(x)
         node_y.append(y)
