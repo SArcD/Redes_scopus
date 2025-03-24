@@ -938,15 +938,22 @@ elif pagina == "Análisis por base":
         from sklearn.manifold import TSNE
 
         st.subheader("Clustering Jerárquico de Autores en función de su producción académica")
-        st.markdown("""
-        En esta sección se utiliza un algoritmo de clustering jerárquico para clasificar a los autores, de acuerdo a cuatro parámetros:
+        st.markdown(
+    """
+    <div style='text-align: justify'>
+        En esta sección se utiliza un algoritmo de <strong>clustering jerárquico</strong> para clasificar a los autores, de acuerdo a cuatro parámetros:
         - Número de publicaciones.
         - Número de citas.
         - Porcentaje de publicaciones financiadas.
         - Antigüedad en la Universidad de Colima.
         
-        Se utilizó la gráfica de codo para definir el número óptimo de clusters, encontrando que los autores pueden dividirse en **5 clusters distintos**. Para visualizar la distribución de los autores en los clusters se utilizó el **gráfico t-SNE** que se muestra debajo. En est gráfico se puede observar la cercanía de los clusters, que tan compactos son y su tamaño relativo, de acuerdo al número de autores que los conforman.
-        """)
+        Se utilizó la gráfica de codo para definir el número óptimo de clusters, encontrando que los autores pueden dividirse en <strong>5 clusters distintos</strong>. Para visualizar la distribución de los autores en los clusters se utilizó el <strong>gráfico t-SNE</strong> que se muestra debajo. En est gráfico se puede observar la cercanía de los clusters, que tan compactos son y su tamaño relativo, de acuerdo al número de autores que los conforman.
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+
+    
         # Convertir a valores numéricos
         df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
         df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
