@@ -953,7 +953,14 @@ elif pagina == "Análisis por base":
         - Número de citas.
         - Porcentaje de publicaciones financiadas.
         - Antigüedad en la Universidad de Colima.
-        
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+
+        st.markdown(
+    """
+    <div style='text-align: justify'>
         Se utilizó la gráfica de codo para definir el número óptimo de clusters, encontrando que los autores pueden dividirse en <strong>5 clusters distintos</strong>. Para visualizar la distribución de los autores en los clusters se utilizó el <strong>gráfico t-SNE</strong> que se muestra debajo. En est gráfico se puede observar la cercanía de los clusters, que tan compactos son y su tamaño relativo, de acuerdo al número de autores que los conforman.
     </div>
     """,
