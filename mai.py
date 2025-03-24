@@ -2506,7 +2506,6 @@ elif pagina == "Análisis de temas por área":
 # area_seleccionada = "Física y Matemáticas"
 
 #stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation)
-    import math
     def limpiar_texto(texto):
         texto = texto.lower()
         texto = re.sub(r"[\W_]+", " ", texto)
@@ -2562,13 +2561,6 @@ elif pagina == "Análisis de temas por área":
             x, y = pos[subtema]
             pos[subtema] = [x * escala, y * escala]
 
-    # Aplicar desplazamiento adicional a nodos de año
-    for nodo_ano in nodos_de_anos:
-        ano_valor = int(nodo_ano.split(" ")[1])
-        escala = 1 + 0.1 * (anos_disponibles.index(ano_valor))
-        x, y = pos[nodo_ano]
-        pos[nodo_ano] = [x * escala, y * escala]
-
     # Nodos activados
     nodos_activados = set()
     for ano in anos_seleccionados:
@@ -2597,20 +2589,19 @@ elif pagina == "Análisis de temas por área":
         mode='lines'
     )
 
-    # Nodes (solo marcadores)
-    node_x, node_y = [], []
+    # Nodes
+    node_x, node_y, node_text = [], [], []
     node_color, node_opacity, node_size = [], [], []
-    node_text = []
 
     for node in G.nodes():
         if node not in nodos_activados:
-            continue
+            continue  # Oculta nodos no seleccionados (incluido texto)
 
         frecuencia = frecuencia_total.get(node, 1)
         x, y = pos[node]
         node_x.append(x)
         node_y.append(y)
-        node_text.append(f"{node} ({frecuencia} veces)")
+        node_text.append(node)
 
         if node in subtemas_en_varios_anos and subtemas_en_varios_anos[node] > 1:
             node_color.append("blue")
@@ -2627,9 +2618,11 @@ elif pagina == "Análisis de temas por área":
     node_trace = go.Scatter(
         x=node_x,
         y=node_y,
-        mode='markers',
-        hoverinfo='text',
+        mode='markers+text',
         text=node_text,
+        textposition="top center",
+        textfont=dict(size=10),
+        hoverinfo='text',
         marker=dict(
             size=node_size,
             color=node_color,
@@ -2644,40 +2637,12 @@ elif pagina == "Análisis de temas por área":
                 text=f"\U0001F331 Subtemas de {area_seleccionada} en {', '.join(map(str, anos_seleccionados))}",
                 font=dict(size=16)
             ),
-            showlegend=True,
+            showlegend=False,
             hovermode='closest',
             margin=dict(b=20, l=5, r=5, t=60),
             xaxis=dict(showgrid=False, zeroline=False),
-            yaxis=dict(showgrid=False, zeroline=False),
-            annotations=[]
+            yaxis=dict(showgrid=False, zeroline=False)
         )
-    )
-
-    # Añadir anotaciones con rotación para nodos de año
-    for node in nodos_de_anos:
-        if node not in nodos_activados:
-            continue
-        x, y = pos[node]
-        angle = math.degrees(math.atan2(y, x))
-        fig.add_annotation(
-            x=x, y=y,
-            text=node,
-            showarrow=False,
-            #textangle=angle,
-            font=dict(size=10, color="black"),
-            xanchor="center",
-            yanchor="middle"
-        )
-
-    # También anotar nodo raíz
-    x, y = pos[area_seleccionada]
-    fig.add_annotation(
-        x=x, y=y,
-        text=area_seleccionada,
-        showarrow=False,
-        font=dict(size=12, color="black"),
-        xanchor="center",
-        yanchor="middle"
     )
 
     st.plotly_chart(fig, use_container_width=True)
