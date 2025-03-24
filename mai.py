@@ -2536,7 +2536,7 @@ elif pagina == "Análisis de temas por área":
         for titulo in titulos:
             palabras.extend(limpiar_texto(str(titulo)))
         conteo = Counter(palabras)
-        subtemas = [palabra for palabra, _ in conteo.most_common(5)]
+        subtemas = [palabra for palabra, _ in conteo.most_common(10)]
         subtemas_por_ano[ano] = subtemas
         frecuencia_total.update(subtemas)
 
@@ -2553,29 +2553,21 @@ elif pagina == "Análisis de temas por área":
     nodos_de_subtemas = [n for n in G.nodes() if n not in nodos_de_anos and n != nodo_raiz]
     pos = nx.shell_layout(G, nlist=[[nodo_raiz], nodos_de_anos, nodos_de_subtemas])
 
-    # Expandir ligeramente los nodos de año para evitar sobreposición de etiquetas
-    escala_anos = 1.5  # Puedes ajustar este valor (1.3–2.0 usualmente funciona bien)
-    for nodo in nodos_de_anos:
-        x, y = pos[nodo]
-        pos[nodo] = [x * escala_anos, y * escala_anos]
-
-    # Aplicar desplazamiento radial adicional a nodos de año según antigüedad
-    desplazamiento_anos = 0.15  # Puedes ajustar este valor para más separación
-    for i, nodo_ano in enumerate(nodos_de_anos):
-        x, y = pos[nodo_ano]
-        escala = 1 + desplazamiento_anos * i  # Más antiguo, más cerca del centro
-        pos[nodo_ano] = [x * escala, y * escala]
-
-
-
     # Aplicar desplazamiento radial adicional a subtemas según antigüedad
-    desplazamiento_base = 0.5
+    desplazamiento_base = 0.3
     for subtema in nodos_de_subtemas:
         if subtema in subtema_mas_antiguo:
             ano = subtema_mas_antiguo[subtema]
-            escala = 0.5 + desplazamiento_base * (anos_disponibles.index(ano))
+            escala = 1 + desplazamiento_base * (anos_disponibles.index(ano))
             x, y = pos[subtema]
             pos[subtema] = [x * escala, y * escala]
+
+    # Aplicar desplazamiento adicional a nodos de año
+    for nodo_ano in nodos_de_anos:
+        ano_valor = int(nodo_ano.split(" ")[1])
+        escala = 1 + 0.1 * (anos_disponibles.index(ano_valor))
+        x, y = pos[nodo_ano]
+        pos[nodo_ano] = [x * escala, y * escala]
 
     # Nodos activados
     nodos_activados = set()
@@ -2605,19 +2597,20 @@ elif pagina == "Análisis de temas por área":
         mode='lines'
     )
 
-    # Nodes
-    node_x, node_y, node_text = [], [], []
+    # Nodes (solo marcadores)
+    node_x, node_y = [], []
     node_color, node_opacity, node_size = [], [], []
+    node_text = []
 
     for node in G.nodes():
         if node not in nodos_activados:
-            continue  # Oculta nodos no seleccionados (incluido texto)
+            continue
 
         frecuencia = frecuencia_total.get(node, 1)
         x, y = pos[node]
         node_x.append(x)
         node_y.append(y)
-        node_text.append(node)
+        node_text.append(f"{node} ({frecuencia} veces)")
 
         if node in subtemas_en_varios_anos and subtemas_en_varios_anos[node] > 1:
             node_color.append("blue")
@@ -2634,11 +2627,9 @@ elif pagina == "Análisis de temas por área":
     node_trace = go.Scatter(
         x=node_x,
         y=node_y,
-        mode='markers+text',
-        text=node_text,
-        textposition="top center",
-        textfont=dict(size=8),
+        mode='markers',
         hoverinfo='text',
+        text=node_text,
         marker=dict(
             size=node_size,
             color=node_color,
@@ -2657,12 +2648,39 @@ elif pagina == "Análisis de temas por área":
             hovermode='closest',
             margin=dict(b=20, l=5, r=5, t=60),
             xaxis=dict(showgrid=False, zeroline=False),
-            yaxis=dict(showgrid=False, zeroline=False)
+            yaxis=dict(showgrid=False, zeroline=False),
+            annotations=[]
         )
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    # Añadir anotaciones con rotación para nodos de año
+    for node in nodos_de_anos:
+        if node not in nodos_activados:
+            continue
+        x, y = pos[node]
+        angle = math.degrees(math.atan2(y, x))
+        fig.add_annotation(
+            x=x, y=y,
+            text=node,
+            showarrow=False,
+            textangle=angle,
+            font=dict(size=10, color="black"),
+            xanchor="center",
+            yanchor="middle"
+        )
 
+    # También anotar nodo raíz
+    x, y = pos[area_seleccionada]
+    fig.add_annotation(
+        x=x, y=y,
+        text=area_seleccionada,
+        showarrow=False,
+        font=dict(size=12, color="black"),
+        xanchor="center",
+        yanchor="middle"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
 
 
