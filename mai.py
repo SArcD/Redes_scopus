@@ -2580,19 +2580,36 @@ elif pagina == "Análisis de temas por área":
                 node_color.append("lightgray")
             node_size.append(10 + 4 * min(freq, 5))
 
+    #node_trace = go.Scatter(
+    #    x=node_x, y=node_y,
+    #    mode='markers+text',
+    #    text=node_text,
+    #    textposition="top center",
+    #    hoverinfo='text',
+    #    marker=dict(
+    #        color=node_color,
+    #        size=node_size,
+    #        line_width=2,
+    #        opacity=[1.0 if c != "lightgray" else 0.2 for c in node_color]
+    #    )
+    #)
+
     node_trace = go.Scatter(
         x=node_x, y=node_y,
-        mode='markers+text',
-        text=node_text,
-        textposition="top center",
+        mode='markers',
         hoverinfo='text',
+        text=node_text,  # Esto queda solo como tooltip
         marker=dict(
-            color=node_color,
-            size=node_size,
-            line_width=2,
-            opacity=[1.0 if c != "lightgray" else 0.2 for c in node_color]
+            size=node_sizes,
+            color=node_colors,
+            opacity=node_opacity,
+            line_width=1.5
         )
     )
+
+
+
+
 
     fig = go.Figure(data=[edge_trace, node_trace],
         layout=go.Layout(
@@ -2607,6 +2624,8 @@ elif pagina == "Análisis de temas por área":
             yaxis=dict(showgrid=False, zeroline=False)
         )
     )
+
+
 
     st.plotly_chart(fig, use_container_width=True)
 
