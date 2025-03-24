@@ -726,7 +726,8 @@ elif pagina == "Análisis por base":
         df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
 
         # Eliminar valores NaN si existen
-        df_correlation = df_ucol[["Cited_by", "Publications", "Author(s)_ID", "Normalized_Author_Name"]].dropna()
+        #df_correlation = df_ucol[["Cited_by", "Publications", "Author(s)_ID", "Normalized_Author_Name"]].dropna()
+        df_correlation = df_ucol[["Cited_by", "Publications", "Folio", "Normalized_Author_Name"]].dropna()
 
         # Calcular la correlación de Pearson
         correlation_coefficient, p_value = stats.pearsonr(df_correlation["Cited_by"], df_correlation["Publications"])
@@ -745,7 +746,8 @@ elif pagina == "Análisis por base":
             y=df_correlation["Cited_by"],
             mode="markers",
             marker=dict(color="blue", opacity=0.5, size=6),
-            text=df_correlation["Normalized_Author_Name"] + "<br>ID: " + df_correlation["Author(s)_ID"].astype(str),
+            #text=df_correlation["Normalized_Author_Name"] + "<br>ID: " + df_correlation["Author(s)_ID"].astype(str),
+            text=df_correlation["Normalized_Author_Name"] + "<br>ID: " + df_correlation["Folio"].astype(str),
             hoverinfo="text+x+y",
             name="Datos"
         ))
