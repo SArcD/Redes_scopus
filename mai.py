@@ -2171,7 +2171,7 @@ elif pagina == "Análisis de temas por área":
     dist_matrix = 1 - cosine_similarity(embeddings)
 
     # Clustering jerárquico
-    clustering = AgglomerativeClustering(n_clusters=None, distance_threshold=0.4, metric='precomputed', linkage='average')
+    clustering = AgglomerativeClustering(n_clusters=None, distance_threshold=0.8, metric='precomputed', linkage='average')
     labels = clustering.fit_predict(dist_matrix)
 
     # Mapear subtemas a su cluster
