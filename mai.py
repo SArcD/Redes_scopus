@@ -2243,7 +2243,7 @@ elif pagina == "Análisis de temas por área":
     "transformation", "application", "system", "approach", "n", "effects", "one", "two", "low", 
     "high", "2021", "2020", "2019", "2022", "2018", "2017", "fast", "slow", "large", "small"
     ]}
-    stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
+    #stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
     lemmatizer = WordNetLemmatizer()
 
     def limpiar_texto(texto):
@@ -2333,7 +2333,7 @@ elif pagina == "Análisis de temas por área":
     from collections import Counter
 
     # Descargar recursos
-    nltk.download("stopwords")
+    #nltk.download("stopwords")
 
     # Cargar los datos
     #file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
@@ -2342,12 +2342,12 @@ elif pagina == "Análisis de temas por área":
     #df["Year"] = df["Year"].astype(int)
 
     # Selección de área
-    areas_disponibles = sorted(df["Área Temática"].dropna().unique())
-    area_seleccionada = st.selectbox("Selecciona un área temática:", areas_disponibles)
-    df_area = df[df["Área Temática"] == area_seleccionada]
+    #areas_disponibles = sorted(df["Área Temática"].dropna().unique())
+    #area_seleccionada = st.selectbox("Selecciona un área temática:", areas_disponibles)
+    #df_area = df[df["Área Temática"] == area_seleccionada]
 
     # Preprocesamiento
-    stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation)
+    #stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation)
     def limpiar_texto(texto):
         texto = texto.lower()
         texto = re.sub(r"[\W_]+", " ", texto)
@@ -2439,14 +2439,19 @@ elif pagina == "Análisis de temas por área":
 
     fig = go.Figure(data=[edge_trace, node_trace],
                 layout=go.Layout(
-                    title=f"🌱 Subtemas de {area_seleccionada} en {año_seleccionado}",
-                    titlefont_size=16,
+                    title=dict(
+                    text=f"🌱 Subtemas de {area_seleccionada} en {año_seleccionado}",
+                    font=dict(size=16)
+                    ),
                     showlegend=False,
                     hovermode='closest',
-                    margin=dict(b=20,l=5,r=5,t=40),
+                    margin=dict(b=20, l=5, r=5, t=40),
                     xaxis=dict(showgrid=False, zeroline=False),
                     yaxis=dict(showgrid=False, zeroline=False)
-                ))
+                )
+
+
+
 
     st.plotly_chart(fig, use_container_width=True)
 
