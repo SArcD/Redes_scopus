@@ -2093,11 +2093,117 @@ elif pagina == "Análisis de temas por área":
     generar_animacion_palabras(word_frequencies)
 
 
+    #import streamlit as st
+    #import pandas as pd
+    #import matplotlib.pyplot as plt
+    #import seaborn as sns
+    #from collections import Counter
+    #import nltk    
+    #from nltk.corpus import stopwords
+    #from nltk.stem import WordNetLemmatizer
+    #import string
+    #import re
+    #import numpy as np
+    #from sklearn.metrics.pairwise import cosine_similarity
+    #from sentence_transformers import SentenceTransformer
+    #from sklearn.cluster import AgglomerativeClustering
+
+    ## Descargar recursos de NLTK
+    #nltk.download("stopwords")
+    #nltk.download("wordnet")
+    #nltk.download("omw-1.4")
+
+    ## Filtrar por área temática
+    #df_fisica = df[df["Área Temática"] == "Física y Matemáticas"].copy()
+    #df_fisica = df_fisica[df_fisica["Year"].notna()]
+    #df_fisica["Year"] = df_fisica["Year"].astype(int)
+
+    ## Stopwords y lematizador
+    #custom_stopwords = {word.lower() for word in [
+    #"study", "method", "analysis", "model", "data", "results", "research", "approach", 
+    #"colima", "mexico", "asses", "assessment", "design", "mexican", "cómo", "using", 
+    #"partial", "méxico", "effect", "comment", "based", "central", "evaluation", "employing", 
+    #"transformation", "application", "system", "approach", "n", "effects", "one", "two", "low", 
+    #"high", "2021", "2020", "2019", "2022", "2018", "2017", "fast", "slow", "large", "small"
+    #]}
+    #stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
+    #lemmatizer = WordNetLemmatizer()
+
+    #def limpiar_texto(texto):
+    #    texto = texto.lower()
+    #    texto = re.sub(r"[\W_]+", " ", texto)
+    #    palabras = texto.split()
+    #    palabras_filtradas = []
+
+    #    for word in palabras:
+    #        if word in stop_words:
+    #            continue
+    #        if len(word) <= 2:
+    #            continue
+    #        if word.isnumeric() or any(char.isdigit() for char in word):
+    #            continue
+    #        lemma = lemmatizer.lemmatize(word)
+    #        palabras_filtradas.append(lemma)
+
+    #    return palabras_filtradas
+
+    ## Extraer subtemas principales por año
+    #años_disponibles = sorted(df_fisica["Year"].unique())
+    #subtemas_por_año = {}
+
+    #for año in años_disponibles:
+    #    titulos = df_fisica[df_fisica["Year"] == año]["Title"].dropna()
+    #    palabras = []
+    #    for titulo in titulos:
+    #        palabras.extend(limpiar_texto(str(titulo)))
+    #    conteo = Counter(palabras)
+    #    subtemas_comunes = [palabra for palabra, _ in conteo.most_common(30)]
+    #    subtemas_por_año[año] = subtemas_comunes
+
+    ## Agrupar subtemas similares usando embeddings
+    #modelo = SentenceTransformer('all-MiniLM-L6-v2')
+    #todos_los_subtemas = sorted(set(p for lista in subtemas_por_año.values() for p in lista))
+    #embeddings = modelo.encode(todos_los_subtemas)
+    #dist_matrix = 1 - cosine_similarity(embeddings)
+
+    ## Clustering jerárquico con threshold más amplio (menos grupos)
+    #clustering = AgglomerativeClustering(n_clusters=None, distance_threshold=0.6, metric='precomputed', linkage='average')
+    #labels = clustering.fit_predict(dist_matrix)
+
+    ## Mapear subtemas a su cluster
+    #grupo_por_subtema = {subtema: f"Grupo {label}" for subtema, label in zip(todos_los_subtemas, labels)}
+
+    ## Crear matriz de presencia por subtema (no grupo) para identificar los más persistentes
+    #matriz_subtemas = pd.DataFrame(0, index=todos_los_subtemas, columns=años_disponibles)
+    #for año in años_disponibles:
+    #    for subtema in subtemas_por_año[año]:
+    #        if subtema in matriz_subtemas.index:
+    #            matriz_subtemas.loc[subtema, año] = 1
+
+    ## Calcular cuántos años ha estado presente cada subtema
+    #matriz_subtemas["Años Activo"] = matriz_subtemas.sum(axis=1)
+    #subtemas_mas_constantes = matriz_subtemas.sort_values("Años Activo", ascending=False).head(20)
+
+    ## Visualización
+    #st.title("🌿 Subtemas más persistentes en Física y Matemáticas")
+    #st.markdown("Estos son los subtemas que más veces han aparecido a lo largo de los años en los títulos de artículos.")
+
+    #fig, ax = plt.subplots(figsize=(10, 8))
+    #sns.heatmap(subtemas_mas_constantes.drop(columns="Años Activo"), cmap="YlGnBu", linewidths=0.5, linecolor='gray', cbar=False, ax=ax)
+    #ax.set_title("Subtemas con mayor presencia en el tiempo")
+    #ax.set_xlabel("Año")
+    #ax.set_ylabel("Subtema")
+    #st.pyplot(fig)
+
+    ## Mostrar también la tabla de resumen
+    #st.subheader("📊 Años en los que ha estado presente cada subtema")
+    #st.dataframe(subtemas_mas_constantes["Años Activo"].to_frame())
+    
     import streamlit as st
     import pandas as pd
     import matplotlib.pyplot as plt
     import seaborn as sns
-    from collections import Counter
+    from collections import Counter, defaultdict
     import nltk    
     from nltk.corpus import stopwords
     from nltk.stem import WordNetLemmatizer
@@ -2113,10 +2219,21 @@ elif pagina == "Análisis de temas por área":
     nltk.download("wordnet")
     nltk.download("omw-1.4")
 
-    # Filtrar por área temática
-    df_fisica = df[df["Área Temática"] == "Física y Matemáticas"].copy()
-    df_fisica = df_fisica[df_fisica["Year"].notna()]
-    df_fisica["Year"] = df_fisica["Year"].astype(int)
+    # Cargar los datos
+    file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
+    df = pd.read_csv(file_path, encoding="utf-8")
+    df = df[df["Year"].notna()]
+    df["Year"] = df["Year"].astype(int)
+
+    # Diccionario de áreas temáticas
+    area_mapping_extended = {
+    "Física y Matemáticas": ["Physical Review", "Mathematics", "Quantum", "Astrophysics", "Topology"],
+    "Química": ["ChemEngineering", "Pharmaceuticals", "Chemical", "Biochemistry", "Catalysis"],
+    "Ingeniería": ["Engineering", "Robotics", "Technology", "Automation", "Materials Science"],
+    "Medicina": ["Medicine", "Oncology", "Neurology", "Public Health", "Epidemiology"],
+    "Biología": ["Biology", "Microbiology", "Genomics", "Ecology", "Botany"],
+    "Humanidades": ["Social Science", "History", "Philosophy", "Education", "Sociology"]
+    }
 
     # Stopwords y lematizador
     custom_stopwords = {word.lower() for word in [
@@ -2147,58 +2264,60 @@ elif pagina == "Análisis de temas por área":
 
         return palabras_filtradas
 
-    # Extraer subtemas principales por año
-    años_disponibles = sorted(df_fisica["Year"].unique())
-    subtemas_por_año = {}
+    # Interfaz Streamlit
+    st.title("📊 Subtemas Persistentes por Área Temática")
+    area_seleccionada = st.selectbox("Selecciona un área temática:", list(area_mapping_extended.keys()))
 
-    for año in años_disponibles:
-        titulos = df_fisica[df_fisica["Year"] == año]["Title"].dropna()
-        palabras = []
-        for titulo in titulos:
-            palabras.extend(limpiar_texto(str(titulo)))
-        conteo = Counter(palabras)
-        subtemas_comunes = [palabra for palabra, _ in conteo.most_common(30)]
-        subtemas_por_año[año] = subtemas_comunes
+    df_area = df[df["Área Temática"] == area_seleccionada].copy()
+    if df_area.empty:
+        st.warning("No hay datos disponibles para esta área temática.")
+    else:
+        años_disponibles = sorted(df_area["Year"].unique())
+        subtemas_por_año = {}
 
-    # Agrupar subtemas similares usando embeddings
-    modelo = SentenceTransformer('all-MiniLM-L6-v2')
-    todos_los_subtemas = sorted(set(p for lista in subtemas_por_año.values() for p in lista))
-    embeddings = modelo.encode(todos_los_subtemas)
-    dist_matrix = 1 - cosine_similarity(embeddings)
+        for año in años_disponibles:
+            titulos = df_area[df_area["Year"] == año]["Title"].dropna()
+            palabras = []
+            for titulo in titulos:
+                palabras.extend(limpiar_texto(str(titulo)))
+            conteo = Counter(palabras)
+            subtemas_comunes = [palabra for palabra, _ in conteo.most_common(30)]
+            subtemas_por_año[año] = subtemas_comunes
 
-    # Clustering jerárquico con threshold más amplio (menos grupos)
-    clustering = AgglomerativeClustering(n_clusters=None, distance_threshold=0.6, metric='precomputed', linkage='average')
-    labels = clustering.fit_predict(dist_matrix)
+        # Agrupar subtemas similares usando embeddings
+        modelo = SentenceTransformer('all-MiniLM-L6-v2')
+        todos_los_subtemas = sorted(set(p for lista in subtemas_por_año.values() for p in lista))
+        if todos_los_subtemas:
+            embeddings = modelo.encode(todos_los_subtemas)
+            dist_matrix = 1 - cosine_similarity(embeddings)
 
-    # Mapear subtemas a su cluster
-    grupo_por_subtema = {subtema: f"Grupo {label}" for subtema, label in zip(todos_los_subtemas, labels)}
+            clustering = AgglomerativeClustering(n_clusters=None, distance_threshold=0.6, metric='precomputed', linkage='average')
+            labels = clustering.fit_predict(dist_matrix)
 
-    # Crear matriz de presencia por subtema (no grupo) para identificar los más persistentes
-    matriz_subtemas = pd.DataFrame(0, index=todos_los_subtemas, columns=años_disponibles)
-    for año in años_disponibles:
-        for subtema in subtemas_por_año[año]:
-            if subtema in matriz_subtemas.index:
-                matriz_subtemas.loc[subtema, año] = 1
+            grupo_por_subtema = {subtema: f"Grupo {label}" for subtema, label in zip(todos_los_subtemas, labels)}
 
-    # Calcular cuántos años ha estado presente cada subtema
-    matriz_subtemas["Años Activo"] = matriz_subtemas.sum(axis=1)
-    subtemas_mas_constantes = matriz_subtemas.sort_values("Años Activo", ascending=False).head(20)
+            # Crear matriz de presencia por subtema
+            matriz_subtemas = pd.DataFrame(0, index=todos_los_subtemas, columns=años_disponibles)
+            for año in años_disponibles:
+                for subtema in subtemas_por_año[año]:
+                    if subtema in matriz_subtemas.index:
+                        matriz_subtemas.loc[subtema, año] = 1
 
-    # Visualización
-    st.title("🌿 Subtemas más persistentes en Física y Matemáticas")
-    st.markdown("Estos son los subtemas que más veces han aparecido a lo largo de los años en los títulos de artículos.")
+            matriz_subtemas["Años Activo"] = matriz_subtemas.sum(axis=1)
+            subtemas_mas_constantes = matriz_subtemas.sort_values("Años Activo", ascending=False).head(20)
 
-    fig, ax = plt.subplots(figsize=(10, 8))
-    sns.heatmap(subtemas_mas_constantes.drop(columns="Años Activo"), cmap="YlGnBu", linewidths=0.5, linecolor='gray', cbar=False, ax=ax)
-    ax.set_title("Subtemas con mayor presencia en el tiempo")
-    ax.set_xlabel("Año")
-    ax.set_ylabel("Subtema")
-    st.pyplot(fig)
+            st.markdown(f"### 🌿 Subtemas más persistentes en {area_seleccionada}")
+            fig, ax = plt.subplots(figsize=(10, 8))
+            sns.heatmap(subtemas_mas_constantes.drop(columns="Años Activo"), cmap="YlGnBu", linewidths=0.5, linecolor='gray', cbar=False, ax=ax)
+            ax.set_title("Subtemas con mayor presencia en el tiempo")
+            ax.set_xlabel("Año")
+            ax.set_ylabel("Subtema")
+            st.pyplot(fig)
 
-    # Mostrar también la tabla de resumen
-    st.subheader("📊 Años en los que ha estado presente cada subtema")
-    st.dataframe(subtemas_mas_constantes["Años Activo"].to_frame())
-    
+            st.subheader("📊 Años en los que ha estado presente cada subtema")
+            st.dataframe(subtemas_mas_constantes["Años Activo"].to_frame())
+        else:
+            st.info("No se encontraron subtemas frecuentes para esta área.")
 
 
 
