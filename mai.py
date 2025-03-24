@@ -2093,6 +2093,79 @@ elif pagina == "Análisis de temas por área":
     generar_animacion_palabras(word_frequencies)
 
 
+    import streamlit as st
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    from collections import Counter
+    import nltk
+    from nltk.corpus import stopwords
+    import string
+    import re
+
+    # Descargar recursos de NLTK
+    nltk.download("stopwords")
+
+    # Cargar los datos
+    #file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
+    #df = pd.read_csv(file_path, encoding="utf-8")
+
+    # Filtrar por el área "Física y Matemáticas"
+    df_fisica = df[df["Área Temática"] == "Física y Matemáticas"].copy()    
+    df_fisica = df_fisica[df_fisica["Year"].notna()]
+    df_fisica["Year"] = df_fisica["Year"].astype(int)
+
+    # Lista adicional de palabras comunes a excluir
+    custom_stopwords = {word.lower() for word in [
+    "study", "method", "analysis", "model", "data", "results", "research", "approach", 
+    "colima", "mexico", "asses", "assessment", "design", "mexican", "cómo", "using", 
+    "partial", "méxico", "effect", "comment", "based", "central", "evaluation", "employing", 
+    "transformation", "application", "system", "approach", "n", "effects", "one", "two", "low", 
+    "high", "2021", "2020", "2019", "2022", "2018", "2017", "fast", "slow", "large", "small"
+    ]}
+
+    # Preprocesamiento de texto
+    stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation) | custom_stopwords
+
+    def limpiar_texto(texto):
+        texto = texto.lower()
+        texto = re.sub(r"[\W_]+", " ", texto)  # Eliminar puntuación y caracteres especiales
+        palabras = texto.split()
+        palabras_filtradas = [word for word in palabras if word not in stop_words and len(word) > 2]
+        return palabras_filtradas
+
+    # Extraer subtemas principales por año
+    años_disponibles = sorted(df_fisica["Year"].unique())
+    subtemas_por_año = {}
+
+    for año in años_disponibles:
+        titulos = df_fisica[df_fisica["Year"] == año]["Title"].dropna()
+        palabras = []
+        for titulo in titulos:
+            palabras.extend(limpiar_texto(str(titulo)))
+        conteo = Counter(palabras)
+        subtemas_comunes = [palabra for palabra, _ in conteo.most_common(10)]
+        subtemas_por_año[año] = subtemas_comunes
+
+    # Crear matriz de presencia
+    subtemas_unicos = sorted(set(palabra for lista in subtemas_por_año.values() for palabra in lista))
+    matriz_presencia = pd.DataFrame(index=subtemas_unicos, columns=años_disponibles)
+
+    for subtema in subtemas_unicos:
+        for año in años_disponibles:
+            matriz_presencia.loc[subtema, año] = 1 if subtema in subtemas_por_año[año] else 0
+
+    # Mostrar la matriz como heatmap
+    st.title("🌳 Diversidad Temática en Física y Matemáticas")
+    st.markdown("Este gráfico muestra la aparición de los principales subtemas en artículos de Física y Matemáticas a lo largo de los años.")
+
+    fig, ax = plt.subplots(figsize=(12, len(subtemas_unicos) * 0.4))
+    sns.heatmap(matriz_presencia.astype(float), cmap="Greens", linewidths=0.5, linecolor='gray', cbar=False, ax=ax)
+    ax.set_title("Presencia de Subtemas por Año")
+    ax.set_xlabel("Año")
+    ax.set_ylabel("Subtema")
+
+    st.pyplot(fig)
 
 
     
