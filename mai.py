@@ -2554,62 +2554,45 @@ elif pagina == "Análisis de temas por área":
     # Nodes
     node_x, node_y, node_text, node_color, node_size = [], [], [], [], []
 
+    # Asegúrate de tener estas listas definidas:
+    node_opacity = []
+    node_sizes = []
+
     for node in G.nodes():
+        frecuencia = frecuencia_nodos.get(node, 1)
         x, y = pos[node]
         node_x.append(x)
         node_y.append(y)
-        node_text.append(f"{node} ({frecuencia_total[node]} veces)" if node in frecuencia_total else node)
+        node_text.append(f"{node} ({frecuencia} veces)")
 
-        if node == area_seleccionada:
-            node_color.append("darkgreen")
-            node_size.append(30)
-        elif node.startswith("Año"):
-            if int(node[4:]) in años_seleccionados:
-                node_color.append("green")
-                node_size.append(20)
+        # Color y opacidad según si está seleccionado
+        if node in nodos_activados:
+            if frecuencia > 1 and node not in nodos_años and node != area_seleccionada:
+                node_colors.append("blue")  # Subtema compartido
             else:
-                node_color.append("lightgray")
-                node_size.append(10)
+                node_colors.append("green")
+            node_opacity.append(1.0)
         else:
-            freq = subtemas_en_varios_años.get(node, 0)
-            if freq > 1:
-                node_color.append("blue")
-            elif freq == 1:
-                node_color.append("green")
-            else:
-                node_color.append("lightgray")
-            node_size.append(10 + 4 * min(freq, 5))
+            node_colors.append("lightgray")
+            node_opacity.append(0.2)
 
-    #node_trace = go.Scatter(
-    #    x=node_x, y=node_y,
-    #    mode='markers+text',
-    #    text=node_text,
-    #    textposition="top center",
-    #    hoverinfo='text',
-    #    marker=dict(
-    #        color=node_color,
-    #        size=node_size,
-    #        line_width=2,
-    #        opacity=[1.0 if c != "lightgray" else 0.2 for c in node_color]
-    #    )
-    #)
+        # Tamaño proporcional a frecuencia
+        node_sizes.append(10 + 4 * frecuencia)
 
+    # Grafo sin texto visible, solo en hover
     node_trace = go.Scatter(
-        x=node_x, y=node_y,
+        x=node_x,
+        y=node_y,
         mode='markers',
+        text=node_text,  # Tooltip
         hoverinfo='text',
-        text=node_text,  # Esto queda solo como tooltip
         marker=dict(
-            size=node_size,
-            color=node_color,
+            size=node_sizes,
+            color=node_colors,
             opacity=node_opacity,
             line_width=1.5
         )
     )
-
-
-
-
 
     fig = go.Figure(data=[edge_trace, node_trace],
         layout=go.Layout(
