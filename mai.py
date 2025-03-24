@@ -2322,54 +2322,169 @@ elif pagina == "Análisis de temas por área":
 
 ##########################################################################################################################
 
-    import streamlit as st
+#    import streamlit as st
+#    import pandas as pd
+#    import networkx as nx
+#    import plotly.graph_objects as go
+#    import string
+#    import re
+#    from collections import Counter
+
+## Cargar datos
+##file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
+##df = pd.read_csv(file_path, encoding="utf-8")
+##df = df[df["Year"].notna()]
+##df["Year"] = df["Year"].astype(int)
+
+## Stopwords locales
+##stop_words_en = {"the", "and", "for", "with", "that", "from", "this", "using", "into", "been",
+##                 "their", "between", "about", "than", "also", "have", "which", "such", "more", "most"}
+##stop_words_es = {"los", "las", "que", "con", "una", "por", "para", "del", "más", "como", "entre",
+##                 "sus", "este", "esta", "estos", "estas", "también", "pero", "sobre"}
+##custom_stopwords = {"study", "method", "analysis", "data", "results", "research", "approach", 
+##                    "colima", "mexico", "méxico", "cómo"}
+##stop_words = stop_words_en | stop_words_es | custom_stopwords | set(string.punctuation)
+
+#    def limpiar_texto(texto):
+#        texto = texto.lower()
+#        texto = re.sub(r"[\W_]+", " ", texto)
+#        palabras = texto.split()
+#        return [
+#            word for word in palabras
+#            if word not in stop_words and len(word) > 2 and not re.match(r"^(19|20)\d{2}$", word)
+#    ]
+
+#    # Interfaz
+#    areas_disponibles = sorted(df["Área Temática"].dropna().unique())
+#area_seleccionada = st.selectbox("Selecciona un área temática:", areas_disponibles)
+#    #df_area = df[df["Área Temática"] == area_seleccionada]
+#    años_disponibles = sorted(df_area["Year"].unique())
+
+#    # Crear grafo
+#    G = nx.DiGraph()
+#    G.add_node(area_seleccionada)
+
+#    subtemas_por_año = {}
+#    for año in años_disponibles:
+#        nodo_año = f"Año {año}"
+#        G.add_node(nodo_año)
+#        G.add_edge(area_seleccionada, nodo_año)
+    
+#        titulos = df_area[df_area["Year"] == año]["Title"].dropna()
+#        palabras = []
+#        for titulo in titulos:
+#            palabras.extend(limpiar_texto(str(titulo)))
+#        conteo = Counter(palabras)
+#        subtemas = [palabra for palabra, _ in conteo.most_common(5)]
+#        subtemas_por_año[año] = subtemas
+    
+#        for subtema in subtemas:
+#            if not G.has_node(subtema):
+#                G.add_node(subtema)
+#            G.add_edge(nodo_año, subtema)
+
+#    # Selector múltiple
+#    años_seleccionados = st.multiselect("Selecciona uno o más años para mostrar sus subtemas:", años_disponibles, default=[años_disponibles[-1]])
+
+#    # Organizar layout en capas tipo árbol
+#    nodo_raiz = area_seleccionada
+#    nodos_de_años = [f"Año {a}" for a in años_disponibles]
+#    nodos_de_subtemas = [n for n in G.nodes() if n not in nodos_de_años and n != nodo_raiz]
+#    pos = nx.shell_layout(G, nlist=[[nodo_raiz], nodos_de_años, nodos_de_subtemas])
+
+#    # Edges
+#    edge_x, edge_y = [], []
+#    for edge in G.edges():
+#        x0, y0 = pos[edge[0]]
+#        x1, y1 = pos[edge[1]]
+#        edge_x.extend([x0, x1, None])
+#        edge_y.extend([y0, y1, None])
+
+#    edge_trace = go.Scatter(x=edge_x, y=edge_y, line=dict(width=0.5, color='#888'), hoverinfo='none', mode='lines')
+
+#    # Nodes
+#    node_x, node_y, node_text, node_color, node_opacity = [], [], [], [], []
+#    nodos_activados = {area_seleccionada} | {f"Año {a}" for a in años_seleccionados}
+#    for a in años_seleccionados:
+#        nodos_activados |= set(subtemas_por_año.get(a, []))
+
+#    for node in G.nodes():
+#        x, y = pos[node]
+#        node_x.append(x)
+#        node_y.append(y)
+#        node_text.append(node)
+#        if node in nodos_activados:
+#            node_color.append("green")
+#            node_opacity.append(1.0)
+#        else:
+#            node_color.append("lightgray")
+#            node_opacity.append(0.2)
+
+#    node_trace = go.Scatter(
+#        x=node_x, y=node_y,
+#        mode='markers+text',
+#        text=node_text,
+#        textposition="top center",
+#        hoverinfo='text',
+#        marker=dict(
+#            showscale=False,
+#            color=node_color,
+#            opacity=node_opacity,
+#            size=14,
+#            line_width=2
+#        )
+#    )
+
+#    fig = go.Figure(data=[edge_trace, node_trace],
+#                layout=go.Layout(
+#                    title=dict(
+#                        text=f"🌱 Subtemas de {area_seleccionada} en {', '.join(map(str, años_seleccionados))}",
+#                        font=dict(size=16)
+#                    ),
+#                    showlegend=False,
+#                    hovermode='closest',
+#                    margin=dict(b=20, l=5, r=5, t=40),
+#                    xaxis=dict(showgrid=False, zeroline=False),
+#                    yaxis=dict(showgrid=False, zeroline=False)
+#                ))
+
+#    st.plotly_chart(fig, use_container_width=True)
+
+
+############################################################################################################################
+
     import pandas as pd
     import networkx as nx
     import plotly.graph_objects as go
+    from nltk.corpus import stopwords
     import string
     import re
     from collections import Counter
 
-# Cargar datos
-#file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
-#df = pd.read_csv(file_path, encoding="utf-8")
-#df = df[df["Year"].notna()]
-#df["Year"] = df["Year"].astype(int)
 
-# Stopwords locales
-#stop_words_en = {"the", "and", "for", "with", "that", "from", "this", "using", "into", "been",
-#                 "their", "between", "about", "than", "also", "have", "which", "such", "more", "most"}
-#stop_words_es = {"los", "las", "que", "con", "una", "por", "para", "del", "más", "como", "entre",
-#                 "sus", "este", "esta", "estos", "estas", "también", "pero", "sobre"}
-#custom_stopwords = {"study", "method", "analysis", "data", "results", "research", "approach", 
-#                    "colima", "mexico", "méxico", "cómo"}
-#stop_words = stop_words_en | stop_words_es | custom_stopwords | set(string.punctuation)
-
+    # Stopwords y limpieza
+    #stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation)
     def limpiar_texto(texto):
         texto = texto.lower()
         texto = re.sub(r"[\W_]+", " ", texto)
         palabras = texto.split()
         return [
             word for word in palabras
-            if word not in stop_words and len(word) > 2 and not re.match(r"^(19|20)\d{2}$", word)
-    ]
+            if word not in stop_words and len(word) > 2 and not word.isnumeric() and not re.match(r"^(19|20)\d{2}$", word)
+        ]
 
-    # Interfaz
-#    areas_disponibles = sorted(df["Área Temática"].dropna().unique())
-#area_seleccionada = st.selectbox("Selecciona un área temática:", areas_disponibles)
-    #df_area = df[df["Área Temática"] == area_seleccionada]
+    # Inicializar grafo y estructuras
+    G = nx.DiGraph()
+    #area_seleccionada = "Física y Matemáticas"
+    G.add_node(area_seleccionada, layer=0)
+    subtemas_por_año = {}
     años_disponibles = sorted(df_area["Year"].unique())
 
-    # Crear grafo
-    G = nx.DiGraph()
-    G.add_node(area_seleccionada)
-
-    subtemas_por_año = {}
+    # Construir nodos y relaciones
     for año in años_disponibles:
         nodo_año = f"Año {año}"
-        G.add_node(nodo_año)
+        G.add_node(nodo_año, layer=1)
         G.add_edge(area_seleccionada, nodo_año)
-    
         titulos = df_area[df_area["Year"] == año]["Title"].dropna()
         palabras = []
         for titulo in titulos:
@@ -2377,22 +2492,19 @@ elif pagina == "Análisis de temas por área":
         conteo = Counter(palabras)
         subtemas = [palabra for palabra, _ in conteo.most_common(5)]
         subtemas_por_año[año] = subtemas
-    
         for subtema in subtemas:
-            if not G.has_node(subtema):
-                G.add_node(subtema)
+            G.add_node(subtema, layer=2)
             G.add_edge(nodo_año, subtema)
 
-    # Selector múltiple
-    años_seleccionados = st.multiselect("Selecciona uno o más años para mostrar sus subtemas:", años_disponibles, default=[años_disponibles[-1]])
+    # Calcular persistencia y colores
+    subtema_frecuencia = Counter()
+    for subtemas in subtemas_por_año.values():
+        subtema_frecuencia.update(subtemas)
 
-    # Organizar layout en capas tipo árbol
-    nodo_raiz = area_seleccionada
-    nodos_de_años = [f"Año {a}" for a in años_disponibles]
-    nodos_de_subtemas = [n for n in G.nodes() if n not in nodos_de_años and n != nodo_raiz]
-    pos = nx.shell_layout(G, nlist=[[nodo_raiz], nodos_de_años, nodos_de_subtemas])
+    # Layout multipartite
+    pos = nx.multipartite_layout(G, subset_key="layer")
 
-    # Edges
+    # Construcción de edges
     edge_x, edge_y = [], []
     for edge in G.edges():
         x0, y0 = pos[edge[0]]
@@ -2400,57 +2512,60 @@ elif pagina == "Análisis de temas por área":
         edge_x.extend([x0, x1, None])
         edge_y.extend([y0, y1, None])
 
-    edge_trace = go.Scatter(x=edge_x, y=edge_y, line=dict(width=0.5, color='#888'), hoverinfo='none', mode='lines')
+    edge_trace = go.Scatter(
+        x=edge_x, y=edge_y, line=dict(width=0.5, color='#888'),
+        hoverinfo='none', mode='lines'
+    )
 
-    # Nodes
-    node_x, node_y, node_text, node_color, node_opacity = [], [], [], [], []
-    nodos_activados = {area_seleccionada} | {f"Año {a}" for a in años_seleccionados}
-    for a in años_seleccionados:
-        nodos_activados |= set(subtemas_por_año.get(a, []))
+    # Construcción de nodos
+    node_x, node_y, node_text, node_color, node_opacity, node_size = [], [], [], [], [], []
 
     for node in G.nodes():
         x, y = pos[node]
         node_x.append(x)
         node_y.append(y)
-        node_text.append(node)
-        if node in nodos_activados:
+        node_text.append(f"{node} ({subtema_frecuencia[node]} años)" if node in subtema_frecuencia else node)
+
+        if node == area_seleccionada:
             node_color.append("green")
             node_opacity.append(1.0)
+            node_size.append(25)
+        elif node.startswith("Año"):
+            node_color.append("darkgreen")
+            node_opacity.append(1.0)
+            node_size.append(18)
+        elif subtema_frecuencia[node] > 1:
+            node_color.append("blue")
+            node_opacity.append(1.0)
+            node_size.append(12 + subtema_frecuencia[node]*3)
         else:
-            node_color.append("lightgray")
-            node_opacity.append(0.2)
+            node_color.append("gray")
+            node_opacity.append(0.5)
+            node_size.append(12)
 
     node_trace = go.Scatter(
-        x=node_x, y=node_y,
-        mode='markers+text',
-        text=node_text,
-        textposition="top center",
-        hoverinfo='text',
+        x=node_x, y=node_y, mode='markers+text',
+        text=node_text, textposition="top center", hoverinfo='text',
         marker=dict(
-            showscale=False,
-            color=node_color,
-            opacity=node_opacity,
-            size=14,
-            line_width=2
+            showscale=False, color=node_color, opacity=node_opacity,
+            size=node_size, line_width=2
         )
     )
 
-    fig = go.Figure(data=[edge_trace, node_trace],
-                layout=go.Layout(
-                    title=dict(
-                        text=f"🌱 Subtemas de {area_seleccionada} en {', '.join(map(str, años_seleccionados))}",
-                        font=dict(size=16)
-                    ),
-                    showlegend=False,
-                    hovermode='closest',
-                    margin=dict(b=20, l=5, r=5, t=40),
-                    xaxis=dict(showgrid=False, zeroline=False),
-                    yaxis=dict(showgrid=False, zeroline=False)
-                ))
+    # Graficar
+    fig = go.Figure(data=[edge_trace, node_trace], layout=go.Layout(
+        title=dict(
+            text=f"🌱 Subtemas de {area_seleccionada} en {', '.join([str(a) for a in años_disponibles])}",
+            font=dict(size=16)
+        ),
+        showlegend=False,
+        hovermode='closest',
+        margin=dict(b=20, l=5, r=5, t=40),
+        xaxis=dict(showgrid=False, zeroline=False),
+        yaxis=dict(showgrid=False, zeroline=False)
+    ))
 
     st.plotly_chart(fig, use_container_width=True)
-
-
 
 
 
