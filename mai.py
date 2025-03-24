@@ -872,7 +872,8 @@ elif pagina == "Análisis por base":
             mode="markers",
             marker=dict(size=8, opacity=0.8, color="darkblue"),
             name="Todos los Autores",
-            text=df_ucol["Normalized_Author_Name"] + "<br>ID: " + df_ucol["Author(s)_ID"],
+            #text=df_ucol["Normalized_Author_Name"] + "<br>ID: " + df_ucol["Author(s)_ID"],
+            text=df_ucol["Normalized_Author_Name"] + "<br>ID: " + df_ucol["Folio"],
             hoverinfo="text+y"
         ))
 
@@ -892,7 +893,8 @@ elif pagina == "Análisis por base":
             mode="markers",
             marker=dict(size=8, opacity=0.8, color="darkgreen"),
             name="Todos los Autores",
-            text=df_ucol["Normalized_Author_Name"] + "<br>ID: " + df_ucol["Author(s)_ID"],
+            #text=df_ucol["Normalized_Author_Name"] + "<br>ID: " + df_ucol["Author(s)_ID"],
+            text=df_ucol["Normalized_Author_Name"] + "<br>ID: " + df_ucol["Folio"],
             hoverinfo="text+y"
         ))
 
