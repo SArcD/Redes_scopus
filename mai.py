@@ -2114,8 +2114,8 @@ elif pagina == "Análisis de temas por área":
     nltk.download("omw-1.4")
 
     # Cargar datos
-    #file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
-    #df = pd.read_csv(file_path, encoding="utf-8")
+    file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
+    df = pd.read_csv(file_path, encoding="utf-8")
 
     # Filtrar por área temática
     df_fisica = df[df["Área Temática"] == "Física y Matemáticas"].copy()
@@ -2170,35 +2170,38 @@ elif pagina == "Análisis de temas por área":
     embeddings = modelo.encode(todos_los_subtemas)
     dist_matrix = 1 - cosine_similarity(embeddings)
 
-    # Clustering jerárquico
+    # Clustering jerárquico con threshold más amplio (menos grupos)
     clustering = AgglomerativeClustering(n_clusters=None, distance_threshold=0.8, metric='precomputed', linkage='average')
     labels = clustering.fit_predict(dist_matrix)
 
     # Mapear subtemas a su cluster
     grupo_por_subtema = {subtema: f"Grupo {label}" for subtema, label in zip(todos_los_subtemas, labels)}
 
-    # Crear matriz de presencia por grupo
-    grupos_unicos = sorted(set(grupo_por_subtema.values()))
-    matriz_presencia = pd.DataFrame(index=grupos_unicos, columns=años_disponibles)
+    # Crear matriz de presencia por subtema (no grupo) para identificar los más persistentes
+    matriz_subtemas = pd.DataFrame(0, index=todos_los_subtemas, columns=años_disponibles)
+    for año in años_disponibles:
+        for subtema in subtemas_por_año[año]:
+            if subtema in matriz_subtemas.index:
+                matriz_subtemas.loc[subtema, año] = 1
 
-    for grupo in grupos_unicos:
-        for año in años_disponibles:
-            presentes = subtemas_por_año[año]
-            presentes_en_grupo = [p for p in presentes if grupo_por_subtema.get(p) == grupo]
-            matriz_presencia.loc[grupo, año] = 1 if presentes_en_grupo else 0
+    # Calcular cuántos años ha estado presente cada subtema
+    matriz_subtemas["Años Activo"] = matriz_subtemas.sum(axis=1)
+    subtemas_mas_constantes = matriz_subtemas.sort_values("Años Activo", ascending=False).head(20)
 
-    # Mostrar heatmap
-    st.title("🌿 Diversidad Temática Agrupada (Física y Matemáticas)")
-    st.markdown("Subtemas agrupados semánticamente usando embeddings y clustering jerárquico.")
+    # Visualización
+    st.title("🌿 Subtemas más persistentes en Física y Matemáticas")
+    st.markdown("Estos son los subtemas que más veces han aparecido a lo largo de los años en los títulos de artículos.")
 
-    fig, ax = plt.subplots(figsize=(12, len(grupos_unicos) * 0.4))
-    sns.heatmap(matriz_presencia.astype(float), cmap="YlGn", linewidths=0.5, linecolor='gray', cbar=False, ax=ax)
-    ax.set_title("Presencia de Grupos de Subtemas por Año")
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sns.heatmap(subtemas_mas_constantes.drop(columns="Años Activo"), cmap="YlGnBu", linewidths=0.5, linecolor='gray', cbar=False, ax=ax)
+    ax.set_title("Subtemas con mayor presencia en el tiempo")
     ax.set_xlabel("Año")
-    ax.set_ylabel("Grupo Semántico")
-
+    ax.set_ylabel("Subtema")
     st.pyplot(fig)
 
+    # Mostrar también la tabla de resumen
+    st.subheader("📊 Años en los que ha estado presente cada subtema")
+    st.dataframe(subtemas_mas_constantes["Años Activo"].to_frame())
     
 
 
