@@ -2332,20 +2332,24 @@ elif pagina == "Análisis de temas por área":
     import re
     from collections import Counter
 
-# Descargar recursos de NLTK
-#nltk.download("stopwords")
+#    # Descargar recursos de NLTK
+#    nltk.download("stopwords")
 
-# Cargar datos
+# Cargar los datos
 #file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
 #df = pd.read_csv(file_path, encoding="utf-8")
+#df = df[df["Year"].notna()]
+#df["Year"] = df["Year"].astype(int)
 
-# Filtrar por área temática
-#df_fisica = df[df["Área Temática"] == "Física y Matemáticas"].copy()
-#df_fisica = df_fisica[df_fisica["Year"].notna()]
-#df_fisica["Year"] = df_fisica["Year"].astype(int)
+## Áreas temáticas disponibles
+#areas_disponibles = sorted(df["Área Temática"].dropna().unique())
+#area_seleccionada = st.selectbox("Selecciona un área temática:", areas_disponibles)
 
-# Preprocesamiento
-#stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation)
+    # Filtrar por área temática seleccionada
+    df_area = df[df["Área Temática"] == area_seleccionada]
+
+    # Preprocesamiento
+    stop_words = set(stopwords.words("english")) | set(stopwords.words("spanish")) | set(string.punctuation)
 
     def limpiar_texto(texto):
         texto = texto.lower()
@@ -2353,38 +2357,58 @@ elif pagina == "Análisis de temas por área":
         palabras = texto.split()
         return [word for word in palabras if word not in stop_words and len(word) > 2]
 
-    # Construcción del grafo tipo árbol
+    # Crear grafo completo
     G = nx.DiGraph()
-    G.add_node("Física y Matemáticas")
+    G.add_node(area_seleccionada)
 
+    subtemas_totales = {}
     años_disponibles = sorted(df_area["Year"].unique())
+
     for año in años_disponibles:
         nodo_año = f"Año {año}"
         G.add_node(nodo_año)
-        G.add_edge("Física y Matemáticas", nodo_año)
+        G.add_edge(area_seleccionada, nodo_año)
 
         titulos = df_area[df_area["Year"] == año]["Title"].dropna()
         palabras = []
         for titulo in titulos:
             palabras.extend(limpiar_texto(str(titulo)))
         conteo = Counter(palabras)
-        subtemas_comunes = [palabra for palabra, _ in conteo.most_common(5)]
+        subtemas = [palabra for palabra, _ in conteo.most_common(5)]
+        subtemas_totales[año] = subtemas
 
-        for subtema in subtemas_comunes:
-            nodo_subtema = f"{subtema} ({año})"
+        for subtema in subtemas:
+            nodo_subtema = f"{subtema}"
             G.add_node(nodo_subtema)
             G.add_edge(nodo_año, nodo_subtema)
 
-    # Visualización con matplotlib
-    st.title("🌳 Árbol Temático de Física y Matemáticas")
-    #st.markdown("Este árbol muestra cómo han surgido subtemas cada año en el área de Física y Matemáticas.")
+    # Interfaz interactiva
+    st.title("🌐 Evolución Temática por Año")
+    año_seleccionado = st.selectbox("Selecciona un año para visualizar los subtemas activos:", años_disponibles)
 
+    # Visualización con énfasis en año seleccionado
     pos = nx.spring_layout(G, seed=42)
     fig, ax = plt.subplots(figsize=(14, 10))
-    nx.draw(G, pos, with_labels=True, node_size=1500, node_color="lightgreen", font_size=10, arrows=False, ax=ax)
+
+    nodos_activos = set(subtemas_totales[año_seleccionado])
+    nodos_activos.add(f"Año {año_seleccionado}")
+    nodos_activos.add(area_seleccionada)
+
+    colores = []
+    tamaños = []
+    for nodo in G.nodes():
+        if nodo in nodos_activos or any(G.has_edge(f"Año {año_seleccionado}", nodo) for nodo in G.nodes()):
+            colores.append("green")
+            tamaños.append(800)
+        else:
+            colores.append("lightgray")
+            tamaños.append(300)
+
+    nx.draw(G, pos, with_labels=True, node_color=colores, node_size=tamaños,
+            font_size=10, edge_color="gray", alpha=0.9, arrows=False, ax=ax)
+
+    ax.set_title(f"Subtemas de {area_seleccionada} en el año {año_seleccionado}", fontsize=14)
     st.pyplot(fig)
-
-
 
 
 
