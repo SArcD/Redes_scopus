@@ -2524,20 +2524,12 @@ elif pagina == "Análisis de temas por área":
     G.add_node(area_seleccionada)
     subtemas_por_ano = {}
     frecuencia_total = Counter()
-    pos = {}
+    subtema_mas_antiguo = {}
 
-    # Posiciones radiales con desplazamiento por antigüedad
-    radio_base = 1.5
-    radio_incremento = 0.2
-
-    for i, ano in enumerate(anos_disponibles):
+    for ano in anos_disponibles:
         nodo_ano = f"Año {ano}"
         G.add_node(nodo_ano)
         G.add_edge(area_seleccionada, nodo_ano)
-
-        angulo = 2 * np.pi * i / len(anos_disponibles)
-        radio = radio_base + i * radio_incremento
-        pos[nodo_ano] = [radio * np.cos(angulo), radio * np.sin(angulo)]
 
         titulos = df_area[df_area["Year"] == ano]["Title"].dropna()
         palabras = []
@@ -2549,25 +2541,26 @@ elif pagina == "Análisis de temas por área":
         frecuencia_total.update(subtemas)
 
         for subtema in subtemas:
+            if subtema not in subtema_mas_antiguo:
+                subtema_mas_antiguo[subtema] = ano
             if not G.has_node(subtema):
                 G.add_node(subtema)
             G.add_edge(nodo_ano, subtema)
 
-    # Posiciones de subtemas (posición del año más antiguo donde aparece)
-    subtema_mas_antiguo = {}
-    for ano in anos_disponibles:
-        for subtema in subtemas_por_ano.get(ano, []):
-            if subtema not in subtema_mas_antiguo:
-                subtema_mas_antiguo[subtema] = ano
+    # Layout base con shell_layout
+    nodo_raiz = area_seleccionada
+    nodos_de_anos = [f"Año {a}" for a in anos_disponibles]
+    nodos_de_subtemas = [n for n in G.nodes() if n not in nodos_de_anos and n != nodo_raiz]
+    pos = nx.shell_layout(G, nlist=[[nodo_raiz], nodos_de_anos, nodos_de_subtemas])
 
-    for subtema, primer_ano in subtema_mas_antiguo.items():
-        i = anos_disponibles.index(primer_ano)
-        angulo = 2 * np.pi * i / len(anos_disponibles) + 0.15 * i
-        radio = radio_base + (i + 1) * radio_incremento + 0.6  # más alejado que los años
-        pos[subtema] = [radio * np.cos(angulo), radio * np.sin(angulo)]
-
-    # Posición del nodo raíz
-    pos[area_seleccionada] = [0, 0]
+    # Aplicar desplazamiento radial adicional a subtemas según antigüedad
+    desplazamiento_base = 0.3
+    for subtema in nodos_de_subtemas:
+        if subtema in subtema_mas_antiguo:
+            ano = subtema_mas_antiguo[subtema]
+            escala = 1 + desplazamiento_base * (anos_disponibles.index(ano))
+            x, y = pos[subtema]
+            pos[subtema] = [x * escala, y * escala]
 
     # Nodos activados
     nodos_activados = set()
@@ -2609,7 +2602,7 @@ elif pagina == "Análisis de temas por área":
         node_text.append(f"{node}")
 
         if node in nodos_activados:
-            if frecuencia > 1 and node not in pos or node in subtemas_en_varios_anos and subtemas_en_varios_anos[node] > 1:
+            if frecuencia > 1 and node in subtemas_en_varios_anos and subtemas_en_varios_anos[node] > 1:
                 node_color.append("blue")
             else:
                 node_color.append("green")
@@ -2650,7 +2643,6 @@ elif pagina == "Análisis de temas por área":
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
 
 
 
