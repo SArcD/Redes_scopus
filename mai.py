@@ -22,7 +22,7 @@ with col2:  # Colocar la imagen en la columna central
 
 
 # Crear menú de navegación
-pagina = st.selectbox("Selecciona una página", ["Inicio", "Análisis por base", "Análisis de temas por área", "Análisis por autor", "Equipo de trabajo"])
+pagina = st.selectbox("Selecciona una página", ["Inicio", "Análisis por base", "Análisis de temas por área", "Análisis por autor", "Redes de colaboraboración", "Equipo de trabajo"])
 
 # Mostrar contenido según la página seleccionada
 if pagina == "Inicio":
@@ -3802,6 +3802,7 @@ elif pagina == "Análisis por autor":
 
 
 #######################################################################################
+elif pagina == "Redes de colaboraboración":
 
     import streamlit as st
     import pandas as pd
@@ -3813,13 +3814,13 @@ elif pagina == "Análisis por autor":
     # --- FUNCIÓN PARA OBTENER AUTORES POR APELLIDO ---
     def get_author_options(df, author_last_name):
         """Devuelve un diccionario {ID: Nombre más común} para un apellido dado."""
-        if "Authors" not in df.columns or "Author(s)_ID" not in df.columns:
+        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
             return {}
 
         author_dict = {}
-        for _, row in df.dropna(subset=["Authors", "Author(s)_ID"]).iterrows():
+        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
             authors = row["Authors"].split(";")
-            ids = str(row["Author(s)_ID"]).split(";")
+            ids = str(row["Author(s) ID"]).split(";")
             for author, author_id in zip(authors, ids):
                 author = author.strip()
                 author_id = author_id.strip()
@@ -3831,13 +3832,13 @@ elif pagina == "Análisis por autor":
     # --- FUNCIÓN PARA CREAR MAPEO ID -> NOMBRE ---
     def create_id_to_name_mapping(df):
         """Crea un diccionario {ID: Nombre más común del autor}."""
-        if "Authors" not in df.columns or "Author(s)_ID" not in df.columns:
+        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
             return {}
 
         id_to_name = {}
-        for _, row in df.dropna(subset=["Authors", "Author(s)_ID"]).iterrows():
+        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
             authors = row["Authors"].split(";")
-            ids = str(row["Author(s)_ID"]).split(";")
+            ids = str(row["Author(s) ID"]).split(";")
             for author, author_id in zip(authors, ids):
                 author = author.strip()
                 author_id = author_id.strip()
@@ -3867,7 +3868,7 @@ elif pagina == "Análisis por autor":
         # Crear la red de colaboración
         G = nx.Graph()
         for _, row in df_filtered.iterrows():
-            coauthors = row["Author(s)_ID"].split(";")
+            coauthors = row["Author(s) ID"].split(";")
             coauthors = [author.strip() for author in coauthors if author]
 
             for i in range(len(coauthors)):
@@ -3930,58 +3931,58 @@ elif pagina == "Análisis por autor":
     # --- INTERFAZ EN STREAMLIT ---
     st.title("📊 Análisis de Redes de Colaboración en Publicaciones")
 
-    #uploaded_file = st.file_uploader("📂 Cargue un archivo CSV con datos de autores", type=["csv"])
+    uploaded_file = st.file_uploader("📂 Cargue un archivo CSV con datos de autores", type=["csv"])
 
-    #if uploaded_file:
-        #df = pd.read_csv(uploaded_file, encoding='utf-8')  # Cargar datos
-        #id_to_name = create_id_to_name_mapping(df)  # Crear mapeo ID -> Nombre
+    if uploaded_file:
+        df = pd.read_csv(uploaded_file, encoding='utf-8')  # Cargar datos
+        id_to_name = create_id_to_name_mapping(df)  # Crear mapeo ID -> Nombre
     id_to_name = create_id_to_name_mapping(df)  # Crear mapeo ID -> Nombre
 
         # --- INPUT PARA FILTRAR POR APELLIDO ---
-        #author_last_name = st.text_input("🔎 Ingresar el apellido del autor:")
+        author_last_name = st.text_input("🔎 Ingresar el apellido del autor:")
 
-        #if author_last_name:
-            #available_authors = get_author_options(df, author_last_name)
+        if author_last_name:
+            available_authors = get_author_options(df, author_last_name)
 
-            #if available_authors:
+            if available_authors:
                 # --- SELECCIÓN DEL AUTOR EN `st.selectbox` ---
-                #selected_id = st.selectbox(
-                #    "🎯 Seleccion del autor:",
-                #    options=list(available_authors.keys()),
-                #    format_func=lambda x: f"{available_authors[x]} (ID: {x})"  # Muestra nombre e ID en el menú
-                #)
+                selected_id = st.selectbox(
+                    "🎯 Seleccion del autor:",
+                    options=list(available_authors.keys()),
+                    format_func=lambda x: f"{available_authors[x]} (ID: {x})"  # Muestra nombre e ID en el menú
+                )
 
-                #if selected_id:
+                if selected_id:
 ##############################################################################################
-                    #df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
-                    #years = sorted(df_filtered["Year"].dropna().astype(int).unique())
+                    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+                    years = sorted(df_filtered["Year"].dropna().astype(int).unique())
 
                     # --- SELECCIÓN DEL AÑO ---
-                    #if years:
-                    #    selected_year = st.selectbox("📅 Año de colaboración:", ["Todos los años"] + years)
+                    if years:
+                        selected_year = st.selectbox("📅 Año de colaboración:", ["Todos los años"] + years)
 
                         # --- BOTÓN PARA GENERAR RED ---
-                    #    if st.button("🔗 Red de Colaboración"):
+                        if st.button("🔗 Red de Colaboración"):
                             #visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
-                    #else:
-                    #    st.warning("⚠️ No se encontraron publicaciones con años registrados.")
-            #else:
-                #st.warning("⚠️ No se encontraron coincidencias para ese apellido.")
+                    else:
+                        st.warning("⚠️ No se encontraron publicaciones con años registrados.")
+            else:
+                st.warning("⚠️ No se encontraron coincidencias para ese apellido.")
 
 
 ####################################################3
-    df_filtered = df[df["Author(s)_ID"].str.contains(selected_id, na=False, case=False)]
-    years = sorted(df_filtered["Year"].dropna().astype(int).unique())
+    #df_filtered = df[df["Author(s)_ID"].str.contains(selected_id, na=False, case=False)]
+    #years = sorted(df_filtered["Year"].dropna().astype(int).unique())
 
-    # --- SELECCIÓN DEL AÑO ---
-    if years:
-        selected_year = st.selectbox("📅 Año de colaboración:", ["Todos los años"] + years)
+    ## --- SELECCIÓN DEL AÑO ---
+    #if years:
+    #    selected_year = st.selectbox("📅 Año de colaboración:", ["Todos los años"] + years)
 
-        # --- BOTÓN PARA GENERAR RED ---
-        if st.button("🔗 Red de Colaboración"):
-            visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
-        else:
-            st.warning("⚠️ No se encontraron publicaciones con años registrados.")
+    #    # --- BOTÓN PARA GENERAR RED ---
+    #    if st.button("🔗 Red de Colaboración"):
+    #        visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
+    #    else:
+    #        st.warning("⚠️ No se encontraron publicaciones con años registrados.")
             #else:
             #    st.warning("⚠️ No se encontraron coincidencias para ese apellido.")
     import imageio
@@ -3999,7 +4000,7 @@ elif pagina == "Análisis por autor":
         # Crear una red global para fijar las posiciones de los nodos
         G_global = nx.Graph()
         for _, row in df.iterrows():
-            coauthors = row["Author(s)_ID"].split(";")
+            coauthors = row["Author(s) ID"].split(";")
             for i in range(len(coauthors)):
                 for j in range(i + 1, len(coauthors)):
                     G_global.add_edge(coauthors[i].strip(), coauthors[j].strip())
