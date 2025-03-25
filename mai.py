@@ -3327,7 +3327,8 @@ elif pagina == "Análisis por autor":
 
             # Selección de autor
             unique_authors = df["Author(s)_ID"].dropna().unique().tolist()
-            selected_author_id = st.selectbox("Seleccione un ID de autor:", unique_authors)
+            #selected_author_id = st.selectbox("Seleccione un ID de autor:", unique_authors)
+            selected_author_id = selected_id
             st.session_state["selected_author_id"] = selected_author_id
 
             
