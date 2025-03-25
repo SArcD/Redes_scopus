@@ -3962,7 +3962,7 @@ elif pagina == "Redes de colaboraboración":
 
                         # --- BOTÓN PARA GENERAR RED ---
                         if st.button("🔗 Red de Colaboración"):
-                            #visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
+                            visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
                     else:
                         st.warning("⚠️ No se encontraron publicaciones con años registrados.")
             else:
