@@ -3813,13 +3813,13 @@ elif pagina == "Análisis por autor":
     # --- FUNCIÓN PARA OBTENER AUTORES POR APELLIDO ---
     def get_author_options(df, author_last_name):
         """Devuelve un diccionario {ID: Nombre más común} para un apellido dado."""
-        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+        if "Authors" not in df.columns or "Author(s)_ID" not in df.columns:
             return {}
 
         author_dict = {}
-        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+        for _, row in df.dropna(subset=["Authors", "Author(s)_ID"]).iterrows():
             authors = row["Authors"].split(";")
-            ids = str(row["Author(s) ID"]).split(";")
+            ids = str(row["Author(s)_ID"]).split(";")
             for author, author_id in zip(authors, ids):
                 author = author.strip()
                 author_id = author_id.strip()
@@ -3831,13 +3831,13 @@ elif pagina == "Análisis por autor":
     # --- FUNCIÓN PARA CREAR MAPEO ID -> NOMBRE ---
     def create_id_to_name_mapping(df):
         """Crea un diccionario {ID: Nombre más común del autor}."""
-        if "Authors" not in df.columns or "Author(s) ID" not in df.columns:
+        if "Authors" not in df.columns or "Author(s)_ID" not in df.columns:
             return {}
 
         id_to_name = {}
-        for _, row in df.dropna(subset=["Authors", "Author(s) ID"]).iterrows():
+        for _, row in df.dropna(subset=["Authors", "Author(s)_ID"]).iterrows():
             authors = row["Authors"].split(";")
-            ids = str(row["Author(s) ID"]).split(";")
+            ids = str(row["Author(s)_ID"]).split(";")
             for author, author_id in zip(authors, ids):
                 author = author.strip()
                 author_id = author_id.strip()
@@ -3867,7 +3867,7 @@ elif pagina == "Análisis por autor":
         # Crear la red de colaboración
         G = nx.Graph()
         for _, row in df_filtered.iterrows():
-            coauthors = row["Author(s) ID"].split(";")
+            coauthors = row["Author(s)_ID"].split(";")
             coauthors = [author.strip() for author in coauthors if author]
 
             for i in range(len(coauthors)):
