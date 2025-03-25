@@ -3936,7 +3936,6 @@ elif pagina == "Redes de colaboraboración":
     if uploaded_file:
         df = pd.read_csv(uploaded_file, encoding='utf-8')  # Cargar datos
         id_to_name = create_id_to_name_mapping(df)  # Crear mapeo ID -> Nombre
-    id_to_name = create_id_to_name_mapping(df)  # Crear mapeo ID -> Nombre
 
         # --- INPUT PARA FILTRAR POR APELLIDO ---
         author_last_name = st.text_input("🔎 Ingresar el apellido del autor:")
