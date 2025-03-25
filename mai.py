@@ -3930,45 +3930,59 @@ elif pagina == "Análisis por autor":
     # --- INTERFAZ EN STREAMLIT ---
     st.title("📊 Análisis de Redes de Colaboración en Publicaciones")
 
-    uploaded_file = st.file_uploader("📂 Cargue un archivo CSV con datos de autores", type=["csv"])
+    #uploaded_file = st.file_uploader("📂 Cargue un archivo CSV con datos de autores", type=["csv"])
 
-    if uploaded_file:
-        df = pd.read_csv(uploaded_file, encoding='utf-8')  # Cargar datos
-        id_to_name = create_id_to_name_mapping(df)  # Crear mapeo ID -> Nombre
+    #if uploaded_file:
+        #df = pd.read_csv(uploaded_file, encoding='utf-8')  # Cargar datos
+        #id_to_name = create_id_to_name_mapping(df)  # Crear mapeo ID -> Nombre
 
         # --- INPUT PARA FILTRAR POR APELLIDO ---
-        author_last_name = st.text_input("🔎 Ingresar el apellido del autor:")
+        #author_last_name = st.text_input("🔎 Ingresar el apellido del autor:")
 
-        if author_last_name:
-            available_authors = get_author_options(df, author_last_name)
+        #if author_last_name:
+            #available_authors = get_author_options(df, author_last_name)
 
-            if available_authors:
+            #if available_authors:
                 # --- SELECCIÓN DEL AUTOR EN `st.selectbox` ---
-                selected_id = st.selectbox(
-                    "🎯 Seleccion del autor:",
-                    options=list(available_authors.keys()),
-                    format_func=lambda x: f"{available_authors[x]} (ID: {x})"  # Muestra nombre e ID en el menú
-                )
+                #selected_id = st.selectbox(
+                #    "🎯 Seleccion del autor:",
+                #    options=list(available_authors.keys()),
+                #    format_func=lambda x: f"{available_authors[x]} (ID: {x})"  # Muestra nombre e ID en el menú
+                #)
 
-                if selected_id:
-                    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
-                    years = sorted(df_filtered["Year"].dropna().astype(int).unique())
+                #if selected_id:
+##############################################################################################
+                    #df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+                    #years = sorted(df_filtered["Year"].dropna().astype(int).unique())
 
                     # --- SELECCIÓN DEL AÑO ---
-                    if years:
-                        selected_year = st.selectbox("📅 Año de colaboración:", ["Todos los años"] + years)
+                    #if years:
+                    #    selected_year = st.selectbox("📅 Año de colaboración:", ["Todos los años"] + years)
 
                         # --- BOTÓN PARA GENERAR RED ---
-                        if st.button("🔗 Red de Colaboración"):
-                            visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
-                    else:
-                        st.warning("⚠️ No se encontraron publicaciones con años registrados.")
-            else:
-                st.warning("⚠️ No se encontraron coincidencias para ese apellido.")
+                    #    if st.button("🔗 Red de Colaboración"):
+                            #visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
+                    #else:
+                    #    st.warning("⚠️ No se encontraron publicaciones con años registrados.")
+            #else:
+                #st.warning("⚠️ No se encontraron coincidencias para ese apellido.")
 
 
 ####################################################3
+    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+    years = sorted(df_filtered["Year"].dropna().astype(int).unique())
 
+    # --- SELECCIÓN DEL AÑO ---
+    if years:
+        selected_year = st.selectbox("📅 Año de colaboración:", ["Todos los años"] + years)
+
+        # --- BOTÓN PARA GENERAR RED ---
+        if st.button("🔗 Red de Colaboración"):
+            visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
+        else:
+            st.warning("⚠️ No se encontraron publicaciones con años registrados.")
+            #else:
+            #    st.warning("⚠️ No se encontraron coincidencias para ese apellido.")
     import imageio
     import tempfile
     import os
