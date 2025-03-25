@@ -3969,7 +3969,7 @@ elif pagina == "Análisis por autor":
 
 
 ####################################################3
-    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+    df_filtered = df[df["Author(s)_ID"].str.contains(selected_id, na=False, case=False)]
     years = sorted(df_filtered["Year"].dropna().astype(int).unique())
 
     # --- SELECCIÓN DEL AÑO ---
@@ -3998,7 +3998,7 @@ elif pagina == "Análisis por autor":
         # Crear una red global para fijar las posiciones de los nodos
         G_global = nx.Graph()
         for _, row in df.iterrows():
-            coauthors = row["Author(s) ID"].split(";")
+            coauthors = row["Author(s)_ID"].split(";")
             for i in range(len(coauthors)):
                 for j in range(i + 1, len(coauthors)):
                     G_global.add_edge(coauthors[i].strip(), coauthors[j].strip())
