@@ -3928,6 +3928,91 @@ elif pagina == "Redes de colaboraboración":
         # Mostrar la gráfica en Streamlit
         st.plotly_chart(fig)
 
+
+    def evaluate_leadership(G, selected_id, id_to_name):
+        st.subheader("🏅 Evaluación de Liderazgo en la Red")
+
+        # Calcular métricas
+        degree = nx.degree_centrality(G)
+        betweenness = nx.betweenness_centrality(G)
+        closeness = nx.closeness_centrality(G)
+        pagerank = nx.pagerank(G)
+
+        # Crear DataFrame
+        metrics_df = pd.DataFrame({
+            'ID': list(G.nodes),
+            'Nombre': [id_to_name.get(n, "N/A") for n in G.nodes],
+            'Grado': [degree[n] for n in G.nodes],
+            'Intermediación': [betweenness[n] for n in G.nodes],
+            'Cercanía': [closeness[n] for n in G.nodes],
+            'PageRank': [pagerank[n] for n in G.nodes]
+        })
+
+        # Ordenar por PageRank (puedes cambiarlo si prefieres otra)
+        metrics_df = metrics_df.sort_values(by="PageRank", ascending=False).reset_index(drop=True)
+
+        # Mostrar tabla con resaltado
+        st.dataframe(metrics_df.style.apply(
+            lambda row: ['background-color: gold' if row['ID'] == selected_id else '' for _ in row],
+            axis=1
+        ))
+
+        # Mensaje adicional si el autor está en top 3
+        top_ids = metrics_df.head(3)['ID'].tolist()
+        if selected_id in top_ids:
+            st.success("🌟 ¡Este autor se encuentra en el top 3 de liderazgo según PageRank!")
+        else:
+            st.info("ℹ️ El autor no figura en el top 3 de PageRank.")
+
+
+    def plot_leadership_evolution(df, selected_id):
+        st.subheader("📈 Evolución Temporal del Liderazgo")
+
+        years = sorted(df["Year"].dropna().astype(int).unique())
+        metrics_over_time = []
+
+        for year in years:
+            df_year = df[df["Year"] == year]
+
+            # Crear red del año
+            G = nx.Graph()
+            for _, row in df_year.iterrows():
+                coauthors = row["Author(s) ID"].split(";")
+                coauthors = [a.strip() for a in coauthors if a]
+                for i, j in itertools.combinations(coauthors, 2):
+                    G.add_edge(i, j)
+
+            if selected_id not in G:
+                continue  # El autor no colaboró ese año
+
+            # Calcular métricas
+            degree = nx.degree_centrality(G).get(selected_id, 0)
+            betweenness = nx.betweenness_centrality(G).get(selected_id, 0)
+            closeness = nx.closeness_centrality(G).get(selected_id, 0)
+            pagerank = nx.pagerank(G).get(selected_id, 0)
+
+            metrics_over_time.append({
+                "Año": year,
+                "Grado": degree,
+                "Intermediación": betweenness,
+                "Cercanía": closeness,
+                "PageRank": pagerank
+            })
+
+        if not metrics_over_time:
+            st.warning("⚠️ No hay datos suficientes para mostrar evolución.")
+            return
+
+        df_metrics = pd.DataFrame(metrics_over_time).sort_values("Año")
+
+        # Mostrar gráficas
+        import plotly.express as px
+        for metric in ["Grado", "Intermediación", "Cercanía", "PageRank"]:
+            fig = px.line(df_metrics, x="Año", y=metric, title=f"Evolución de {metric}")
+            st.plotly_chart(fig, use_container_width=True)
+
+
+    
     # --- INTERFAZ EN STREAMLIT ---
     st.title("📊 Análisis de Redes de Colaboración en Publicaciones")
 
@@ -3970,20 +4055,7 @@ elif pagina == "Redes de colaboraboración":
 
 
 ####################################################3
-    #df_filtered = df[df["Author(s)_ID"].str.contains(selected_id, na=False, case=False)]
-    #years = sorted(df_filtered["Year"].dropna().astype(int).unique())
 
-    ## --- SELECCIÓN DEL AÑO ---
-    #if years:
-    #    selected_year = st.selectbox("📅 Año de colaboración:", ["Todos los años"] + years)
-
-    #    # --- BOTÓN PARA GENERAR RED ---
-    #    if st.button("🔗 Red de Colaboración"):
-    #        visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
-    #    else:
-    #        st.warning("⚠️ No se encontraron publicaciones con años registrados.")
-            #else:
-            #    st.warning("⚠️ No se encontraron coincidencias para ese apellido.")
     import imageio
     import tempfile
     import os
@@ -4041,6 +4113,12 @@ elif pagina == "Redes de colaboraboración":
     if selected_id:
         if st.button("🎥 Generar GIF de Evolución"):
             generate_collaboration_gif(df_filtered, selected_id, id_to_name)
+
+    if st.button("🔗 Redo de Colaboración"):
+        fig, G = visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
+        if selected_year != "Todos los años":
+            evaluate_leadership(G, selected_id, id_to_name)
+        plot_leadership_evolution(df_filtered, selected_id)
 
 
 
