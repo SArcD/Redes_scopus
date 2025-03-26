@@ -3925,8 +3925,8 @@ elif pagina == "Redes de colaboraboración":
         edge_trace.y += (y0, y1, None)
 
     # Diccionarios auxiliares (deben estar definidos fuera de esta función):
-    # author_cluster_map = {Author_ID: cluster_id}
-    # cluster_colors = {0: "lightgreen", 1: "gold", 2: "yellow", 3: "red", 4: "orange", "default": "gray"}
+     author_cluster_map = {Author_ID: cluster_id}
+     cluster_colors = {0: "lightgreen", 1: "gold", 2: "yellow", 3: "red", 4: "orange", "default": "gray"}
 
     # Separar nodos normales y nodo principal
     node_x = []
