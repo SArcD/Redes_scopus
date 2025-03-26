@@ -4124,6 +4124,79 @@ elif pagina == "Redes de colaboraboración":
             evaluate_leadership(G, selected_id, id_to_name)
         plot_leadership_evolution(df_filtered, selected_id)
 
+    def interpretar_metricas_autor(df, selected_id):
+        st.subheader("🧠 Interpretación automática del liderazgo del autor")
+
+        years = sorted(df["Year"].dropna().astype(int).unique())
+        metrics_over_time = []
+
+        for year in years:
+            df_year = df[df["Year"] == year]
+
+            G = nx.Graph()
+            for _, row in df_year.iterrows():
+                coauthors = row["Author(s) ID"].split(";")
+                coauthors = [a.strip() for a in coauthors if a]
+                for i, j in itertools.combinations(coauthors, 2):
+                    G.add_edge(i, j)
+
+            if selected_id not in G:
+                continue
+
+            # Calcular métricas
+            degree = nx.degree_centrality(G).get(selected_id, 0)
+            betweenness = nx.betweenness_centrality(G).get(selected_id, 0)
+            closeness = nx.closeness_centrality(G).get(selected_id, 0)
+            pagerank = nx.pagerank(G).get(selected_id, 0)
+
+            metrics_over_time.append({
+                "Año": year,
+                "Grado": degree,
+                "Intermediación": betweenness,
+                "Cercanía": closeness,
+                "PageRank": pagerank
+            })
+
+        if not metrics_over_time:
+            st.warning("No hay datos suficientes para generar una interpretación.")
+            return
+
+        df_metrics = pd.DataFrame(metrics_over_time)
+
+        grado_medio = df_metrics["Grado"].mean()
+        inter_max = df_metrics["Intermediación"].max()
+        cercania_medio = df_metrics["Cercanía"].mean()
+        pr_max = df_metrics["PageRank"].max()
+
+        conclusiones = []
+
+        if grado_medio <= 0.15:
+            conclusiones.append("🔵 El autor tiende a tener pocas colaboraciones directas por año.")
+        else:
+            conclusiones.append("🔵 El autor mantiene un número alto de colaboraciones directas.")
+
+        if inter_max >= 0.5:
+            conclusiones.append("🟠 En varios años, el autor actúa como **puente clave** entre diferentes grupos.")
+        elif inter_max >= 0.2:
+            conclusiones.append("🟠 El autor cumple **ciertas funciones de intermediario**, aunque no de forma constante.")
+        else:
+            conclusiones.append("🟠 El autor no parece desempeñar un rol de conexión fuerte entre grupos.")
+
+        if cercania_medio == 1:
+            conclusiones.append("🟣 El autor suele colaborar en redes muy pequeñas (1-2 personas).")
+        else:
+            conclusiones.append("🟣 El autor mantiene una cercanía notable con otros miembros de la red.")
+
+        if pr_max >= 0.2:
+            conclusiones.append("🟢 En ciertos años, el autor tiene **alta influencia global** dentro de la red.")
+        elif pr_max >= 0.1:
+            conclusiones.append("🟢 El autor tiene un nivel medio de visibilidad e influencia.")
+        else:
+            conclusiones.append("🟢 La influencia del autor en la red es baja según PageRank.")
+
+        for c in conclusiones:
+            st.markdown(c)
+
 
 
 
