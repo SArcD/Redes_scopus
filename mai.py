@@ -4019,6 +4019,8 @@ elif pagina == "Redes de colaboraboración":
             fig = px.line(df_metrics, x="Año", y=metric, title=f"Evolución de {metric}")
             st.plotly_chart(fig, use_container_width=True)
 
+
+
     def interpretar_metricas_autor(df, selected_id):
         st.subheader("🧠 Interpretación automática del liderazgo del autor")
 
@@ -4044,12 +4046,15 @@ elif pagina == "Redes de colaboraboración":
             closeness = nx.closeness_centrality(G).get(selected_id, 0)
             pagerank = nx.pagerank(G).get(selected_id, 0)
 
+            num_nodos = len(G.nodes)
+
             metrics_over_time.append({
                 "Año": year,
                 "Grado": degree,
                 "Intermediación": betweenness,
                 "Cercanía": closeness,
-                "PageRank": pagerank
+                "PageRank": pagerank,
+                "Nodos en red": num_nodos
             })
 
         if not metrics_over_time:
@@ -4057,26 +4062,25 @@ elif pagina == "Redes de colaboraboración":
             return
 
         df_metrics = pd.DataFrame(metrics_over_time)
-
         grado_medio = df_metrics["Grado"].mean()
         inter_max = df_metrics["Intermediación"].max()
         cercania_medio = df_metrics["Cercanía"].mean()
         pr_max = df_metrics["PageRank"].max()
+        nodos_mean = df_metrics["Nodos en red"].mean()
 
         conclusiones = []
 
-
-        # 🔵 GRADO (Degree Centrality)
-        if grado_medio <= 0.05:
-            conclusiones.append("🔵 El autor tiene una colaboración directa muy limitada o es periférico en la red.")
-        elif grado_medio <= 0.15:
-            conclusiones.append("🔵 El autor mantiene algunas colaboraciones directas, pero no muy amplias.")
-        elif grado_medio <= 0.30:
-            conclusiones.append("🔵 El autor participa activamente en la red con múltiples colaboraciones.")
-        else:
+        # 🔵 Grado (colaboraciones directas)
+        if grado_medio > 0.30 and nodos_mean >= 10:
             conclusiones.append("🔵 El autor tiene un rol central con muchas colaboraciones directas.")
+        elif grado_medio > 0.15 and nodos_mean >= 5:
+            conclusiones.append("🔵 El autor participa activamente en la red con varias colaboraciones.")
+        elif grado_medio > 0.05:
+            conclusiones.append("🔵 El autor mantiene algunas colaboraciones directas.")
+        else:
+            conclusiones.append("🔵 El autor tiene una colaboración directa muy limitada o es periférico en la red.")
 
-        # 🟠 INTERMEDIACIÓN (Betweenness Centrality)
+        # 🟠 Intermediación
         if inter_max >= 0.6:
             conclusiones.append("🟠 El autor ha actuado como un **puente estructural clave** entre comunidades académicas.")
         elif inter_max >= 0.3:
@@ -4086,15 +4090,15 @@ elif pagina == "Redes de colaboraboración":
         else:
             conclusiones.append("🟠 El autor no parece desempeñar un papel de intermediación relevante.")
 
-        # 🟣 CERCANÍA (Closeness Centrality)
-        if cercania_medio == 1 and "Nodos en red" in df_metrics.columns and df_metrics["Nodos en red"].mean() <= 3:
-            conclusiones.append("🟣 La cercanía máxima se debe al tamaño muy reducido de la red.")
+        # 🟣 Cercanía
+        if cercania_medio == 1.0 and nodos_mean <= 5:
+            conclusiones.append("🟣 El autor colabora en redes muy pequeñas, donde es natural tener cercanía máxima.")
         elif cercania_medio >= 0.5:
-            conclusiones.append("🟣 El autor mantiene una buena accesibilidad dentro de su red de colaboración.")
+            conclusiones.append("🟣 El autor tiene buena accesibilidad dentro de su red.")
         else:
-            conclusiones.append("🟣 El autor parece estar algo alejado o periférico dentro de las redes donde colabora.")
+            conclusiones.append("🟣 El autor se encuentra algo alejado o periférico dentro de la red.")
 
-        # 🟢 PAGERANK
+        # 🟢 PageRank
         if pr_max >= 0.45:
             conclusiones.append("🟢 En ciertos años, el autor fue **altamente influyente** dentro de la red académica.")
         elif pr_max >= 0.30:
@@ -4103,9 +4107,19 @@ elif pagina == "Redes de colaboraboración":
             conclusiones.append("🟢 El autor tiene **una presencia moderada** dentro de la red.")
         else:
             conclusiones.append("🟢 La influencia estructural del autor es baja según PageRank.")
-            
+
+        # 🧩 Considerar tamaño de red
+        if nodos_mean <= 3:
+            conclusiones.append("🧩 Las redes donde participa el autor suelen ser pequeñas, lo cual puede inflar artificialmente las métricas como grado o cercanía.")
+
         for c in conclusiones:
             st.markdown(c)
+
+
+
+    
+
+
     
     # --- INTERFAZ EN STREAMLIT ---
     st.title("📊 Análisis de Redes de Colaboración en Publicaciones")
