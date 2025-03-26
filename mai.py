@@ -4130,6 +4130,34 @@ elif pagina == "Redes de colaboraboración":
                                 evaluate_leadership(G, selected_id, id_to_name)
                                 plot_leadership_evolution(df_filtered, selected_id)
                                 interpretar_metricas_autor(df_filtered, selected_id)
+
+                        if st.button("🔗 Red de Colaboración"):
+                            if selected_year == "Todos los años":
+                                # Mostrar red año por año
+                                visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
+
+                                # Graficar evolución
+                                plot_leadership_evolution(df_filtered, selected_id)
+
+                                # Interpretar métricas globales
+                                interpretar_metricas_autor(df_filtered, selected_id)
+
+                            else:
+                                # Mostrar red de un solo año
+                                fig, G = visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
+
+                                if fig is not None and G is not None:
+                                    # Calcular y mostrar métricas para un solo año
+                                    evaluate_leadership(G, selected_id, id_to_name)
+
+                                    # Crear DataFrame temporal solo para ese año
+                                    df_year = df_filtered[df_filtered["Year"] == selected_year]
+
+                                    # Mostrar evolución (1 punto) para mantener coherencia visual
+                                    plot_leadership_evolution(df_year, selected_id)
+
+                                    # Interpretación solo para ese año
+                                    interpretar_metricas_autor(df_year, selected_id)
                     else:
                         st.warning("⚠️ No se encontraron publicaciones con años registrados.")
             else:
@@ -4196,20 +4224,7 @@ elif pagina == "Redes de colaboraboración":
         if st.button("🎥 Generar GIF de Evolución"):
             generate_collaboration_gif(df_filtered, selected_id, id_to_name)
 
-    #if st.button("🔗 Redo de Colaboración"):
-    #    fig, G = visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
-    #    if selected_year != "Todos los años":
-    #        evaluate_leadership(G, selected_id, id_to_name)
-    #        plot_leadership_evolution(df_filtered, selected_id)
-    #        interpretar_metricas_autor(df_filtered, selected_id)
 
-    if st.button("🔗 Rd de Colaboración"):
-        fig, G = visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
-
-        if fig is not None and G is not None and selected_year != "Todos los años":
-            evaluate_leadership(G, selected_id, id_to_name)
-            plot_leadership_evolution(df_filtered, selected_id)
-            interpretar_metricas_autor(df_filtered, selected_id)
 
 
 
