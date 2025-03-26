@@ -4425,7 +4425,7 @@ elif pagina == "Redes de colaboraboración":
                         if st.button("🔗 Red de Colaboración"):
                             if selected_year == "Todos los años":
                                 # Mostrar red año por año
-                                visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
+                                visualize_collaboration_network(df, selected_author_name, id_to_name, selected_year)
 
                                 # Graficar evolución
                                 plot_leadership_evolution(df_filtered, selected_id)
@@ -4482,7 +4482,7 @@ elif pagina == "Redes de colaboraboración":
         # Generar los grafos año por año y guardarlos como imágenes
         for year in years:
             #fig, _ = visualize_collaboration_network(df, selected_id, id_to_name, year, fixed_pos)
-            fig, _ = visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
+            fig, _ = visualize_collaboration_network(df, selected_author_name, id_to_name, selected_year)
 
             # Guardar la imagen en memoria
             temp_img_path = tempfile.NamedTemporaryFile(delete=False, suffix=".png").name
