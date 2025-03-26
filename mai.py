@@ -4001,7 +4001,9 @@ elif pagina == "Redes de colaboraboración":
                 "Grado": degree,
                 "Intermediación": betweenness,
                 "Cercanía": closeness,
-                "PageRank": pagerank
+                "PageRank": pagerank,
+                "Nodos en red": num_nodos  # 👈 nueva métrica agregada
+
             })
 
         if not metrics_over_time:
@@ -4086,6 +4088,10 @@ elif pagina == "Redes de colaboraboración":
         else:
             conclusiones.append("🟢 La influencia del autor en la red es baja según PageRank.")
 
+        # 📌 Agregar esta interpretación según tamaño promedio de la red
+        if "Nodos en red" in df_metrics.columns and df_metrics["Nodos en red"].mean() <= 3:
+            conclusiones.append("🧩 Las redes donde participa el autor suelen ser pequeñas, lo cual puede inflar artificialmente las métricas como grado o cercanía.")
+        
         for c in conclusiones:
             st.markdown(c)
     
