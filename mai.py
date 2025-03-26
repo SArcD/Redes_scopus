@@ -3856,7 +3856,9 @@ elif pagina == "Redes de colaboraboración":
             for year in years:
                 st.subheader(f"🔗 Red de colaboración en {year}")
                 visualize_collaboration_network(df[df["Year"] == year], selected_author_id, id_to_name, year)
-            return
+            return None, None  # <-- Aquí también devuelve dos valores
+
+            #return
 
         # Filtrar el DataFrame por el año seleccionado
         df_filtered = df[df["Year"] == selected_year]
