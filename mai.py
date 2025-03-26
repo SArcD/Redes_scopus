@@ -1040,7 +1040,7 @@ elif pagina == "Análisis por base":
         
         # 📂 **Descargar el archivo procesado**
         csv_data = df_cluster_0.to_csv(index=False).encode('utf-8')
-        #st.download_button("**Descargar CSV**", csv_data, "df_cluster_0.csv", "text/csv")
+        st.download_button("**Descargar CSV**", csv_data, "df_cluster_0.csv", "text/csv")
 
 
 
@@ -1053,7 +1053,7 @@ elif pagina == "Análisis por base":
         df_cluster_1
         # 📂 **Descargar el archivo procesado**
         csv_data = df_cluster_1.to_csv(index=False).encode('utf-8')
-        #st.download_button("**Descargar CSV**", csv_data, "df_cluster_1.csv", "text/csv")
+        st.download_button("**Descargar CSV**", csv_data, "df_cluster_1.csv", "text/csv")
 
         st.write("**Integrantes del Cluster 2**")
         # Filtrar los autores que están en el cluster 1.0
@@ -1064,7 +1064,7 @@ elif pagina == "Análisis por base":
         df_cluster_2
         # 📂 **Descargar el archivo procesado**
         csv_data = df_cluster_2.to_csv(index=False).encode('utf-8')
-        #st.download_button("**Descargar CSV**", csv_data, "df_cluster_2.csv", "text/csv")
+        st.download_button("**Descargar CSV**", csv_data, "df_cluster_2.csv", "text/csv")
         
 
         st.write("**Integrantes del Cluster 3**")
@@ -1076,7 +1076,7 @@ elif pagina == "Análisis por base":
         df_cluster_3
         # 📂 **Descargar el archivo procesado**
         csv_data = df_cluster_3.to_csv(index=False).encode('utf-8')
-        #st.download_button("**Descargar CSV**", csv_data, "df_cluster_3.csv", "text/csv")
+        st.download_button("**Descargar CSV**", csv_data, "df_cluster_3.csv", "text/csv")
 
         st.write("**Integrantes del Cluster 4**")
         # Filtrar los autores que están en el cluster 1.0
@@ -1087,7 +1087,7 @@ elif pagina == "Análisis por base":
         df_cluster_4
         # 📂 **Descargar el archivo procesado**
         csv_data = df_cluster_4.to_csv(index=False).encode('utf-8')
-        #st.download_button("**Descargar CSV**", csv_data, "df_cluster_4.csv", "text/csv")
+        st.download_button("**Descargar CSV**", csv_data, "df_cluster_4.csv", "text/csv")
 
         # Contar la cantidad de registros en cada cluster
         cluster_counts = df_ucol["Cluster"].value_counts().sort_index()
