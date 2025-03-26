@@ -4216,10 +4216,10 @@ elif pagina == "Redes de colaboraboración":
         metrics_df = metrics_df.sort_values(by="PageRank", ascending=False).reset_index(drop=True)
 
         # Mostrar tabla con resaltado
-        st.dataframe(metrics_df.style.apply(
-            lambda row: ['background-color: gold' if row['ID'] == selected_author_name,  else '' for _ in row],
-            axis=1
-        ))
+        #st.dataframe(metrics_df.style.apply(
+        #    lambda row: ['background-color: gold' if row['ID'] == selected_author_name,  else '' for _ in row],
+        #    axis=1
+        #))
 
         # Mensaje adicional si el autor está en top 3
 #        top_ids = metrics_df.head(3)['ID'].tolist()
