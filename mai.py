@@ -4124,12 +4124,12 @@ elif pagina == "Redes de colaboraboración":
                         #if st.button("🔗 Red de Colaboración"):
                         #    visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
 
-                        if st.button("🔗 Red de Colaboración"):
-                            fig, G = visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
-                            if fig is not None and G is not None and selected_year != "Todos los años":
-                                evaluate_leadership(G, selected_id, id_to_name)
-                                plot_leadership_evolution(df_filtered, selected_id)
-                                interpretar_metricas_autor(df_filtered, selected_id)
+                        #if st.button("🔗 Red de Colaboración"):
+                        #    fig, G = visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
+                        #    if fig is not None and G is not None and selected_year != "Todos los años":
+                        #        evaluate_leadership(G, selected_id, id_to_name)
+                        #        plot_leadership_evolution(df_filtered, selected_id)
+                        #        interpretar_metricas_autor(df_filtered, selected_id)
 
                         if st.button("🔗 Red de Colaboración"):
                             if selected_year == "Todos los años":
