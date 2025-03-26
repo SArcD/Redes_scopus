@@ -3847,6 +3847,187 @@ elif pagina == "Redes de colaboraboración":
 
         return {author_id: Counter(names).most_common(1)[0][0] for author_id, names in id_to_name.items()}
 
+
+    import pandas as pd
+
+    # URLs de los archivos CSV en GitHub
+    base_url = 'https://raw.githubusercontent.com/tu_usuario/tu_repositorio/main/'
+    cluster_files = {
+        0: 'df_cluster_0.csv',
+        1: 'df_cluster_1.csv',
+        2: 'df_cluster_2.csv',
+        3: 'df_cluster_3.csv',
+        4: 'df_cluster_4.csv'
+    }
+
+    # Diccionario para mapear Author_ID a su cluster
+    author_cluster_map = {}
+
+    for cluster_id, file_name in cluster_files.items():
+        url = base_url + file_name
+        df_cluster = pd.read_csv(url)
+        for author_id in df_cluster['Author(s)_ID']:
+            author_cluster_map[author_id] = cluster_id
+
+    cluster_colors = {
+        0: 'lightgreen',  # Cluster 0
+        1: 'gold',        # Cluster 1
+        2: 'yellow',      # Cluster 2
+        3: 'red',         # Cluster 3
+        4: 'orange',      # Cluster 4
+        'default': 'grey' # Para autores no asignados a ningún cluster
+    }
+
+
+    import networkx as nx
+    import plotly.graph_objects as go
+
+    def visualize_collaboration_network(df, selected_author_id, id_to_name, selected_year):
+        # Filtrar el DataFrame por el año seleccionado
+        df_filtered = df[df["Year"] == selected_year]
+
+        if df_filtered.empty:
+            st.warning(f"No se encontraron publicaciones para el autor con ID: {selected_author_id}")
+            return
+
+        # Crear la red de colaboración
+        G = nx.Graph()
+        for _, row in df_filtered.iterrows():
+            coauthors = row["Author(s) ID"].split(";")
+            coauthors = [author.strip() for author in coauthors if author]
+
+            for i in range(len(coauthors)):
+                for j in range(i + 1, len(coauthors)):
+                    G.add_edge(coauthors[i], coauthors[j])
+
+        if len(G.nodes) == 0:
+            st.warning("⚠️ No hay colaboraciones registradas en este período.")
+            return
+
+        # Ajustar la distribución de nodos para evitar estiramiento
+        pos = nx.spring_layout(G, seed=42, scale=1.5)
+
+        # Crear trazas de bordes (edges)
+        edge_trace = go.Scatter(
+            x=[], y=[], line=dict(width=1.5, color="black"),  # Bordes negros
+            hoverinfo="none", mode="lines"
+        )
+
+        for edge in G.edges():
+            x0, y0 = pos[edge[0]]
+            x1, y1 = pos[edge[1]]
+            edge_trace.x += (x0, x1, None)
+            edge_trace.y += (y0, y1, None)
+
+import networkx as nx
+import plotly.graph_objects as go
+
+def visualize_collaboration_network(df, selected_author_id, id_to_name, selected_year):
+    # Filtrar el DataFrame por el año seleccionado
+    df_filtered = df[df["Year"] == selected_year]
+
+    if df_filtered.empty:
+        st.warning(f"No se encontraron publicaciones para el autor con ID: {selected_author_id}")
+        return
+
+    # Crear la red de colaboración
+    G = nx.Graph()
+    for _, row in df_filtered.iterrows():
+        coauthors = row["Author(s) ID"].split(";")
+        coauthors = [author.strip() for author in coauthors if author]
+
+        for i in range(len(coauthors)):
+            for j in range(i + 1, len(coauthors)):
+                G.add_edge(coauthors[i], coauthors[j])
+
+    if len(G.nodes) == 0:
+        st.warning("⚠️ No hay colaboraciones registradas en este período.")
+        return
+
+    # Ajustar la distribución de nodos para evitar estiramiento
+    pos = nx.spring_layout(G, seed=42, scale=1.5)
+
+    # Crear trazas de bordes (edges)
+    edge_trace = go.Scatter(
+        x=[], y=[], line=dict(width=1.5, color="black"),  # Bordes negros
+        hoverinfo="none", mode="lines"
+    )
+
+    for edge in G.edges():
+        x0, y0 = pos[edge[0]]
+        x1, y1 = pos[edge[1]]
+        edge_trace.x += (x0, x1, None)
+        edge_trace.y += (y0, y1, None)
+
+        # Crear trazas de nodos (nodes)
+        node_x = []
+        node_y = []
+        node_color = []
+        node_texts = []
+
+        for node in G.nodes():
+            x, y = pos[node]
+            node_x.append(x)
+            node_y.append(y)
+            # Determinar el color basado en el cluster
+            cluster_id = author_cluster_map.get(node, 'default')
+            color = cluster_colors.get(cluster_id, 'grey')
+            node_color.append(color)
+            most_common_name = id_to_name.get(node, "Nombre no disponible")
+            node_texts.append(f"ID: {node}<br>Nombre: {most_common_name}")
+
+        node_trace = go.Scatter(
+            x=node_x, y=node_y, mode="markers",
+            marker=dict(size=15, color=node_color, opacity=0.8),
+            text=node_texts, hoverinfo="text"
+        )
+
+        # Crear figura en Plotly con relación de aspecto equilibrada
+        #fig = go.Figure(data=[edge_trace, node_trace])
+        fig = go.Figure(data=[edge_trace, node_trace, star_trace])
+
+        fig.update_layout(
+            title=f"Red de Colaboración en {selected_year}",
+            showlegend=False, hovermode="closest",
+            autosize=True,  # Ajuste automático del tamaño
+            margin=dict(l=40, r=40, t=50, b=50),  # Márgenes más equilibrados
+            xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),  
+            yaxis=dict(showgrid=False, zeroline=False, constrain="domain")
+        )
+
+        # Mostrar la gráfica en Streamlit
+        st.plotly_chart(fig)
+
+
+        ## Crear figura en Plotly con relación de aspecto equilibrada
+        #fig = go.Figure(data=[edge_trace, node_trace])
+        #fig = go.Figure(data=[edge_trace, node_trace, star_trace])
+
+        #fig.update_layout(
+        #    title=f"Red de Colaboración en {selected_year}",
+        #    showlegend=False, hovermode="closest",
+        #    autosize=True,  # Ajuste automático del tamaño
+        #    margin=dict(l=40, r=40, t=50, b=50),  # Márgenes más equilibrados
+        #    xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),  
+        #    yaxis=dict(showgrid=False, zeroline=False, constrain="domain")
+        #)
+
+        # Mostrar la gráfica en Streamlit
+        #st.plotly_chart(fig)
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     # --- FUNCIÓN PARA GENERAR RED DE COLABORACIÓN ---
     def visualize_collaboration_network(df, selected_author_id, id_to_name, selected_year):
         """Genera una red de colaboración en Plotly con relación de aspecto equilibrada."""
