@@ -1,0 +1,24 @@
+Normalized_Author_Name,Cited_by,Publications,Journals,Funded_publications,Not_funded_publications,Author(s)_ID,Authors,Author_full_names,Publisher_Count,First_Year,Seniority,Seniority_Group,Cited_Above_Q3,Publications_Above_Q3,Cluster,TSNE1,TSNE2,Funding_Ratio
+"amore, paolo",998,121,48,61,60,6701437430,Amore,"Amore, Paolo",24,2002,23,20,True,True,1.0,35.73585,11.751419,0.5041322314049587
+"delgado enciso, ivan",3353,188,126,94,94,57193209409,Delgado-Enciso,"Delgado-Enciso, Iván",61,2006,19,15,True,True,1.0,34.337543,14.145661,0.5
+"dobrovinskaya, oxana",2985,51,36,33,18,6603322371,Dobrovinskaya,"Dobrovinskaya, Oxana R.",23,1999,26,25,True,True,1.0,32.809357,13.902736,0.6470588235294118
+"gonzalez perez,",1676,70,48,36,34,56416645100,Gonzalez-Perez,"Gonzalez-Perez, O.",33,2002,23,20,True,True,1.0,33.75111,12.556571,0.5142857142857142
+"guzman esquivel, jose",514,80,52,25,55,57201278561,Guzman-Esquivel,"Guzman-Esquivel, José",36,2008,17,15,True,True,1.0,35.666065,10.265076,0.3125
+"hernandez, .",1027,51,36,14,37,55869115500; 6603175577,Hernández; Hernandez,"Hernández, L.A.; Hernandez, C.M.",3; 23,1993,32,30,True,True,1.0,33.34466,10.571328,0.27450980392156865
+"huerta,",1134,120,80,37,83,57202353938,Huerta,"Huerta, M.",38,1986,39,35,True,True,1.0,35.691273,11.906151,0.30833333333333335
+"ibarra junquera,",1065,51,39,27,24,56000893400; 8890188800,Ibarra-Junquera,"Ibarra-Junquera, V.",20; 4,2006,19,15,True,True,1.0,32.870605,10.950386,0.5294117647058824
+"martinez fierro, margarita",588,84,67,48,36,56013562800; 59119983700,Martinez-Fierro,"Martinez-Fierro, Margarita L.",28; 8,2011,14,10,True,True,1.0,35.763733,10.356887,0.5714285714285714
+"mendoza cano, oliver",1848,75,39,17,58,35077329900,Mendoza-Cano,"Mendoza-Cano, Oliver",28,2009,16,15,True,True,1.0,33.74244,12.685886,0.22666666666666666
+"molina ochoa, jaime",1121,45,19,1,44,55993681400; 6603210026,Molina-Ochoa,"Molina-Ochoa, Jaime",3; 13,1999,26,25,True,True,1.0,33.006573,10.614293,0.022222222222222223
+"montesinos lopez, abelardo",1478,76,22,52,24,36104391100,Montesinos López,"Montesinos López, Abelardo",22,2010,15,15,True,True,1.0,33.956284,12.377861,0.6842105263157895
+"montesinos lopez, osval antonio",3464,120,43,80,40,16233976300,Montesinos-López,"Montesinos-López, Osval Antonio",33,2007,18,15,True,True,1.0,33.8678,14.17272,0.6666666666666666
+"navarro polanco,",1093,42,26,27,15,6603404670,Navarro-Polanco,"Navarro-Polanco, R.",13,1994,31,30,True,True,1.0,32.689808,10.6378975,0.6428571428571429
+"pottosin, igor",4793,73,41,39,34,7003579958,Pottosin,"Pottosin, Igor I.",28,1995,30,30,True,True,1.0,33.0607,14.461026,0.5342465753424658
+"rodriguez sanchez, iram",612,89,62,47,42,23467552500,Rodriguez-Sanchez,"Rodriguez-Sanchez, Iram P.",31,2008,17,15,True,True,1.0,35.73136,10.487581,0.5280898876404494
+"sanchez chapula, jose",2229,79,45,44,35,55989739900; 7003798412,Sánchez-Chapula,"Sánchez-Chapula, José",12; 10,1985,40,40,True,True,1.0,33.44127,13.239773,0.5569620253164557
+"shabala, sergey",3667,32,17,17,15,55924154000,Shabala,"Shabala, Sergey",12,2005,20,20,True,True,1.0,32.61647,14.237648,0.53125
+"trujillo hernandez, benjamin",778,75,46,11,64,6701610383,Trujillo-Hernández,"Trujillo-Hernández, Benjamín",30,2001,24,20,True,True,1.0,35.008568,10.470639,0.14666666666666667
+"trujillo,",987,113,73,39,74,6603450487,Trujillo,"Trujillo, X.",37,1991,34,30,True,True,1.0,35.696774,11.7982235,0.34513274336283184
+"varley,",2525,70,27,45,25,6602505337,Varley,"Varley, N.",15,2002,23,20,True,True,1.0,33.21646,13.47477,0.6428571428571429
+"vasquez,",773,71,50,15,56,7006212845,VÁSQUEZ,"VÁSQUEZ, C.",29,1991,34,30,True,True,1.0,34.52961,10.503185,0.2112676056338028
+"zobin, vyacheslav",863,64,20,18,46,55989801000; 7004198101,Zobin,"Zobin, Vyacheslav; Zobin, Vyacheslav M.",4; 12,1996,29,25,True,True,1.0,34.26307,10.480737,0.28125
