@@ -3797,6 +3797,7 @@ elif pagina == "Análisis por autor":
                     #X_selected = feature_selection(tfidf_matrix, labels)
                     #st.write(f"Número de características seleccionadas: {X_selected.shape[1]}")
 
+            
                 else:
                     st.warning(f"No se encontraron títulos para el autor ID: {selected_author_id}")
 
@@ -4087,10 +4088,6 @@ elif pagina == "Redes de colaboraboración":
 
         for c in conclusiones:
             st.markdown(c)
-
-
-
-    
     
     # --- INTERFAZ EN STREAMLIT ---
     st.title("📊 Análisis de Redes de Colaboración en Publicaciones")
@@ -4116,7 +4113,6 @@ elif pagina == "Redes de colaboraboración":
                 )
 
                 if selected_id:
-##############################################################################################
                     df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
                     years = sorted(df_filtered["Year"].dropna().astype(int).unique())
 
@@ -4193,9 +4189,17 @@ elif pagina == "Redes de colaboraboración":
         if st.button("🎥 Generar GIF de Evolución"):
             generate_collaboration_gif(df_filtered, selected_id, id_to_name)
 
-    if st.button("🔗 Redo de Colaboración"):
+    #if st.button("🔗 Redo de Colaboración"):
+    #    fig, G = visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
+    #    if selected_year != "Todos los años":
+    #        evaluate_leadership(G, selected_id, id_to_name)
+    #        plot_leadership_evolution(df_filtered, selected_id)
+    #        interpretar_metricas_autor(df_filtered, selected_id)
+
+    if st.button("🔗 Rd de Colaboración"):
         fig, G = visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
-        if selected_year != "Todos los años":
+
+        if fig is not None and G is not None and selected_year != "Todos los años":
             evaluate_leadership(G, selected_id, id_to_name)
             plot_leadership_evolution(df_filtered, selected_id)
             interpretar_metricas_autor(df_filtered, selected_id)
