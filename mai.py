@@ -4193,7 +4193,7 @@ elif pagina == "Redes de colaboraboración":
 
 #        return fig, G  # Añadir esto al final
 
-    def evaluate_leadership(G, selected_id, id_to_name):
+    def evaluate_leadership(G, selected_author_name, id_to_name):
         st.subheader("🏅 Evaluación de Liderazgo en la Red")
 
         # Calcular métricas
@@ -4217,19 +4217,27 @@ elif pagina == "Redes de colaboraboración":
 
         # Mostrar tabla con resaltado
         st.dataframe(metrics_df.style.apply(
-            lambda row: ['background-color: gold' if row['ID'] == selected_id else '' for _ in row],
+            lambda row: ['background-color: gold' if row['ID'] == selected_author_name,  else '' for _ in row],
             axis=1
         ))
 
         # Mensaje adicional si el autor está en top 3
-        top_ids = metrics_df.head(3)['ID'].tolist()
-        if selected_id in top_ids:
-            st.success("🌟 ¡Este autor se encuentra en el top 3 de liderazgo según PageRank!")
+#        top_ids = metrics_df.head(3)['ID'].tolist()
+#        if selected_id in top_ids:
+#            st.success("🌟 ¡Este autor se encuentra en el top 3 de liderazgo según PageRank!")
+#        else:
+#            st.info("ℹ️ El autor no figura en el top 3 de PageRank.")
+
+        top_names = metrics_df.head(3)['ID'].tolist()  # 'ID' ahora contiene nombres normalizados
+        if selected_author_name in top_names:
+                        st.success("🌟 ¡Este autor se encuentra en el top 3 de liderazgo según PageRank!")
         else:
             st.info("ℹ️ El autor no figura en el top 3 de PageRank.")
 
 
-    def plot_leadership_evolution(df, selected_id):
+
+
+    def plot_leadership_evolution(df, selected_author_name,):
         st.subheader("📈 Evolución Temporal del Liderazgo")
 
         years = sorted(df["Year"].dropna().astype(int).unique())
@@ -4250,10 +4258,10 @@ elif pagina == "Redes de colaboraboración":
                 continue  # El autor no colaboró ese año
 
             # Calcular métricas
-            degree = nx.degree_centrality(G).get(selected_id, 0)
-            betweenness = nx.betweenness_centrality(G).get(selected_id, 0)
-            closeness = nx.closeness_centrality(G).get(selected_id, 0)
-            pagerank = nx.pagerank(G).get(selected_id, 0)
+            degree = nx.degree_centrality(G).get(selected_author_name, 0)
+            betweenness = nx.betweenness_centrality(G).get(selected_author_name, 0)
+            closeness = nx.closeness_centrality(G).get(selected_author_name, 0)
+            pagerank = nx.pagerank(G).get(selected_author_name, 0)
             num_nodos = len(G.nodes)
 
             metrics_over_time.append({
@@ -4280,7 +4288,7 @@ elif pagina == "Redes de colaboraboración":
 
 
 
-    def interpretar_metricas_autor(df, selected_id):
+    def interpretar_metricas_autor(df, selected_author_name):
         st.subheader("🧠 Interpretación automática del liderazgo del autor")
 
         years = sorted(df["Year"].dropna().astype(int).unique())
@@ -4300,10 +4308,10 @@ elif pagina == "Redes de colaboraboración":
                 continue
 
             # Calcular métricas
-            degree = nx.degree_centrality(G).get(selected_id, 0)
-            betweenness = nx.betweenness_centrality(G).get(selected_id, 0)
-            closeness = nx.closeness_centrality(G).get(selected_id, 0)
-            pagerank = nx.pagerank(G).get(selected_id, 0)
+            degree = nx.degree_centrality(G).get(selected_author_name, 0)
+            betweenness = nx.betweenness_centrality(G).get(selected_author_name, 0)
+            closeness = nx.closeness_centrality(G).get(selected_author_name, 0)
+            pagerank = nx.pagerank(G).get(selected_author_name, 0)
 
             num_nodos = len(G.nodes)
 
@@ -4397,14 +4405,14 @@ elif pagina == "Redes de colaboraboración":
 
             if available_authors:
                 # --- SELECCIÓN DEL AUTOR EN `st.selectbox` ---
-                selected_id = st.selectbox(
+                selected_author_name = st.selectbox(
                     "🎯 Seleccion del autor:",
                     options=list(available_authors.keys()),
                     format_func=lambda x: f"{available_authors[x]} (ID: {x})"  # Muestra nombre e ID en el menú
                 )
 
-                if selected_id:
-                    df_filtered = df[df["Author(s) ID"].str.contains(selected_id, na=False, case=False)]
+                if selected_author_name:
+                    df_filtered = df[df["Author(s) ID"].str.contains(selected_author_name, na=False, case=False)]
                     years = sorted(df_filtered["Year"].dropna().astype(int).unique())
 
                     # --- SELECCIÓN DEL AÑO ---
@@ -4428,27 +4436,27 @@ elif pagina == "Redes de colaboraboración":
                                 visualize_collaboration_network(df, selected_author_name, id_to_name, selected_year)
 
                                 # Graficar evolución
-                                plot_leadership_evolution(df_filtered, selected_id)
+                                plot_leadership_evolution(df_filtered, selected_author_name)
 
                                 # Interpretar métricas globales
-                                interpretar_metricas_autor(df_filtered, selected_id)
+                                interpretar_metricas_autor(df_filtered, selected_author_name)
 
                             else:
                                 # Mostrar red de un solo año
-                                fig, G = visualize_collaboration_network(df_filtered, selected_id, id_to_name, selected_year)
+                                fig, G = visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, selected_year)
 
                                 if fig is not None and G is not None:
                                     # Calcular y mostrar métricas para un solo año
-                                    evaluate_leadership(G, selected_id, id_to_name)
+                                    evaluate_leadership(G, selected_author_name, id_to_name)
 
                                     # Crear DataFrame temporal solo para ese año
                                     df_year = df_filtered[df_filtered["Year"] == selected_year]
 
                                     # Mostrar evolución (1 punto) para mantener coherencia visual
-                                    plot_leadership_evolution(df_year, selected_id)
+                                    plot_leadership_evolution(df_year, selected_author_name)
 
                                     # Interpretación solo para ese año
-                                    interpretar_metricas_autor(df_year, selected_id)
+                                    interpretar_metricas_autor(df_year, selected_author_name)
                     else:
                         st.warning("⚠️ No se encontraron publicaciones con años registrados.")
             else:
