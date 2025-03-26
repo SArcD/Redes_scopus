@@ -3927,7 +3927,9 @@ elif pagina == "Redes de colaboraboración":
 
         # Mostrar la gráfica en Streamlit
         st.plotly_chart(fig)
+        #st.plotly_chart(fig)
 
+        return fig, G  # Añadir esto al final
 
     def evaluate_leadership(G, selected_id, id_to_name):
         st.subheader("🏅 Evaluación de Liderazgo en la Red")
