@@ -3995,6 +3995,7 @@ elif pagina == "Redes de colaboraboración":
             betweenness = nx.betweenness_centrality(G).get(selected_id, 0)
             closeness = nx.closeness_centrality(G).get(selected_id, 0)
             pagerank = nx.pagerank(G).get(selected_id, 0)
+            num_nodos = len(G.nodes)
 
             metrics_over_time.append({
                 "Año": year,
