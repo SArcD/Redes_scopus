@@ -4197,6 +4197,9 @@ elif pagina == "Redes de colaboraboración":
         for c in conclusiones:
             st.markdown(c)
 
+    interpretar_metricas_autor(df_filtered, selected_id)
+
+
 
 
 
