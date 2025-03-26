@@ -3851,7 +3851,9 @@ elif pagina == "Redes de colaboraboración":
     import pandas as pd
 
     # URLs de los archivos CSV en GitHub
-    base_url = 'https://github.com/SArcD/Redes_scopus/edit/main/'
+    #base_url = 'https://github.com/SArcD/Redes_scopus/edit/main/'
+    base_url = 'https://raw.githubusercontent.com/SArcD/Redes_scopus/main/'
+
     cluster_files = {
         0: 'df_cluster_0.csv',
         1: 'df_cluster_1.csv',
