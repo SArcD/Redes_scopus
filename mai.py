@@ -4065,34 +4065,45 @@ elif pagina == "Redes de colaboraboración":
 
         conclusiones = []
 
-        if grado_medio <= 0.15:
-            conclusiones.append("🔵 El autor tiende a tener pocas colaboraciones directas por año.")
-        else:
-            conclusiones.append("🔵 El autor mantiene un número alto de colaboraciones directas.")
 
-        if inter_max >= 0.5:
-            conclusiones.append("🟠 En varios años, el autor actúa como **puente clave** entre diferentes grupos.")
-        elif inter_max >= 0.2:
-            conclusiones.append("🟠 El autor cumple **ciertas funciones de intermediario**, aunque no de forma constante.")
+        # 🔵 GRADO (Degree Centrality)
+        if grado_medio <= 0.05:
+            conclusiones.append("🔵 El autor tiene una colaboración directa muy limitada o es periférico en la red.")
+        elif grado_medio <= 0.15:
+            conclusiones.append("🔵 El autor mantiene algunas colaboraciones directas, pero no muy amplias.")
+        elif grado_medio <= 0.30:
+            conclusiones.append("🔵 El autor participa activamente en la red con múltiples colaboraciones.")
         else:
-            conclusiones.append("🟠 El autor no parece desempeñar un rol de conexión fuerte entre grupos.")
+            conclusiones.append("🔵 El autor tiene un rol central con muchas colaboraciones directas.")
 
-        if cercania_medio == 1:
-            conclusiones.append("🟣 El autor suele colaborar en redes muy pequeñas (1-2 personas).")
+        # 🟠 INTERMEDIACIÓN (Betweenness Centrality)
+        if inter_max >= 0.6:
+            conclusiones.append("🟠 El autor ha actuado como un **puente estructural clave** entre comunidades académicas.")
+        elif inter_max >= 0.3:
+            conclusiones.append("🟠 El autor ha desempeñado un **rol de intermediario activo** en varias ocasiones.")
+        elif inter_max >= 0.1:
+            conclusiones.append("🟠 El autor cumple **ciertas funciones de conexión**, aunque no consistentemente.")
         else:
-            conclusiones.append("🟣 El autor mantiene una cercanía notable con otros miembros de la red.")
+            conclusiones.append("🟠 El autor no parece desempeñar un papel de intermediación relevante.")
 
-        if pr_max >= 0.2:
-            conclusiones.append("🟢 En ciertos años, el autor tiene **alta influencia global** dentro de la red.")
-        elif pr_max >= 0.1:
-            conclusiones.append("🟢 El autor tiene un nivel medio de visibilidad e influencia.")
+        # 🟣 CERCANÍA (Closeness Centrality)
+        if cercania_medio == 1 and "Nodos en red" in df_metrics.columns and df_metrics["Nodos en red"].mean() <= 3:
+            conclusiones.append("🟣 La cercanía máxima se debe al tamaño muy reducido de la red.")
+        elif cercania_medio >= 0.5:
+            conclusiones.append("🟣 El autor mantiene una buena accesibilidad dentro de su red de colaboración.")
         else:
-            conclusiones.append("🟢 La influencia del autor en la red es baja según PageRank.")
+            conclusiones.append("🟣 El autor parece estar algo alejado o periférico dentro de las redes donde colabora.")
 
-        # 📌 Agregar esta interpretación según tamaño promedio de la red
-        if "Nodos en red" in df_metrics.columns and df_metrics["Nodos en red"].mean() <= 3:
-            conclusiones.append("🧩 Las redes donde participa el autor suelen ser pequeñas, lo cual puede inflar artificialmente las métricas como grado o cercanía.")
-        
+        # 🟢 PAGERANK
+        if pr_max >= 0.45:
+            conclusiones.append("🟢 En ciertos años, el autor fue **altamente influyente** dentro de la red académica.")
+        elif pr_max >= 0.30:
+            conclusiones.append("🟢 El autor muestra **alta visibilidad estructural** y buenas conexiones.")
+        elif pr_max >= 0.15:
+            conclusiones.append("🟢 El autor tiene **una presencia moderada** dentro de la red.")
+        else:
+            conclusiones.append("🟢 La influencia estructural del autor es baja según PageRank.")
+            
         for c in conclusiones:
             st.markdown(c)
     
