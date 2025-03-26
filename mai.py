@@ -3864,12 +3864,16 @@ elif pagina == "Redes de colaboraboración":
 
     # Diccionario para mapear Author_ID a su cluster
     author_cluster_map = {}
+    #author_cluster_map[normalized_name] = cluster_id
 
     for cluster_id, file_name in cluster_files.items():
         url = base_url + file_name
         df_cluster = pd.read_csv(url)
-        for author_id in df_cluster['Author(s)_ID']:
-            author_cluster_map[author_id] = cluster_id
+        #for author_id in df_cluster['Author(s)_ID']:
+        #    author_cluster_map[author_id] = cluster_id
+        for author_name in df_cluster['Normalized_Author_Name']:
+            author_cluster_map[author_name.strip()] = cluster_id
+
 
     cluster_colors = {
         0: 'lightgreen',  # Cluster 0
