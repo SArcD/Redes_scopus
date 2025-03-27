@@ -3946,13 +3946,14 @@ elif pagina == "Redes de colaboraboración":
  #   }
 
     cluster_colors = {
-        3: '#E0F2E9',   # Verde muy claro - menor prestigio
-        0: '#A8D5BA',   # Verde suave
-        2: '#70C283',   # Verde lima
-        4: '#C5B358',   # Verde dorado
-        1: '#FFD700',   # Dorado intenso - mayor prestigio
-        'default': '#D3D3D3'  # Gris claro - sin asignar
+        3: '#f7fcb9',  # amarillo pálido
+        0: '#addd8e',
+        2: '#41ab5d',
+        4: '#238443',
+        1: '#005a32',  # verde oscuro intenso
+        'default': '#cccccc'
     }
+
 
 
 ##########################################################33
