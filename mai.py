@@ -3906,7 +3906,9 @@ elif pagina == "Redes de colaboraboración":
             years = sorted(df["Year"].dropna().astype(int).unique())
             for year in years:
                 st.subheader(f"🔗 Red de colaboración en {year}")
-                visualize_collaboration_network(df[df["Year"] == year], selected_author_name, id_to_name, year)
+#                visualize_collaboration_network(df[df["Year"] == year], selected_author_name, id_to_name, year)
+                visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, id_to_normalized, selected_year)
+
             return None, None
 
         df_filtered = df[df["Year"] == selected_year]
