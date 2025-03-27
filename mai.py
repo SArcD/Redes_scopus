@@ -3857,7 +3857,7 @@ elif pagina == "Redes de colaboraboración":
                 names = [n.strip() for n in str(row["Normalized_Author_Name"]).split(";")]
                 for author_id, norm_name in zip(ids, names):
                     mapping[author_id] = norm_name
-    return mapping
+        return mapping
 
 
     
