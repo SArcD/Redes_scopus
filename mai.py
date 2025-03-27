@@ -3946,13 +3946,14 @@ elif pagina == "Redes de colaboraboración":
  #   }
 
     cluster_colors = {
-        3: '#f7fcb9',  # amarillo pálido
-        0: '#addd8e',
-        2: '#41ab5d',
-        4: '#238443',
-        1: '#005a32',  # verde oscuro intenso
-        'default': '#cccccc'
+        1: '#FFD700',  # dorado brillante
+        3: '#1f77b4',  # azul
+        0: '#2ca02c',  # verde
+        2: '#ff7f0e',  # naranja
+        4: '#d62728',  # rojo
+        'default': '#bdbdbd'  # gris claro para nodos sin cluster
     }
+
 
 
 
