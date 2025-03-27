@@ -4118,7 +4118,9 @@ elif pagina == "Redes de colaboraboración":
                 for i, j in itertools.combinations(coauthors, 2):
                     G.add_edge(i, j)
 
-            if selected_id not in G:
+            #if selected_id not in G:
+            if selected_author_name not in G:
+
                 continue
 
             # Calcular métricas
