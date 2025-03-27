@@ -4310,7 +4310,6 @@ elif pagina == "Redes de colaboraboración":
 #            st.warning("⚠️ No hay datos suficientes para mostrar evolución.")
 #            return
 
-
     def plot_leadership_evolution(df, selected_author_name):
         st.subheader("📈 Evolución Temporal del Liderazgo")
 
@@ -4355,9 +4354,22 @@ elif pagina == "Redes de colaboraboración":
 
         if not metrics_over_time:
             st.warning("⚠️ No hay datos suficientes para mostrar evolución.")
-            return
+            return None
 
-    df_metrics = pd.DataFrame(metrics_over_time).sort_values("Año")
+        df_metrics = pd.DataFrame(metrics_over_time).sort_values("Año")
+    
+        # Mostrar gráfico en Streamlit
+        st.line_chart(df_metrics.set_index("Año")[["Grado", "Intermediación", "Cercanía", "PageRank"]])
+
+        return df_metrics
+
+    df_metrics = plot_leadership_evolution(df, selected_author_name)
+    if df_metrics is not None:
+        # Puedes hacer algo más con df_metrics aquí si quieres
+        st.dataframe(df_metrics)
+
+
+    #df_metrics = pd.DataFrame(metrics_over_time).sort_values("Año")
 
     import plotly.express as px
     for metric in ["Grado", "Intermediación", "Cercanía", "PageRank"]:
