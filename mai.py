@@ -4267,7 +4267,51 @@ elif pagina == "Redes de colaboraboración":
 
 
 
-    def plot_leadership_evolution(df, selected_author_name,):
+#    def plot_leadership_evolution(df, selected_author_name,):
+#        st.subheader("📈 Evolución Temporal del Liderazgo")
+
+#        years = sorted(df["Year"].dropna().astype(int).unique())
+#        metrics_over_time = []
+
+#        for year in years:
+#            df_year = df[df["Year"] == year]
+
+#            # Crear red del año
+#            G = nx.Graph()
+#            for _, row in df_year.iterrows():
+#                coauthors = row["Author(s) ID"].split(";")
+#                coauthors = [a.strip() for a in coauthors if a]
+#                for i, j in itertools.combinations(coauthors, 2):
+#                    G.add_edge(i, j)
+
+#            #if selected_id not in G:
+#            if selected_author_name not in G:
+
+#                continue  # El autor no colaboró ese año
+
+#            # Calcular métricas
+#            degree = nx.degree_centrality(G).get(selected_author_name, 0)
+#            betweenness = nx.betweenness_centrality(G).get(selected_author_name, 0)
+#            closeness = nx.closeness_centrality(G).get(selected_author_name, 0)
+#            pagerank = nx.pagerank(G).get(selected_author_name, 0)
+#            num_nodos = len(G.nodes)
+
+#            metrics_over_time.append({
+#                "Año": year,
+#                "Grado": degree,
+#                "Intermediación": betweenness,
+#                "Cercanía": closeness,
+#                "PageRank": pagerank,
+#                "Nodos en red": num_nodos  # 👈 nueva métrica agregada
+
+#            })
+
+#        if not metrics_over_time:
+#            st.warning("⚠️ No hay datos suficientes para mostrar evolución.")
+#            return
+
+
+    def plot_leadership_evolution(df, selected_author_name):
         st.subheader("📈 Evolución Temporal del Liderazgo")
 
         years = sorted(df["Year"].dropna().astype(int).unique())
@@ -4279,15 +4323,19 @@ elif pagina == "Redes de colaboraboración":
             # Crear red del año
             G = nx.Graph()
             for _, row in df_year.iterrows():
+                if pd.isna(row["Author(s) ID"]):
+                    continue
                 coauthors = row["Author(s) ID"].split(";")
                 coauthors = [a.strip() for a in coauthors if a]
                 for i, j in itertools.combinations(coauthors, 2):
                     G.add_edge(i, j)
 
-            #if selected_id not in G:
             if selected_author_name not in G:
+                continue
 
-                continue  # El autor no colaboró ese año
+            # Limitar red a autor y vecinos directos
+            ego_nodes = list(G.neighbors(selected_author_name)) + [selected_author_name]
+            G = G.subgraph(ego_nodes).copy()
 
             # Calcular métricas
             degree = nx.degree_centrality(G).get(selected_author_name, 0)
@@ -4302,14 +4350,23 @@ elif pagina == "Redes de colaboraboración":
                 "Intermediación": betweenness,
                 "Cercanía": closeness,
                 "PageRank": pagerank,
-                "Nodos en red": num_nodos  # 👈 nueva métrica agregada
-
+                "Nodos en red": num_nodos
             })
 
         if not metrics_over_time:
             st.warning("⚠️ No hay datos suficientes para mostrar evolución.")
             return
 
+    df_metrics = pd.DataFrame(metrics_over_time).sort_values("Año")
+
+    import plotly.express as px
+    for metric in ["Grado", "Intermediación", "Cercanía", "PageRank"]:
+        fig = px.line(df_metrics, x="Año", y=metric, title=f"Evolución de {metric}")
+        st.plotly_chart(fig, use_container_width=True)
+
+
+
+        
         df_metrics = pd.DataFrame(metrics_over_time).sort_values("Año")
 
         # Mostrar gráficas
@@ -4317,7 +4374,6 @@ elif pagina == "Redes de colaboraboración":
         for metric in ["Grado", "Intermediación", "Cercanía", "PageRank"]:
             fig = px.line(df_metrics, x="Año", y=metric, title=f"Evolución de {metric}")
             st.plotly_chart(fig, use_container_width=True)
-
 
 
     def interpretar_metricas_autor(df, selected_author_name):
@@ -4331,22 +4387,25 @@ elif pagina == "Redes de colaboraboración":
 
             G = nx.Graph()
             for _, row in df_year.iterrows():
+                if pd.isna(row["Author(s) ID"]):
+                    continue
                 coauthors = row["Author(s) ID"].split(";")
                 coauthors = [a.strip() for a in coauthors if a]
                 for i, j in itertools.combinations(coauthors, 2):
                     G.add_edge(i, j)
 
-            #if selected_id not in G:
             if selected_author_name not in G:
-
                 continue
+
+            # Limitar la red al autor y sus vecinos inmediatos
+            ego_nodes = list(G.neighbors(selected_author_name)) + [selected_author_name]
+            G = G.subgraph(ego_nodes).copy()
 
             # Calcular métricas
             degree = nx.degree_centrality(G).get(selected_author_name, 0)
             betweenness = nx.betweenness_centrality(G).get(selected_author_name, 0)
             closeness = nx.closeness_centrality(G).get(selected_author_name, 0)
             pagerank = nx.pagerank(G).get(selected_author_name, 0)
-
             num_nodos = len(G.nodes)
 
             metrics_over_time.append({
@@ -4359,7 +4418,7 @@ elif pagina == "Redes de colaboraboración":
             })
 
         if not metrics_over_time:
-            st.warning("No hay datos suficientes para generar una interpretación.")
+            st.warning("⚠️ No hay datos suficientes para generar una interpretación.")
             return
 
         df_metrics = pd.DataFrame(metrics_over_time)
@@ -4415,6 +4474,104 @@ elif pagina == "Redes de colaboraboración":
 
         for c in conclusiones:
             st.markdown(c)
+
+
+
+#    def interpretar_metricas_autor(df, selected_author_name):
+#        st.subheader("🧠 Interpretación automática del liderazgo del autor")
+
+#        years = sorted(df["Year"].dropna().astype(int).unique())
+#        metrics_over_time = []
+
+#        for year in years:
+#            df_year = df[df["Year"] == year]
+
+#            G = nx.Graph()
+#            for _, row in df_year.iterrows():
+#                coauthors = row["Author(s) ID"].split(";")
+#                coauthors = [a.strip() for a in coauthors if a]
+#                for i, j in itertools.combinations(coauthors, 2):
+#                    G.add_edge(i, j)
+
+#            #if selected_id not in G:
+#            if selected_author_name not in G:
+
+#                continue
+
+#            # Calcular métricas
+#            degree = nx.degree_centrality(G).get(selected_author_name, 0)
+#            betweenness = nx.betweenness_centrality(G).get(selected_author_name, 0)
+#            closeness = nx.closeness_centrality(G).get(selected_author_name, 0)
+#            pagerank = nx.pagerank(G).get(selected_author_name, 0)
+
+#            num_nodos = len(G.nodes)
+
+#            metrics_over_time.append({
+#                "Año": year,
+#                "Grado": degree,
+#                "Intermediación": betweenness,
+#                "Cercanía": closeness,
+#                "PageRank": pagerank,
+#                "Nodos en red": num_nodos
+#            })
+
+#        if not metrics_over_time:
+#            st.warning("No hay datos suficientes para generar una interpretación.")
+#            return
+
+#        df_metrics = pd.DataFrame(metrics_over_time)
+#        grado_medio = df_metrics["Grado"].mean()
+#        inter_max = df_metrics["Intermediación"].max()
+#        cercania_medio = df_metrics["Cercanía"].mean()
+#        pr_max = df_metrics["PageRank"].max()
+#        nodos_mean = df_metrics["Nodos en red"].mean()
+
+#        conclusiones = []
+
+#        # 🔵 Grado (colaboraciones directas)
+#        if grado_medio > 0.30 and nodos_mean >= 10:
+#            conclusiones.append("🔵 El autor tiene un rol central con muchas colaboraciones directas.")#
+#        elif grado_medio > 0.15 and nodos_mean >= 5:
+#            conclusiones.append("🔵 El autor participa activamente en la red con varias colaboraciones.")
+#        elif grado_medio > 0.05:
+#            conclusiones.append("🔵 El autor mantiene algunas colaboraciones directas.")
+#        else:
+#            conclusiones.append("🔵 El autor tiene una colaboración directa muy limitada o es periférico en la red.")
+
+#        # 🟠 Intermediación
+#        if inter_max >= 0.6:
+#            conclusiones.append("🟠 El autor ha actuado como un **puente estructural clave** entre comunidades académicas.")
+#        elif inter_max >= 0.3:
+#            conclusiones.append("🟠 El autor ha desempeñado un **rol de intermediario activo** en varias ocasiones.")
+#        elif inter_max >= 0.1:
+#            conclusiones.append("🟠 El autor cumple **ciertas funciones de conexión**, aunque no consistentemente.")
+#        else:
+#            conclusiones.append("🟠 El autor no parece desempeñar un papel de intermediación relevante.")
+
+#        # 🟣 Cercanía
+#        if cercania_medio == 1.0 and nodos_mean <= 5:
+#            conclusiones.append("🟣 El autor colabora en redes muy pequeñas, donde es natural tener cercanía máxima.")
+#        elif cercania_medio >= 0.5:
+#            conclusiones.append("🟣 El autor tiene buena accesibilidad dentro de su red.")
+#        else:
+#            conclusiones.append("🟣 El autor se encuentra algo alejado o periférico dentro de la red.")
+
+#        # 🟢 PageRank
+#        if pr_max >= 0.45:
+#            conclusiones.append("🟢 En ciertos años, el autor fue **altamente influyente** dentro de la red académica.")
+#        elif pr_max >= 0.30:
+#            conclusiones.append("🟢 El autor muestra **alta visibilidad estructural** y buenas conexiones.")
+ #       elif pr_max >= 0.15:
+#            conclusiones.append("🟢 El autor tiene **una presencia moderada** dentro de la red.")
+#        else:
+#            conclusiones.append("🟢 La influencia estructural del autor es baja según PageRank.")
+
+#        # 🧩 Considerar tamaño de red
+#        if nodos_mean <= 3:
+#            conclusiones.append("🧩 Las redes donde participa el autor suelen ser pequeñas, lo cual puede inflar artificialmente las métricas como grado o cercanía.")
+
+#        for c in conclusiones:
+#            st.markdown(c)
 
 
 
