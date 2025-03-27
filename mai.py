@@ -1034,7 +1034,7 @@ elif pagina == "Análisis por base":
         # Filtrar los autores que están en el cluster 1.0
         df_cluster_0 = df_ucol[df_ucol["Cluster"] == 0.0]
         # Omitir las columnas "Correspondence_Address" y "Year" en el DataFrame df_cluster_1
-        columns_to_exclude = ["Authors", "Author_full_names", "Author(s)_ID", "Correspondence_Address", "Year", "Most_frequent_publisher"]
+        columns_to_exclude = ["Authors", "Author_full_names", "Correspondence_Address", "Year", "Most_frequent_publisher"]
         df_cluster_0 = df_cluster_0.drop(columns=[col for col in columns_to_exclude if col in df_cluster_0.columns])
         df_cluster_0
         
@@ -1048,7 +1048,7 @@ elif pagina == "Análisis por base":
         # Filtrar los autores que están en el cluster 1.0
         df_cluster_1 = df_ucol[df_ucol["Cluster"] == 1.0]
         # Omitir las columnas "Correspondence_Address" y "Year" en el DataFrame df_cluster_1
-        columns_to_exclude = ["Authors","Author_full_names", "Author(s)_ID", "Correspondence_Address", "Year", "Most_frequent_publisher"]
+        columns_to_exclude = ["Authors","Author_full_names", "Correspondence_Address", "Year", "Most_frequent_publisher"]
         df_cluster_1 = df_cluster_1.drop(columns=[col for col in columns_to_exclude if col in df_cluster_1.columns])
         df_cluster_1
         # 📂 **Descargar el archivo procesado**
@@ -1059,7 +1059,7 @@ elif pagina == "Análisis por base":
         # Filtrar los autores que están en el cluster 1.0
         df_cluster_2 = df_ucol[df_ucol["Cluster"] == 2.0]
         # Omitir las columnas "Correspondence_Address" y "Year" en el DataFrame df_cluster_1
-        columns_to_exclude = ["Authors","Author_full_names", "Author(s)_ID", "Correspondence_Address", "Year", "Most_frequent_publisher"]
+        columns_to_exclude = ["Authors","Author_full_names", "Correspondence_Address", "Year", "Most_frequent_publisher"]
         df_cluster_2 = df_cluster_2.drop(columns=[col for col in columns_to_exclude if col in df_cluster_2.columns])
         df_cluster_2
         # 📂 **Descargar el archivo procesado**
@@ -1071,7 +1071,7 @@ elif pagina == "Análisis por base":
         # Filtrar los autores que están en el cluster 1.0
         df_cluster_3 = df_ucol[df_ucol["Cluster"] == 3.0]
         # Omitir las columnas "Correspondence_Address" y "Year" en el DataFrame df_cluster_1
-        columns_to_exclude = ["Authors","Author_full_names", "Author(s)_ID", "Correspondence_Address", "Year", "Most_frequent_publisher"]
+        columns_to_exclude = ["Authors","Author_full_names", "Correspondence_Address", "Year", "Most_frequent_publisher"]
         df_cluster_3 = df_cluster_3.drop(columns=[col for col in columns_to_exclude if col in df_cluster_3.columns])
         df_cluster_3
         # 📂 **Descargar el archivo procesado**
@@ -1082,7 +1082,7 @@ elif pagina == "Análisis por base":
         # Filtrar los autores que están en el cluster 1.0
         df_cluster_4 = df_ucol[df_ucol["Cluster"] == 4.0]
         # Omitir las columnas "Correspondence_Address" y "Year" en el DataFrame df_cluster_1
-        columns_to_exclude = ["Authors","Author_full_names", "Author(s)_ID", "Correspondence_Address", "Year", "Most_frequent_publisher"]
+        columns_to_exclude = ["Authors","Author_full_names", "Correspondence_Address", "Year", "Most_frequent_publisher"]
         df_cluster_4 = df_cluster_4.drop(columns=[col for col in columns_to_exclude if col in df_cluster_4.columns])
         df_cluster_4
         # 📂 **Descargar el archivo procesado**
