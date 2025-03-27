@@ -3882,7 +3882,14 @@ elif pagina == "Redes de colaboraboración":
         url = base_url + file_name
         df_cluster = pd.read_csv(url)
         for author_name in df_cluster['Normalized_Author_Name']:
-            author_cluster_map[author_name.strip()] = cluster_id
+            name_clean = author_name.strip().lower()  # 👈 normaliza a minúsculas
+            author_cluster_map[name_clean] = cluster_id
+
+    #for cluster_id, file_name in cluster_files.items():
+    #    url = base_url + file_name
+    #    df_cluster = pd.read_csv(url)
+    #    for author_name in df_cluster['Normalized_Author_Name']:
+    #        author_cluster_map[author_name.strip()] = cluster_id
 
 
 
@@ -3969,7 +3976,8 @@ elif pagina == "Redes de colaboraboración":
             x, y = pos[node]
             #cluster_id = author_cluster_map.get(node, 'default')
             normalized_name = id_to_normalized.get(node, node)  # fallback: el mismo ID
-            cluster_id = author_cluster_map.get(normalized_name, 'default')
+            #cluster_id = author_cluster_map.get(normalized_name, 'default')
+            cluster_id = author_cluster_map.get(normalized_name.lower(), 'default')  # 👈 busca en minúsculas
 
             color = cluster_colors.get(cluster_id, 'gray')
             #name = node  # Ya es el nombre normalizado
