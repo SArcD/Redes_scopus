@@ -3849,14 +3849,14 @@ elif pagina == "Redes de colaboraboración":
 
 
     def create_id_to_normalized_name_mapping(df):
-    """Crea un diccionario {ID: Normalized_Author_Name}."""
-    mapping = {}
-    for _, row in df.iterrows():
-        if pd.notna(row.get("Author(s) ID")) and pd.notna(row.get("Normalized_Author_Name")):
-            ids = [i.strip() for i in str(row["Author(s) ID"]).split(";")]
-            names = [n.strip() for n in str(row["Normalized_Author_Name"]).split(";")]
-            for author_id, norm_name in zip(ids, names):
-                mapping[author_id] = norm_name
+        """Crea un diccionario {ID: Normalized_Author_Name}."""
+        mapping = {}
+        for _, row in df.iterrows():
+            if pd.notna(row.get("Author(s) ID")) and pd.notna(row.get("Normalized_Author_Name")):
+                ids = [i.strip() for i in str(row["Author(s) ID"]).split(";")]
+                names = [n.strip() for n in str(row["Normalized_Author_Name"]).split(";")]
+                for author_id, norm_name in zip(ids, names):
+                    mapping[author_id] = norm_name
     return mapping
 
 
