@@ -3891,15 +3891,26 @@ elif pagina == "Redes de colaboraboración":
         4: 'df_cluster_4.csv'
     }
 
-    # Diccionario para mapear Author_ID a su cluster
     author_cluster_map = {}
 
     for cluster_id, file_name in cluster_files.items():
         url = base_url + file_name
         df_cluster = pd.read_csv(url)
-        for author_name in df_cluster['Normalized_Author_Name']:
-            name_clean = clean_name(author_name)
-            author_cluster_map[name_clean] = cluster_id
+        for author_id in df_cluster['Author(s)_ID'].dropna():
+            for aid in str(author_id).split(";"):
+                aid_clean = aid.strip()
+                author_cluster_map[aid_clean] = cluster_id
+    
+    
+    # Diccionario para mapear Author_ID a su cluster
+    #author_cluster_map = {}
+
+    #for cluster_id, file_name in cluster_files.items():
+    #    url = base_url + file_name
+    #    df_cluster = pd.read_csv(url)
+    #    for author_name in df_cluster['Normalized_Author_Name']:
+    #        name_clean = clean_name(author_name)
+    #        author_cluster_map[name_clean] = cluster_id
 
     
     #for cluster_id, file_name in cluster_files.items():
@@ -3987,7 +3998,9 @@ elif pagina == "Redes de colaboraboración":
             # Obtener nombre normalizado limpio
             raw_name = id_to_normalized.get(node, "")
             normalized_name = clean_name(raw_name)
-            cluster_id = author_cluster_map.get(normalized_name, 'default')
+            #cluster_id = author_cluster_map.get(normalized_name, 'default')
+            cluster_id = author_cluster_map.get(node, 'default')
+
             color = cluster_colors.get(cluster_id, 'grey')
             label = raw_name if raw_name else node
 
