@@ -3936,14 +3936,24 @@ elif pagina == "Redes de colaboraboración":
 
 
 
+#    cluster_colors = {
+#        0: 'lightgreen',  # Cluster 0
+#        1: 'gold',        # Cluster 1
+#        2: 'yellow',      # Cluster 2
+ #       3: 'red',         # Cluster 3
+ #       4: 'orange',      # Cluster 4
+ #       'default': 'grey' # Para autores no asignados a ningún cluster
+ #   }
+
     cluster_colors = {
-        0: 'lightgreen',  # Cluster 0
-        1: 'gold',        # Cluster 1
-        2: 'yellow',      # Cluster 2
-        3: 'red',         # Cluster 3
-        4: 'orange',      # Cluster 4
-        'default': 'grey' # Para autores no asignados a ningún cluster
+        3: '#E0F2E9',   # Verde muy claro - menor prestigio
+        0: '#A8D5BA',   # Verde suave
+        2: '#70C283',   # Verde lima
+        4: '#C5B358',   # Verde dorado
+        1: '#FFD700',   # Dorado intenso - mayor prestigio
+        'default': '#D3D3D3'  # Gris claro - sin asignar
     }
+
 
 ##########################################################33
     def visualize_collaboration_network(df, selected_author_name, id_to_name, id_to_normalized, selected_year):
