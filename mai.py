@@ -3877,15 +3877,6 @@ elif pagina == "Redes de colaboraboración":
 
     # Diccionario para mapear Author_ID a su cluster
     author_cluster_map = {}
-    #author_cluster_map[normalized_name] = cluster_id
-
-    #for cluster_id, file_name in cluster_files.items():
-    #    url = base_url + file_name
-    #    df_cluster = pd.read_csv(url)
-    #    #for author_id in df_cluster['Author(s)_ID']:
-    #    #    author_cluster_map[author_id] = cluster_id
-    #    for author_name in df_cluster['Normalized_Author_Name']:
-    #        author_cluster_map[author_name.strip()] = cluster_id
 
     for cluster_id, file_name in cluster_files.items():
         url = base_url + file_name
@@ -4245,8 +4236,8 @@ elif pagina == "Redes de colaboraboración":
                         if st.button("🔗 Red de Colaboración"):
                             if selected_year == "Todos los años":
                                 # Mostrar red año por año
-                                #visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, id_to_normalized, selected_year)
-                                visualize_collaboration_network(df[df["Year"] == year], selected_author_name, id_to_name, id_to_normalized, year)
+                                visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, id_to_normalized, selected_year)
+                                #visualize_collaboration_network(df[df["Year"] == year], selected_author_name, id_to_name, id_to_normalized, year)
 
                                 #visualize_collaboration_network(df, selected_author_name, id_to_name, selected_year)
 
@@ -4259,7 +4250,8 @@ elif pagina == "Redes de colaboraboración":
                             else:
                                 # Mostrar red de un solo año
                                 #fig, G = visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, id_to_normalized, selected_year)
-                                fig, G = visualize_collaboration_network(df[df["Year"] == year], selected_author_name, id_to_name, id_to_normalized, year)
+                                fig, G = visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, id_to_normalized, selected_year)
+
 
 #                                fig, G = visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, selected_year)
 
