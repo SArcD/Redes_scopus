@@ -3936,11 +3936,12 @@ elif pagina == "Redes de colaboraboración":
 
 ##########################################################33
     def visualize_collaboration_network(df, selected_author_name, id_to_name, id_to_normalized, selected_year):
-        st.subheader(f"🔗 Red de colaboración en {selected_year}")
+        """Genera una red de colaboración en Plotly con colores por cluster y estrella para el autor principal."""
 
         if selected_year == "Todos los años":
             years = sorted(df["Year"].dropna().astype(int).unique())
             for year in years:
+                st.subheader(f"🔗 Red de colaboración en {year}")
                 visualize_collaboration_network(df[df["Year"] == year], selected_author_name, id_to_name, id_to_normalized, year)
             return None, None
 
@@ -3953,9 +3954,9 @@ elif pagina == "Redes de colaboraboración":
         # Crear red
         G = nx.Graph()
         for _, row in df_filtered.iterrows():
-            if pd.isna(row.get("Normalized_Author_Name")):
+            if pd.isna(row.get("Author(s) ID")):
                 continue
-            coauthors = [clean_name(a) for a in row["Normalized_Author_Name"].split(";") if a.strip()]
+            coauthors = [a.strip() for a in str(row["Author(s) ID"]).split(";") if a.strip()]
             for i, j in itertools.combinations(coauthors, 2):
                 G.add_edge(i, j)
 
@@ -3976,26 +3977,30 @@ elif pagina == "Redes de colaboraboración":
             edge_trace.x += (x0, x1, None)
             edge_trace.y += (y0, y1, None)
 
-        # Separar nodos normales y nodo principal
+        # Nodos
         node_x, node_y, node_color, node_texts = [], [], [], []
         star_x, star_y, star_color, star_text = [], [], [], []
 
         for node in G.nodes():
             x, y = pos[node]
-            normalized_name = clean_name(node)
+
+            # Obtener nombre normalizado limpio
+            raw_name = id_to_normalized.get(node, "")
+            normalized_name = clean_name(raw_name)
             cluster_id = author_cluster_map.get(normalized_name, 'default')
             color = cluster_colors.get(cluster_id, 'grey')
+            label = raw_name if raw_name else node
 
-            if normalized_name == clean_name(id_to_normalized.get(selected_author_name, selected_author_name)):
+            if node == selected_author_name:
                 star_x.append(x)
                 star_y.append(y)
                 star_color.append(color)
-                star_text.append(f"⭐ {node}")
+                star_text.append(f"⭐ {label}")
             else:
                 node_x.append(x)
                 node_y.append(y)
                 node_color.append(color)
-                node_texts.append(node)
+                node_texts.append(label)
 
         # Trazas
         node_trace = go.Scatter(
@@ -4003,13 +4008,13 @@ elif pagina == "Redes de colaboraboración":
             marker=dict(size=15, color=node_color, opacity=0.8, symbol="circle"),
             text=node_texts, hoverinfo="text"
         )
+
         star_trace = go.Scatter(
             x=star_x, y=star_y, mode="markers",
             marker=dict(size=22, color=star_color, symbol="star", line=dict(width=2, color="black")),
             text=star_text, hoverinfo="text"
         )
 
-        # Construir figura
         fig = go.Figure(data=[edge_trace, node_trace, star_trace])
         fig.update_layout(
             title=f"Red de Colaboración en {selected_year}",
@@ -4022,8 +4027,6 @@ elif pagina == "Redes de colaboraboración":
 
         st.plotly_chart(fig)
         return fig, G
-
-
 
 #############################################################3    
 
