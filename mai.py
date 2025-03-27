@@ -3848,16 +3848,28 @@ elif pagina == "Redes de colaboraboración":
         return {author_id: Counter(names).most_common(1)[0][0] for author_id, names in id_to_name.items()}
 
 
+    #def create_id_to_normalized_name_mapping(df):
+    #    """Crea un diccionario {ID: Normalized_Author_Name}."""
+    #    mapping = {}
+    #    for _, row in df.iterrows():
+    #        if pd.notna(row.get("Author(s) ID")) and pd.notna(row.get("Normalized_Author_Name")):
+    #            ids = [i.strip() for i in str(row["Author(s) ID"]).split(";")]
+    #            names = [n.strip() for n in str(row["Normalized_Author_Name"]).split(";")]
+    #            for author_id, norm_name in zip(ids, names):
+    #                mapping[author_id] = norm_name
+    #    return mapping
+
     def create_id_to_normalized_name_mapping(df):
-        """Crea un diccionario {ID: Normalized_Author_Name}."""
+        """Crea un diccionario {ID: Normalized_Author_Name} limpiado."""
         mapping = {}
         for _, row in df.iterrows():
             if pd.notna(row.get("Author(s) ID")) and pd.notna(row.get("Normalized_Author_Name")):
                 ids = [i.strip() for i in str(row["Author(s) ID"]).split(";")]
-                names = [n.strip() for n in str(row["Normalized_Author_Name"]).split(";")]
+                names = [n.strip().lower().rstrip(",") for n in str(row["Normalized_Author_Name"]).split(";")]
                 for author_id, norm_name in zip(ids, names):
                     mapping[author_id] = norm_name
         return mapping
+
 
 
     
@@ -3882,8 +3894,16 @@ elif pagina == "Redes de colaboraboración":
         url = base_url + file_name
         df_cluster = pd.read_csv(url)
         for author_name in df_cluster['Normalized_Author_Name']:
-            name_clean = author_name.strip().lower()  # 👈 normaliza a minúsculas
+            name_clean = author_name.strip().lower().rstrip(",")  # 👈 elimina coma al final
             author_cluster_map[name_clean] = cluster_id
+
+
+    #for cluster_id, file_name in cluster_files.items():
+    #    url = base_url + file_name
+    #    df_cluster = pd.read_csv(url)
+    #    for author_name in df_cluster['Normalized_Author_Name']:
+    #        name_clean = author_name.strip().lower()  # 👈 normaliza a minúsculas
+    #        author_cluster_map[name_clean] = cluster_id
 
     #for cluster_id, file_name in cluster_files.items():
     #    url = base_url + file_name
@@ -3975,9 +3995,16 @@ elif pagina == "Redes de colaboraboración":
         for node in G.nodes():
             x, y = pos[node]
             #cluster_id = author_cluster_map.get(node, 'default')
-            normalized_name = id_to_normalized.get(node, node)  # fallback: el mismo ID
+            #normalized_name = id_to_normalized.get(node, node)  # fallback: el mismo ID
+
+            normalized_name = id_to_normalized.get(node, "").strip().lower().rstrip(",")
+            if not normalized_name:
+                normalized_name = node.lower().rstrip(",")
+
+            cluster_id = author_cluster_map.get(normalized_name, 'default')
+
             #cluster_id = author_cluster_map.get(normalized_name, 'default')
-            cluster_id = author_cluster_map.get(normalized_name.lower(), 'default')  # 👈 busca en minúsculas
+            #cluster_id = author_cluster_map.get(normalized_name.lower(), 'default')  # 👈 busca en minúsculas
 
             color = cluster_colors.get(cluster_id, 'gray')
             #name = node  # Ya es el nombre normalizado
