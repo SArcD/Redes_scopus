@@ -3848,6 +3848,19 @@ elif pagina == "Redes de colaboraboración":
         return {author_id: Counter(names).most_common(1)[0][0] for author_id, names in id_to_name.items()}
 
 
+    def create_id_to_normalized_name_mapping(df):
+    """Crea un diccionario {ID: Normalized_Author_Name}."""
+    mapping = {}
+    for _, row in df.iterrows():
+        if pd.notna(row.get("Author(s) ID")) and pd.notna(row.get("Normalized_Author_Name")):
+            ids = [i.strip() for i in str(row["Author(s) ID"]).split(";")]
+            names = [n.strip() for n in str(row["Normalized_Author_Name"]).split(";")]
+            for author_id, norm_name in zip(ids, names):
+                mapping[author_id] = norm_name
+    return mapping
+
+
+    
     import pandas as pd
 
     # URLs de los archivos CSV en GitHub
@@ -3951,9 +3964,13 @@ elif pagina == "Redes de colaboraboración":
 
         for node in G.nodes():
             x, y = pos[node]
-            cluster_id = author_cluster_map.get(node, 'default')
+            #cluster_id = author_cluster_map.get(node, 'default')
+            normalized_name = id_to_normalized.get(node, node)  # fallback: el mismo ID
+            cluster_id = author_cluster_map.get(normalized_name, 'default')
+
             color = cluster_colors.get(cluster_id, 'gray')
-            name = node  # Ya es el nombre normalizado
+            #name = node  # Ya es el nombre normalizado
+            name = normalized_name
 
             if node == selected_author_name:
                 star_x.append(x)
@@ -4253,11 +4270,6 @@ elif pagina == "Redes de colaboraboración":
                         st.warning("⚠️ No se encontraron publicaciones con años registrados.")
             else:
                 st.warning("⚠️ No se encontraron coincidencias para ese apellido.")
-
-
-####################################################3
-
-
 
 
 
