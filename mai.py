@@ -3991,16 +3991,27 @@ elif pagina == "Redes de colaboraboración":
             st.warning("⚠️ No hay colaboraciones registradas en este período.")
             return
 
-        # 👉 Agrega esto después del chequeo de nodos vacíos
+        ## 👉 Agrega esto después del chequeo de nodos vacíos
+        #if len(G.nodes) > 50:
+        #    st.warning(f"⚠️ La red en {selected_year} contiene {len(G.nodes)} nodos. Mostrando solo la red directa del autor.")
+        #    if selected_author_name in G:
+        #        G = G.subgraph([selected_author_name] + list(G.neighbors(selected_author_name))).copy()
+        #    else:
+        #        st.warning("El autor no tiene nodos conectados.")
+        #        return
+
+        # --- Si la red es muy grande, limitar a red ego del autor (autor + vecinos directos) ---
         if len(G.nodes) > 50:
-            st.warning(f"⚠️ La red en {selected_year} contiene {len(G.nodes)} nodos. Mostrando solo la red directa del autor.")
+            st.warning(f"⚠️ La red en {selected_year} tiene {len(G.nodes)} nodos. Mostrando solo la red directa del autor.")
+
             if selected_author_name in G:
                 G = G.subgraph([selected_author_name] + list(G.neighbors(selected_author_name))).copy()
             else:
-                st.warning("El autor no tiene nodos conectados.")
+                st.warning("⚠️ El autor no tiene conexiones directas. No se puede visualizar red.")
                 return
 
-
+        
+        
         pos = nx.spring_layout(G, seed=42, scale=1.5)
 
         # Crear trazas de bordes
