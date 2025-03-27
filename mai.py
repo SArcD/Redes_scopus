@@ -3983,9 +3983,23 @@ elif pagina == "Redes de colaboraboración":
             for i, j in itertools.combinations(coauthors, 2):
                 G.add_edge(i, j)
 
+        #if len(G.nodes) == 0:
+        #    st.warning("⚠️ No hay colaboraciones registradas en este período.")
+        #    return
+
         if len(G.nodes) == 0:
             st.warning("⚠️ No hay colaboraciones registradas en este período.")
             return
+
+        # 👉 Agrega esto después del chequeo de nodos vacíos
+        if len(G.nodes) > 150:
+            st.warning(f"⚠️ La red en {selected_year} contiene {len(G.nodes)} nodos. Mostrando solo la red directa del autor.")
+            if selected_author_name in G:
+                G = G.subgraph([selected_author_name] + list(G.neighbors(selected_author_name))).copy()
+            else:
+                st.warning("El autor no tiene nodos conectados.")
+                return
+
 
         pos = nx.spring_layout(G, seed=42, scale=1.5)
 
