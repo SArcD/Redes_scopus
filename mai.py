@@ -3905,7 +3905,9 @@ elif pagina == "Redes de colaboraboración":
     }
 
 
-    def visualize_collaboration_network(df, selected_author_name, id_to_name, selected_year):
+    #def visualize_collaboration_network(df, selected_author_name, id_to_name, selected_year):
+    def visualize_collaboration_network(df, selected_author_name, id_to_name, id_to_normalized, selected_year):
+
         """Genera una red de colaboración en Plotly con colores por cluster y estrella para el autor principal (por nombre normalizado)."""
 
         # Si se elige "Todos los años", generar redes para cada año individualmente
@@ -4242,7 +4244,9 @@ elif pagina == "Redes de colaboraboración":
                         if st.button("🔗 Red de Colaboración"):
                             if selected_year == "Todos los años":
                                 # Mostrar red año por año
-                                visualize_collaboration_network(df, selected_author_name, id_to_name, selected_year)
+                                visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, id_to_normalized, selected_year)
+
+                                #visualize_collaboration_network(df, selected_author_name, id_to_name, selected_year)
 
                                 # Graficar evolución
                                 plot_leadership_evolution(df_filtered, selected_author_name)
@@ -4252,7 +4256,9 @@ elif pagina == "Redes de colaboraboración":
 
                             else:
                                 # Mostrar red de un solo año
-                                fig, G = visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, selected_year)
+                                fig, G = visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, id_to_normalized, selected_year)
+
+#                                fig, G = visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, selected_year)
 
                                 if fig is not None and G is not None:
                                     # Calcular y mostrar métricas para un solo año
