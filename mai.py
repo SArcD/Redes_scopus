@@ -4245,7 +4245,8 @@ elif pagina == "Redes de colaboraboración":
                         if st.button("🔗 Red de Colaboración"):
                             if selected_year == "Todos los años":
                                 # Mostrar red año por año
-                                visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, id_to_normalized, selected_year)
+                                #visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, id_to_normalized, selected_year)
+                                visualize_collaboration_network(df[df["Year"] == year], selected_author_name, id_to_name, id_to_normalized, year)
 
                                 #visualize_collaboration_network(df, selected_author_name, id_to_name, selected_year)
 
@@ -4257,7 +4258,8 @@ elif pagina == "Redes de colaboraboración":
 
                             else:
                                 # Mostrar red de un solo año
-                                fig, G = visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, id_to_normalized, selected_year)
+                                #fig, G = visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, id_to_normalized, selected_year)
+                                fig, G = visualize_collaboration_network(df[df["Year"] == year], selected_author_name, id_to_name, id_to_normalized, year)
 
 #                                fig, G = visualize_collaboration_network(df_filtered, selected_author_name, id_to_name, selected_year)
 
