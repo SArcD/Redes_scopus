@@ -3912,7 +3912,9 @@ elif pagina == "Redes de colaboraboración":
         # Crear red
         G = nx.Graph()
         for _, row in df_filtered.iterrows():
-            coauthors = row["Normalized_Author_Name"].split(";")
+            #coauthors = row["Normalized_Author_Name"].split(";")
+            coauthors = row["Author(s) ID"].split(";")  # ✅ Correcto: IDs separados por ;
+
             coauthors = [author.strip() for author in coauthors if author]
             for i in range(len(coauthors)):
                 for j in range(i + 1, len(coauthors)):
@@ -3996,203 +3998,6 @@ elif pagina == "Redes de colaboraboración":
 
     
 
-#    def visualize_collaboration_network(df, selected_author_id, id_to_name, selected_year):
-#        """Genera una red de colaboración en Plotly con colores por cluster y estrella para el autor principal."""
-
-#        # Si se elige "Todos los años", generar redes para cada año individualmente
-#        if selected_year == "Todos los años":
-#            years = sorted(df["Year"].dropna().astype(int).unique())
-#            for year in years:
-#                st.subheader(f"🔗 Red de colaboración en {year}")
-#                visualize_collaboration_network(df[df["Year"] == year], selected_author_id, id_to_name, year)
-#            return None, None
-
-#        df_filtered = df[df["Year"] == selected_year]
-
-#        if df_filtered.empty:
-#            st.warning(f"No se encontraron publicaciones para el autor con ID: {selected_author_id}")
-#            return
-
-#        # Crear red
-#        G = nx.Graph()
-#        for _, row in df_filtered.iterrows():
-#            coauthors = row["Author(s) ID"].split(";")
-#            coauthors = [author.strip() for author in coauthors if author]
-#            for i in range(len(coauthors)):
-#                for j in range(i + 1, len(coauthors)):
-#                    G.add_edge(coauthors[i], coauthors[j])
-
-#        if len(G.nodes) == 0:
-#            st.warning("⚠️ No hay colaboraciones registradas en este período.")
-#            return
-
-#        pos = nx.spring_layout(G, seed=42, scale=1.5)
-
-#        # Crear trazas de bordes
-#        edge_trace = go.Scatter(
-#            x=[], y=[], line=dict(width=1.5, color="black"),
-#            hoverinfo="none", mode="lines"
-#        )
-
-#        for edge in G.edges():
-#            x0, y0 = pos[edge[0]]
-#            x1, y1 = pos[edge[1]]
-#            edge_trace.x += (x0, x1, None)
-#            edge_trace.y += (y0, y1, None)
-
-#        # Diccionarios auxiliares (deben estar definidos fuera de esta función):
-#        #author_cluster_map = {Author_ID: cluster_id}
-#        #cluster_colors = {0: "lightgreen", 1: "gold", 2: "yellow", 3: "red", 4: "orange", "default": "gray"}
-
-#        # Separar nodos normales y nodo principal
-#        node_x = []
-#        node_y = []
-#        node_color = []
-#        node_texts = []
-
-#        star_x = []
-#        star_y = []
-#        star_color = []
-#        star_text = []
-
-#        for node in G.nodes():
-#            x, y = pos[node]
-#            cluster_id = author_cluster_map.get(node, 'default')
-#            color = cluster_colors.get(cluster_id, 'gray')
-#            name = id_to_name.get(node, "Nombre no disponible")
-
-#            if node == selected_author_id:
-#                star_x.append(x)
-#                star_y.append(y)
-#                star_color.append(color)
-#                star_text.append(f"⭐ ID: {node}<br>Nombre: {name}")
-#            else:
-#                node_x.append(x)
-#                node_y.append(y)
-#                node_color.append(color)
-#                node_texts.append(f"ID: {node}<br>Nombre: {name}")
-
-#        # Trazas de nodos normales
-#        node_trace = go.Scatter(
-#            x=node_x, y=node_y, mode="markers",
-#            marker=dict(size=15, color=node_color, opacity=0.8, symbol="circle"),
-#            text=node_texts, hoverinfo="text"
-#        )
-
-#        # Trazas de nodo principal como estrella
-#        star_trace = go.Scatter(
-#            x=star_x, y=star_y, mode="markers",
-#            marker=dict(size=22, color=star_color, symbol="star", line=dict(width=2, color="black")),
-#            text=star_text, hoverinfo="text"
-#        )
-
-#        # Construir figura
-#        fig = go.Figure(data=[edge_trace, node_trace, star_trace])
-#        fig.update_layout(
-#            title=f"Red de Colaboración en {selected_year}",
-#            showlegend=False, hovermode="closest",
-#            autosize=True,
-#            margin=dict(l=40, r=40, t=50, b=50),
-#            xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),
-#            yaxis=dict(showgrid=False, zeroline=False, constrain="domain")
-#        )
-
-#        st.plotly_chart(fig)
-#        return fig, G
-
-
-    
-
-
-
-    
-    # --- FUNCIÓN PARA GENERAR RED DE COLABORACIÓN ---
-#    def visualize_collaboration_network(df, selected_author_id, id_to_name, selected_year):
-#        """Genera una red de colaboración en Plotly con relación de aspecto equilibrada."""
-
-#        # Si se elige "Todos los años", generar redes para cada año individualmente
-#        if selected_year == "Todos los años":
-#            years = sorted(df["Year"].dropna().astype(int).unique())
-#            for year in years:
-#                st.subheader(f"🔗 Red de colaboración en {year}")
-#                visualize_collaboration_network(df[df["Year"] == year], selected_author_id, id_to_name, year)
-#            return None, None  # <-- Aquí también devuelve dos valores
-
-#            #return
-
-#        # Filtrar el DataFrame por el año seleccionado
-#        df_filtered = df[df["Year"] == selected_year]
-
-#        if df_filtered.empty:
-#            st.warning(f"No se encontraron publicaciones para el autor con ID: {selected_author_id}")
-#            return
-
-#        # Crear la red de colaboración
-#        G = nx.Graph()
-#        for _, row in df_filtered.iterrows():
-#            coauthors = row["Author(s) ID"].split(";")
-#            coauthors = [author.strip() for author in coauthors if author]
-
-#            for i in range(len(coauthors)):
-#                for j in range(i + 1, len(coauthors)):
-#                    G.add_edge(coauthors[i], coauthors[j])
-
-#        if len(G.nodes) == 0:
-#            st.warning("⚠️ No hay colaboraciones registradas en este período.")
-#            return
-
-#        # Ajustar la distribución de nodos para evitar estiramiento
-#        pos = nx.spring_layout(G, seed=42, scale=1.5)
-
-#        # Crear trazas de bordes (edges)
-#        edge_trace = go.Scatter(
-#            x=[], y=[], line=dict(width=1.5, color="black"),  # Bordes negros
-#            hoverinfo="none", mode="lines"
-#        )
-
-#        for edge in G.edges():
-#            x0, y0 = pos[edge[0]]
-#            x1, y1 = pos[edge[1]]
-#            edge_trace.x += (x0, x1, None)
-#            edge_trace.y += (y0, y1, None)
-    
-#        # Crear trazas de nodos (nodes)
-#        node_x = []
-#        node_y = []
-#        node_color = []
-#        node_texts = []
-
-#        for node in G.nodes():
-#            x, y = pos[node]
-#            node_x.append(x)
-#            node_y.append(y)
-#            node_color.append("red" if node == selected_author_id else "blue")  # Autor principal en rojo
-#            most_common_name = id_to_name.get(node, "Nombre no disponible")
-#            node_texts.append(f"ID: {node}<br>Nombre: {most_common_name}")
-
-#        node_trace = go.Scatter(
-#            x=node_x, y=node_y, mode="markers",
-#            marker=dict(size=15, color=node_color, opacity=0.8),
-#            text=node_texts, hoverinfo="text"
-#        )
-
-#        # Crear figura en Plotly con relación de aspecto equilibrada
-#        fig = go.Figure(data=[edge_trace, node_trace])
-#        fig.update_layout(
-#            title=f"Red de Colaboración en {selected_year}",
-#            showlegend=False, hovermode="closest",
-#            autosize=True,  # Ajuste automático del tamaño
-#            margin=dict(l=40, r=40, t=50, b=50),  # Márgenes más equilibrados
-#            xaxis=dict(showgrid=False, zeroline=False, scaleanchor='y', constrain="domain"),  
-#            yaxis=dict(showgrid=False, zeroline=False, constrain="domain")
-#        )
-
-#        # Mostrar la gráfica en Streamlit
-#        st.plotly_chart(fig)
-#        #st.plotly_chart(fig)
-
-#        return fig, G  # Añadir esto al final
-
     def evaluate_leadership(G, selected_author_name, id_to_name):
         st.subheader("🏅 Evaluación de Liderazgo en la Red")
 
@@ -4214,19 +4019,6 @@ elif pagina == "Redes de colaboraboración":
 
         # Ordenar por PageRank (puedes cambiarlo si prefieres otra)
         metrics_df = metrics_df.sort_values(by="PageRank", ascending=False).reset_index(drop=True)
-
-        # Mostrar tabla con resaltado
-        #st.dataframe(metrics_df.style.apply(
-        #    lambda row: ['background-color: gold' if row['ID'] == selected_author_name,  else '' for _ in row],
-        #    axis=1
-        #))
-
-        # Mensaje adicional si el autor está en top 3
-#        top_ids = metrics_df.head(3)['ID'].tolist()
-#        if selected_id in top_ids:
-#            st.success("🌟 ¡Este autor se encuentra en el top 3 de liderazgo según PageRank!")
-#        else:
-#            st.info("ℹ️ El autor no figura en el top 3 de PageRank.")
 
         top_names = metrics_df.head(3)['ID'].tolist()  # 'ID' ahora contiene nombres normalizados
         if selected_author_name in top_names:
@@ -4464,66 +4256,6 @@ elif pagina == "Redes de colaboraboración":
 
 
 ####################################################3
-
-    import imageio
-    import tempfile
-    import os
-    import io
-
-
-    def generate_collaboration_gif(df, selected_id, id_to_name):
-        """Genera un GIF mostrando la evolución de la red de colaboración año con año."""
-        st.subheader("🎥 Evolución de la Red de Colaboración (GIF)")
-        years = sorted(df["Year"].dropna().astype(int).unique())
-        image_list = []  # Lista para almacenar imágenes en memoria
-
-        # Crear una red global para fijar las posiciones de los nodos
-        G_global = nx.Graph()
-        for _, row in df.iterrows():
-            coauthors = row["Author(s) ID"].split(";")
-            for i in range(len(coauthors)):
-                for j in range(i + 1, len(coauthors)):
-                    G_global.add_edge(coauthors[i].strip(), coauthors[j].strip())
-    
-        fixed_pos = nx.spring_layout(G_global, seed=42)
-
-        # Generar los grafos año por año y guardarlos como imágenes
-        for year in years:
-            #fig, _ = visualize_collaboration_network(df, selected_id, id_to_name, year, fixed_pos)
-            fig, _ = visualize_collaboration_network(df, selected_author_name, id_to_name, selected_year)
-
-            # Guardar la imagen en memoria
-            temp_img_path = tempfile.NamedTemporaryFile(delete=False, suffix=".png").name
-            fig.write_image(temp_img_path, format="png", width=800, height=600)
-            image_list.append(imageio.imread(temp_img_path))
-            os.remove(temp_img_path)
-
-        # Crear un archivo temporal para guardar el GIF
-        temp_gif_path = tempfile.NamedTemporaryFile(delete=False, suffix=".gif").name
-        imageio.mimsave(temp_gif_path, image_list, format="GIF", duration=1.5, loop=0)  # FPS ajustado
-    
-        # Mostrar el GIF en Streamlit
-        st.image(temp_gif_path, caption="Evolución de la Red de Colaboración", use_column_width=True)
-
-        # Permitir la descarga del GIF
-        with open(temp_gif_path, "rb") as file:
-            gif_bytes = file.read()
-        st.download_button(
-            label="📥 Descargar GIF",
-            data=gif_bytes,
-            file_name="Evolucion_Red_Colaboracion.gif",
-            mime="image/gif"
-        )
-    
-        os.remove(temp_gif_path)  # Eliminar el archivo después de la descarga
-
-
-    # 🔥 Integración con la interfaz de Streamlit
-    if selected_id:
-        if st.button("🎥 Generar GIF de Evolución"):
-            generate_collaboration_gif(df_filtered, selected_id, id_to_name)
-
-
 
 
 
