@@ -3812,6 +3812,10 @@ elif pagina == "Redes de colaboraboración":
     import plotly.graph_objects as go
     from collections import Counter
 
+    def clean_name(name):
+        return ' '.join(name.strip().lower().replace(",", "").split())
+
+
     # --- FUNCIÓN PARA OBTENER AUTORES POR APELLIDO ---
     def get_author_options(df, author_last_name):
         """Devuelve un diccionario {ID: Nombre más común} para un apellido dado."""
@@ -3894,8 +3898,16 @@ elif pagina == "Redes de colaboraboración":
         url = base_url + file_name
         df_cluster = pd.read_csv(url)
         for author_name in df_cluster['Normalized_Author_Name']:
-            name_clean = author_name.strip().lower().rstrip(",")  # 👈 elimina coma al final
+            name_clean = clean_name(author_name)
             author_cluster_map[name_clean] = cluster_id
+
+    
+    #for cluster_id, file_name in cluster_files.items():
+    #    url = base_url + file_name
+    #    df_cluster = pd.read_csv(url)
+    #    for author_name in df_cluster['Normalized_Author_Name']:
+    #        name_clean = author_name.strip().lower().rstrip(",")  # 👈 elimina coma al final
+    #        author_cluster_map[name_clean] = cluster_id
 
 
     #for cluster_id, file_name in cluster_files.items():
@@ -3996,12 +4008,17 @@ elif pagina == "Redes de colaboraboración":
             x, y = pos[node]
             #cluster_id = author_cluster_map.get(node, 'default')
             #normalized_name = id_to_normalized.get(node, node)  # fallback: el mismo ID
-
-            normalized_name = id_to_normalized.get(node, "").strip().lower().rstrip(",")
-            if not normalized_name:
-                normalized_name = node.lower().rstrip(",")
-
+    
+            raw_name = id_to_normalized.get(node, node)
+            normalized_name = clean_name(raw_name)
             cluster_id = author_cluster_map.get(normalized_name, 'default')
+
+            
+            #normalized_name = id_to_normalized.get(node, "").strip().lower().rstrip(",")
+            #if not normalized_name:
+            #    normalized_name = node.lower().rstrip(",")
+
+            #cluster_id = author_cluster_map.get(normalized_name, 'default')
 
             #cluster_id = author_cluster_map.get(normalized_name, 'default')
             #cluster_id = author_cluster_map.get(normalized_name.lower(), 'default')  # 👈 busca en minúsculas
