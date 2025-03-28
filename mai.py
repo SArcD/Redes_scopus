@@ -4371,10 +4371,10 @@ elif pagina == "Redes de colaboraboración":
 
     #df_metrics = pd.DataFrame(metrics_over_time).sort_values("Año")
 
-    import plotly.express as px
-    for metric in ["Grado", "Intermediación", "Cercanía", "PageRank"]:
-        fig = px.line(df_metrics, x="Año", y=metric, title=f"Evolución de {metric}")
-        st.plotly_chart(fig, use_container_width=True)
+    #import plotly.express as px
+    #for metric in ["Grado", "Intermediación", "Cercanía", "PageRank"]:
+    #    fig = px.line(df_metrics, x="Año", y=metric, title=f"Evolución de {metric}")
+    #    st.plotly_chart(fig, use_container_width=True)
 
 
 
