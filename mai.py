@@ -4363,10 +4363,10 @@ elif pagina == "Redes de colaboraboración":
 
         return df_metrics
 
-    df_metrics = plot_leadership_evolution(df, selected_author_name)
-    if df_metrics is not None:
-        # Puedes hacer algo más con df_metrics aquí si quieres
-        st.dataframe(df_metrics)
+    #df_metrics = plot_leadership_evolution(df, selected_author_name)
+    #if df_metrics is not None:
+    #    # Puedes hacer algo más con df_metrics aquí si quieres
+    #    st.dataframe(df_metrics)
 
 
     #df_metrics = pd.DataFrame(metrics_over_time).sort_values("Año")
