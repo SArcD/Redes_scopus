@@ -4011,7 +4011,7 @@ elif pagina == "Redes de colaboraboración":
 #                return
 
         # --- Si la red es muy grande, limitar a red ego (autor + vecinos directos) ---
-        max_nodos = 50
+        max_nodos = 100
         if len(G.nodes) > max_nodos:
             st.warning(f"⚠️ La red tiene {len(G.nodes)} nodos. Mostrando solo la red directa del autor.")
 
@@ -4022,7 +4022,7 @@ elif pagina == "Redes de colaboraboración":
                 if len(G.nodes) > max_nodos:
                     # Si incluso la red directa es muy grande, tomar solo los 10 más conectados
                     neighbors = list(G.neighbors(selected_author_name))
-                    top_neighbors = sorted(neighbors, key=lambda n: G.degree[n], reverse=True)[:10]
+                    top_neighbors = sorted(neighbors, key=lambda n: G.degree[n], reverse=True)[:50]
                     G = G.subgraph([selected_author_name] + top_neighbors).copy()
                     st.info("ℹ️ Se mostraron solo los 10 colaboradores más conectados.")
             else:
