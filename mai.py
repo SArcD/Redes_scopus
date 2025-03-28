@@ -4379,13 +4379,13 @@ elif pagina == "Redes de colaboraboración":
 
 
         
-        df_metrics = pd.DataFrame(metrics_over_time).sort_values("Año")
+    df_metrics = pd.DataFrame(metrics_over_time).sort_values("Año")
 
-        # Mostrar gráficas
-        import plotly.express as px
-        for metric in ["Grado", "Intermediación", "Cercanía", "PageRank"]:
-            fig = px.line(df_metrics, x="Año", y=metric, title=f"Evolución de {metric}")
-            st.plotly_chart(fig, use_container_width=True)
+    # Mostrar gráficas
+    import plotly.express as px
+    for metric in ["Grado", "Intermediación", "Cercanía", "PageRank"]:
+        fig = px.line(df_metrics, x="Año", y=metric, title=f"Evolución de {metric}")
+        st.plotly_chart(fig, use_container_width=True)
 
 
     def interpretar_metricas_autor(df, selected_author_name):
