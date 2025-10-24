@@ -878,7 +878,7 @@ elif pagina == "Análisis por base":
         )
 
         # títulos y etiquetas
-        ax.set_title("Mapa de dispersión: antigüedad vs. publicaciones", fontsize=12, weight="bold", pad=12)
+        #ax.set_title("Mapa de dispersión: antigüedad vs. publicaciones", fontsize=12, weight="bold", pad=12)
         ax.set_xlabel("Antigüedad (años desde la primera publicación)", labelpad=10)
         ax.set_ylabel("Total de publicaciones", labelpad=10)
         ax.grid(True, linestyle="--", linewidth=0.4, alpha=0.4)
