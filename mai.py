@@ -1027,52 +1027,107 @@ elif pagina == "Análisis por base":
             showscale=False
         ))
 
-        # --- Versión Matplotlib (300 dpi) y botón de descarga ---
-        import io
-        import matplotlib.pyplot as plt
+        st.plotly_chart(fig_clusters)
+        
+        import streamlit as st
+        import pandas as pd
+        import plotly.express as px
+        import plotly.graph_objects as go
         import numpy as np
+        from sklearn.preprocessing import StandardScaler
+        from sklearn.cluster import AgglomerativeClustering
+        from sklearn.manifold import TSNE
 
-        # Filtrar solo filas con TSNE y Cluster válidos
-        df_plot = df_ucol.dropna(subset=["TSNE1", "TSNE2", "Cluster"]).copy()
-        df_plot["Cluster"] = df_plot["Cluster"].astype(int)
+        st.subheader("Clustering Jerárquico de Autores en función de su producción académica")
+        st.markdown(
+            """
+            <div style='text-align: justify'>
+                En esta sección se utiliza un algoritmo de <strong>clustering jerárquico</strong> para clasificar a los autores, de acuerdo a cuatro parámetros:
+        
+                - Número de publicaciones.
+                - Número de citas.
+                - Porcentaje de publicaciones financiadas.
+                - Antigüedad en la Universidad de Colima.
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-        # Paleta de colores (hasta 10 clusters); se extiende si hubiera más
-        palette = plt.cm.get_cmap("tab10")
-        unique_clusters = sorted(df_plot["Cluster"].unique())
-        color_map = {c: palette(i % 10) for i, c in enumerate(unique_clusters)}
+        st.markdown(
+            """
+            <div style='text-align: justify'>
+                Se utilizó la gráfica de codo para definir el número óptimo de clusters, encontrando que los autores pueden dividirse en <strong>5 clusters distintos</strong>. 
+                Para visualizar la distribución de los autores en los clusters se utilizó el <strong>gráfico t-SNE</strong> que se muestra debajo. 
+                En este gráfico se puede observar la cercanía de los clusters, qué tan compactos son y su tamaño relativo.
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-        # Figura para mostrar en pantalla (dpi estándar); para descargar usaremos 300 dpi
-        fig, ax = plt.subplots(figsize=(8, 6))  # tamaño en pulgadas
-        for c in unique_clusters:
-            sub = df_plot[df_plot["Cluster"] == c]
-            ax.scatter(
-                sub["TSNE1"], sub["TSNE2"],
-                s=18, alpha=0.75, linewidths=0.2, edgecolors="none",
-                label=f"Cluster {c}", c=[color_map[c]]
-            )
+        # --- Procesamiento de datos ---
+        df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
+        df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
+        df_ucol["Funded_publications"] = pd.to_numeric(df_ucol["Funded_publications"], errors='coerce')
 
-        ax.set_title("t-SNE por clúster (versión Matplotlib)", pad=10)
-        ax.set_xlabel("Componente t-SNE 1")
-        ax.set_ylabel("Componente t-SNE 2")
-        ax.grid(True, linestyle="--", linewidth=0.4, alpha=0.4)
-        ax.legend(frameon=False, ncol=min(len(unique_clusters), 5), loc="best")
+        df_ucol["Funding_Ratio"] = df_ucol["Funded_publications"] / df_ucol["Publications"]
+        df_ucol["Funding_Ratio"] = df_ucol["Funding_Ratio"].fillna(0)
 
-        st.pyplot(fig, use_container_width=True)
+        df_ucol["Year"] = df_ucol["Year"].astype(str)
+        df_ucol["First_Year"] = pd.to_numeric(df_ucol["Year"].str.extract(r'(\d{4})')[0], errors='coerce')    
+        df_ucol["Seniority"] = 2025 - df_ucol["First_Year"]
 
-        # Guardar a 300 dpi en un buffer y ofrecer descarga
-        buf_png = io.BytesIO()
-        fig.savefig(buf_png, format="png", dpi=300, bbox_inches="tight")
-        buf_png.seek(0)
+        df_valid = df_ucol.dropna(subset=["Publications", "Cited_by", "Seniority", "Funding_Ratio"])[
+            ["Publications", "Cited_by", "Seniority", "Funding_Ratio"]
+        ]
+
+        # --- Clustering ---
+        scaler = StandardScaler()
+        df_scaled = scaler.fit_transform(df_valid)
+
+        num_clusters = 5
+        agg_clustering = AgglomerativeClustering(n_clusters=num_clusters, linkage="ward")
+        df_ucol.loc[df_valid.index, "Cluster"] = agg_clustering.fit_predict(df_scaled)
+
+        # --- t-SNE ---
+        tsne = TSNE(n_components=2, random_state=42)
+        df_ucol.loc[df_valid.index, ["TSNE1", "TSNE2"]] = tsne.fit_transform(df_scaled)
+
+        # --- Gráfica interactiva ---
+        fig_clusters = px.scatter(
+            df_ucol,
+            x="TSNE1",
+            y="TSNE2",
+            color=df_ucol["Cluster"].astype(str),
+            title="Visualización t-SNE de Clusters con Cuatro Variables (Hierarchical Clustering)",
+            labels={"TSNE1": "Componente t-SNE 1", "TSNE2": "Componente t-SNE 2", "Cluster": "Cluster"},
+            hover_data={
+                "Author(s)_ID": True,
+                "Normalized_Author_Name": True,
+                "Seniority": True,
+                "Funding_Ratio": True
+            },
+            template="plotly_white"
+        )
+
+        fig_clusters.add_trace(go.Histogram2dContour(
+            x=df_ucol["TSNE1"],
+            y=df_ucol["TSNE2"],
+            colorscale="blues",
+            showscale=False
+        ))
+
+        st.plotly_chart(fig_clusters, use_container_width=True)
+
+        # --- Descarga del gráfico en alta resolución ---
+        import io
+        img_bytes = fig_clusters.to_image(format="png", scale=3)  # escala ~300 dpi
 
         st.download_button(
-            label="📥 Descargar t-SNE (PNG 300 dpi, Matplotlib)",
-            data=buf_png,
-            file_name="tsne_clusters_ucol_300dpi.png",
+            label="📥 Descargar gráfico t-SNE (PNG, alta resolución)",
+            data=img_bytes,
+            file_name="tsne_clusters_ucol.png",
             mime="image/png"
         )
-        
-        plt.close(fig)
-
 
         
 
