@@ -1029,6 +1029,19 @@ elif pagina == "Análisis por base":
 
         st.plotly_chart(fig_clusters)
 
+        # --- Descarga del gráfico en alta resolución ---
+        import io
+        img_bytes = fig_clusters.to_image(format="png", scale=3)  # escala ~300 dpi
+
+        st.download_button(
+            label="📥 Descargar gráfico t-SNE (PNG, alta resolución)",
+            data=img_bytes,
+            file_name="tsne_clusters_ucol.png",
+            mime="image/png"
+        )
+
+        
+
         st.write("**Integrantes del Cluster 0**")
 
         # Filtrar los autores que están en el cluster 1.0
