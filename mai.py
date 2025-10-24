@@ -855,6 +855,53 @@ elif pagina == "Análisis por base":
     )
 
 
+    # --- versión matplotlib (png 300 dpi) debajo del gráfico plotly ---
+    import io
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    # asegurar datos válidos
+    df_plot = df_heatmap.dropna(subset=["Seniority", "Publications", "Cited_by"]).copy()
+
+    # figura 300 dpi (8x5.5 in → 2400×1650 px)
+    fig, ax = plt.subplots(figsize=(8, 5.5))
+
+    # dispersión con color por citas y tamaño proporcional
+    scatter = ax.scatter(
+        df_plot["Seniority"],
+        df_plot["Publications"],
+        c=df_plot["Cited_by"],
+        s=np.sqrt(df_plot["Cited_by"] + 1) * 2,
+        cmap="viridis",
+        alpha=0.8,
+        linewidths=0
+    )
+
+    # títulos y etiquetas
+    ax.set_title("Mapa de dispersión: antigüedad vs. publicaciones", fontsize=12, weight="bold", pad=12)
+    ax.set_xlabel("Antigüedad (años desde la primera publicación)", labelpad=10)
+    ax.set_ylabel("Total de publicaciones", labelpad=10)
+    ax.grid(True, linestyle="--", linewidth=0.4, alpha=0.4)
+
+    # barra de color
+    cbar = fig.colorbar(scatter, ax=ax)
+    cbar.set_label("Número de citas", rotation=270, labelpad=15)
+
+    # márgenes para estética
+    fig.subplots_adjust(left=0.12, right=0.95, bottom=0.14, top=0.92)
+
+    # guardar imagen en buffer (300 dpi)
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    buf.seek(0)
+
+    # mostrar imagen estática (clic derecho → guardar)
+    st.image(buf, caption="Mapa de dispersión (versión estática PNG 300 dpi). Clic derecho para guardar.", use_column_width=True)
+
+
+        
+
     #####################################################################################################3
 
         import streamlit as st
@@ -1027,7 +1074,7 @@ elif pagina == "Análisis por base":
             showscale=False
         ))
 
-        #st.plotly_chart(fig_clusters)
+        st.plotly_chart(fig_clusters)
         
 
 
@@ -1097,7 +1144,7 @@ elif pagina == "Análisis por base":
         buf.seek(0)
 
         # Mostrar imagen para guardar con clic derecho
-        st.image(buf, caption="t-SNE (Matplotlib + KDE, PNG 300 dpi). Clic derecho para guardar.", use_column_width=True)
+        #st.image(buf, caption="t-SNE (Matplotlib + KDE, PNG 300 dpi). Clic derecho para guardar.", use_column_width=True)
 
         
         
