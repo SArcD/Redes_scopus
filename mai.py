@@ -1118,17 +1118,44 @@ elif pagina == "Análisis por base":
 
         st.plotly_chart(fig_clusters, use_container_width=True)
 
-        # --- Descarga del gráfico en alta resolución ---
+
+        # --- Imagen estática 300 dpi mostrada como PNG (clic derecho para guardar) ---
         import io
-        img_bytes = fig_clusters.to_image(format="png", scale=3)  # escala ~300 dpi
+        import matplotlib.pyplot as plt
 
-        st.download_button(
-            label="📥 Descargar gráfico t-SNE (PNG, alta resolución)",
-            data=img_bytes,
-            file_name="tsne_clusters_ucol.png",
-            mime="image/png"
-        )
+        # Datos listos: df_ucol ya tiene TSNE1, TSNE2 y Cluster
+        df_plot = df_ucol.dropna(subset=["TSNE1", "TSNE2", "Cluster"]).copy()
+        df_plot["Cluster"] = df_plot["Cluster"].astype(int)
 
+        # Dibujo Matplotlib
+        fig, ax = plt.subplots(figsize=(8, 5.5))  # 8x5.5 in → 2400x1650 px a 300 dpi
+        palette = plt.cm.get_cmap("tab10")
+        clusters = sorted(df_plot["Cluster"].unique())
+        for i, c in enumerate(clusters):
+            sub = df_plot[df_plot["Cluster"] == c]
+            ax.scatter(sub["TSNE1"], sub["TSNE2"],
+                       s=18, alpha=0.8, linewidths=0, c=[palette(i % 10)], label=f"Cluster {c}")
+        ax.set_xlabel("Componente t-SNE 1")
+        ax.set_ylabel("Componente t-SNE 2")
+        ax.grid(True, linestyle="--", linewidth=0.4, alpha=0.4)
+        ax.legend(frameon=False, ncol=min(len(clusters), 5))
+
+        # (Opcional) contornos de densidad rápidos
+        # import numpy as np
+        # h, xedges, yedges = np.histogram2d(df_plot["TSNE1"], df_plot["TSNE2"], bins=80)
+        # ax.contour((xedges[:-1]+xedges[1:])/2, (yedges[:-1]+yedges[1:])/2, h.T,
+        #            levels=10, colors="k", linewidths=0.6, alpha=0.5)
+
+        # Guardar en buffer con 300 dpi
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", dpi=300, bbox_inches="tight")
+        plt.close(fig)
+        buf.seek(0)
+
+        # Mostrar la imagen PNG (clic derecho → guardar)
+        st.image(buf, caption="t-SNE estático (PNG 300 dpi). Clic derecho para guardar.", use_column_width=True)
+
+        
         
 
 
