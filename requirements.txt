@@ -16,5 +16,4 @@ nltk
 deep-translator
 sentence-transformers
 io
-kaleido
 
