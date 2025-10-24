@@ -1029,131 +1029,72 @@ elif pagina == "Análisis por base":
 
         #st.plotly_chart(fig_clusters)
         
-        import streamlit as st
-        import pandas as pd
-        import plotly.express as px
-        import plotly.graph_objects as go
-        import numpy as np
-        from sklearn.preprocessing import StandardScaler
-        from sklearn.cluster import AgglomerativeClustering
-        from sklearn.manifold import TSNE
-
-        st.subheader("Clustering Jerárquico de Autores en función de su producción académica")
-        st.markdown(
-            """
-            <div style='text-align: justify'>
-                En esta sección se utiliza un algoritmo de <strong>clustering jerárquico</strong> para clasificar a los autores, de acuerdo a cuatro parámetros:
-        
-                - Número de publicaciones.
-                - Número de citas.
-                - Porcentaje de publicaciones financiadas.
-                - Antigüedad en la Universidad de Colima.
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        st.markdown(
-            """
-            <div style='text-align: justify'>
-                Se utilizó la gráfica de codo para definir el número óptimo de clusters, encontrando que los autores pueden dividirse en <strong>5 clusters distintos</strong>. 
-                Para visualizar la distribución de los autores en los clusters se utilizó el <strong>gráfico t-SNE</strong> que se muestra debajo. 
-                En este gráfico se puede observar la cercanía de los clusters, qué tan compactos son y su tamaño relativo.
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        # --- Procesamiento de datos ---
-        df_ucol["Cited_by"] = pd.to_numeric(df_ucol["Cited_by"], errors='coerce')
-        df_ucol["Publications"] = pd.to_numeric(df_ucol["Publications"], errors='coerce')
-        df_ucol["Funded_publications"] = pd.to_numeric(df_ucol["Funded_publications"], errors='coerce')
-
-        df_ucol["Funding_Ratio"] = df_ucol["Funded_publications"] / df_ucol["Publications"]
-        df_ucol["Funding_Ratio"] = df_ucol["Funding_Ratio"].fillna(0)
-
-        df_ucol["Year"] = df_ucol["Year"].astype(str)
-        df_ucol["First_Year"] = pd.to_numeric(df_ucol["Year"].str.extract(r'(\d{4})')[0], errors='coerce')    
-        df_ucol["Seniority"] = 2025 - df_ucol["First_Year"]
-
-        df_valid = df_ucol.dropna(subset=["Publications", "Cited_by", "Seniority", "Funding_Ratio"])[
-            ["Publications", "Cited_by", "Seniority", "Funding_Ratio"]
-        ]
-
-        # --- Clustering ---
-        scaler = StandardScaler()
-        df_scaled = scaler.fit_transform(df_valid)
-
-        num_clusters = 5
-        agg_clustering = AgglomerativeClustering(n_clusters=num_clusters, linkage="ward")
-        df_ucol.loc[df_valid.index, "Cluster"] = agg_clustering.fit_predict(df_scaled)
-
-        # --- t-SNE ---
-        tsne = TSNE(n_components=2, random_state=42)
-        df_ucol.loc[df_valid.index, ["TSNE1", "TSNE2"]] = tsne.fit_transform(df_scaled)
-
-        # --- Gráfica interactiva ---
-        fig_clusters = px.scatter(
-            df_ucol,
-            x="TSNE1",
-            y="TSNE2",
-            color=df_ucol["Cluster"].astype(str),
-            title="Visualización t-SNE de Clusters con Cuatro Variables (Hierarchical Clustering)",
-            labels={"TSNE1": "Componente t-SNE 1", "TSNE2": "Componente t-SNE 2", "Cluster": "Cluster"},
-            hover_data={
-                "Author(s)_ID": True,
-                "Normalized_Author_Name": True,
-                "Seniority": True,
-                "Funding_Ratio": True
-            },
-            template="plotly_white"
-        )
-
-        fig_clusters.add_trace(go.Histogram2dContour(
-            x=df_ucol["TSNE1"],
-            y=df_ucol["TSNE2"],
-            colorscale="blues",
-            showscale=False
-        ))
-
-        st.plotly_chart(fig_clusters, use_container_width=True)
 
 
-        # --- Imagen estática 300 dpi mostrada como PNG (clic derecho para guardar) ---
+        # --- Imagen estática 300 dpi con CURVAS DE NIVEL (KDE) + sin traslapes ---
         import io
+        import numpy as np
         import matplotlib.pyplot as plt
+        from sklearn.neighbors import KernelDensity
 
-        # Datos listos: df_ucol ya tiene TSNE1, TSNE2 y Cluster
+        # Datos válidos
         df_plot = df_ucol.dropna(subset=["TSNE1", "TSNE2", "Cluster"]).copy()
         df_plot["Cluster"] = df_plot["Cluster"].astype(int)
 
-        # Dibujo Matplotlib
-        fig, ax = plt.subplots(figsize=(8, 5.5))  # 8x5.5 in → 2400x1650 px a 300 dpi
+        X = df_plot[["TSNE1", "TSNE2"]].to_numpy()
+
+        # Figura: 8x5.5 in → 2400x1650 px a 300 dpi
+        fig, ax = plt.subplots(figsize=(8, 5.5))
+
+        # ------ KDE global para curvas de nivel ------
+        # Malla
+        pad = 5
+        xmin, xmax = X[:,0].min()-pad, X[:,0].max()+pad
+        ymin, ymax = X[:,1].min()-pad, X[:,1].max()+pad
+        nx = ny = 220
+        xx, yy = np.meshgrid(np.linspace(xmin, xmax, nx),
+                     np.linspace(ymin, ymax, ny))
+        xy = np.vstack([xx.ravel(), yy.ravel()]).T
+
+        # Bandwidth heurística
+        stdx, stdy = X[:,0].std(), X[:,1].std()
+        bw = 0.18 * max(stdx, stdy) if max(stdx, stdy) > 0 else 1.0
+
+        kde = KernelDensity(bandwidth=bw, kernel="gaussian").fit(X)
+        z = np.exp(kde.score_samples(xy)).reshape(xx.shape)
+
+        # Contornos (debajo de los puntos)
+        cf = ax.contourf(xx, yy, z, levels=12, cmap="Blues", alpha=0.22, zorder=1, antialiased=True)
+        ax.contour(xx, yy, z, levels=12, colors="black", linewidths=0.6, alpha=0.55, zorder=2)
+
+        # ------ Dispersión por clúster (encima) ------
         palette = plt.cm.get_cmap("tab10")
         clusters = sorted(df_plot["Cluster"].unique())
         for i, c in enumerate(clusters):
             sub = df_plot[df_plot["Cluster"] == c]
             ax.scatter(sub["TSNE1"], sub["TSNE2"],
-                       s=18, alpha=0.8, linewidths=0, c=[palette(i % 10)], label=f"Cluster {c}")
-        ax.set_xlabel("Componente t-SNE 1")
-        ax.set_ylabel("Componente t-SNE 2")
-        ax.grid(True, linestyle="--", linewidth=0.4, alpha=0.4)
-        ax.legend(frameon=False, ncol=min(len(clusters), 5))
+                       s=18, alpha=0.85, linewidths=0,
+                       c=[palette(i % 10)], label=f"Cluster {c}", zorder=3)
 
-        # (Opcional) contornos de densidad rápidos
-        # import numpy as np
-        # h, xedges, yedges = np.histogram2d(df_plot["TSNE1"], df_plot["TSNE2"], bins=80)
-        # ax.contour((xedges[:-1]+xedges[1:])/2, (yedges[:-1]+yedges[1:])/2, h.T,
-        #            levels=10, colors="k", linewidths=0.6, alpha=0.5)
+        # Estética y NO traslapes
+        ax.set_xlabel("Componente t-SNE 1", labelpad=10)  # más espacio al eje x
+        ax.set_ylabel("Componente t-SNE 2", labelpad=6)    
+        ax.grid(True, linestyle="--", linewidth=0.4, alpha=0.4)    
+        # Leyenda fuera (arriba-derecha) para no tapar ejes
+        ax.legend(frameon=False, ncol=min(len(clusters), 5), bbox_to_anchor=(1.02, 1.02),
+                  loc="upper left", borderaxespad=0.)
 
-        # Guardar en buffer con 300 dpi
+        # Ajustes de márgenes para evitar traslapes con ejes y etiquetas
+        fig.subplots_adjust(left=0.12, right=0.88, bottom=0.16, top=0.94)
+
+        # Guardar a 300 dpi en buffer
         buf = io.BytesIO()
         fig.savefig(buf, format="png", dpi=300, bbox_inches="tight")
         plt.close(fig)
         buf.seek(0)
 
-        # Mostrar la imagen PNG (clic derecho → guardar)
-        st.image(buf, caption="t-SNE estático (PNG 300 dpi). Clic derecho para guardar.", use_column_width=True)
+        # Mostrar: clic derecho -> Guardar imagen como...
+        st.image(buf, caption="t-SNE (Matplotlib + KDE, PNG 300 dpi). Clic derecho para guardar.", use_column_width=True)
 
         
         
