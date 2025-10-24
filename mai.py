@@ -1031,43 +1031,40 @@ elif pagina == "Análisis por base":
         
 
 
-        # --- Imagen estática 300 dpi con CURVAS DE NIVEL (KDE) + sin traslapes ---
+        # --- Imagen estática 300 dpi con curvas de nivel (KDE) y leyenda vertical ---
         import io
         import numpy as np
         import matplotlib.pyplot as plt
         from sklearn.neighbors import KernelDensity
 
-        # Datos válidos
+        # Filtrar datos válidos
         df_plot = df_ucol.dropna(subset=["TSNE1", "TSNE2", "Cluster"]).copy()
         df_plot["Cluster"] = df_plot["Cluster"].astype(int)
 
         X = df_plot[["TSNE1", "TSNE2"]].to_numpy()
-
-        # Figura: 8x5.5 in → 2400x1650 px a 300 dpi
+    
+        # Figura
         fig, ax = plt.subplots(figsize=(8, 5.5))
 
-        # ------ KDE global para curvas de nivel ------
-        # Malla
+        # ===== KDE global =====
         pad = 5
         xmin, xmax = X[:,0].min()-pad, X[:,0].max()+pad
         ymin, ymax = X[:,1].min()-pad, X[:,1].max()+pad
         nx = ny = 220
         xx, yy = np.meshgrid(np.linspace(xmin, xmax, nx),
-                     np.linspace(ymin, ymax, ny))
+                             np.linspace(ymin, ymax, ny))
         xy = np.vstack([xx.ravel(), yy.ravel()]).T
 
-        # Bandwidth heurística
         stdx, stdy = X[:,0].std(), X[:,1].std()
         bw = 0.18 * max(stdx, stdy) if max(stdx, stdy) > 0 else 1.0
 
         kde = KernelDensity(bandwidth=bw, kernel="gaussian").fit(X)
         z = np.exp(kde.score_samples(xy)).reshape(xx.shape)
 
-        # Contornos (debajo de los puntos)
-        cf = ax.contourf(xx, yy, z, levels=12, cmap="Blues", alpha=0.22, zorder=1, antialiased=True)
+        ax.contourf(xx, yy, z, levels=12, cmap="Blues", alpha=0.22, zorder=1)
         ax.contour(xx, yy, z, levels=12, colors="black", linewidths=0.6, alpha=0.55, zorder=2)
 
-        # ------ Dispersión por clúster (encima) ------
+        # ===== Puntos por clúster =====
         palette = plt.cm.get_cmap("tab10")
         clusters = sorted(df_plot["Cluster"].unique())
         for i, c in enumerate(clusters):
@@ -1076,24 +1073,30 @@ elif pagina == "Análisis por base":
                        s=18, alpha=0.85, linewidths=0,
                        c=[palette(i % 10)], label=f"Cluster {c}", zorder=3)
 
-        # Estética y NO traslapes
-        ax.set_xlabel("Componente t-SNE 1", labelpad=10)  # más espacio al eje x
-        ax.set_ylabel("Componente t-SNE 2", labelpad=6)    
-        ax.grid(True, linestyle="--", linewidth=0.4, alpha=0.4)    
-        # Leyenda fuera (arriba-derecha) para no tapar ejes
-        ax.legend(frameon=False, ncol=min(len(clusters), 5), bbox_to_anchor=(1.02, 1.02),
-                  loc="upper left", borderaxespad=0.)
+        # Estética general
+        ax.set_xlabel("Componente t-SNE 1", labelpad=10)    
+        ax.set_ylabel("Componente t-SNE 2", labelpad=8)
+        ax.grid(True, linestyle="--", linewidth=0.4, alpha=0.4)
 
-        # Ajustes de márgenes para evitar traslapes con ejes y etiquetas
-        fig.subplots_adjust(left=0.12, right=0.88, bottom=0.16, top=0.94)
+        # ===== Leyenda en una sola columna vertical =====
+        ax.legend(
+            frameon=False,
+            ncol=1,                  # ← una sola columna
+            loc="upper right",       # esquina superior derecha
+            bbox_to_anchor=(1.12, 1),# fuera del área de la gráfica
+            borderaxespad=0.0
+        )
 
-        # Guardar a 300 dpi en buffer
+        # Márgenes ajustados para que la leyenda no tape la gráfica
+        fig.subplots_adjust(left=0.12, right=0.88, bottom=0.14, top=0.94)
+
+        # Guardar a 300 dpi
         buf = io.BytesIO()
         fig.savefig(buf, format="png", dpi=300, bbox_inches="tight")
         plt.close(fig)
         buf.seek(0)
 
-        # Mostrar: clic derecho -> Guardar imagen como...
+        # Mostrar imagen para guardar con clic derecho
         st.image(buf, caption="t-SNE (Matplotlib + KDE, PNG 300 dpi). Clic derecho para guardar.", use_column_width=True)
 
         
