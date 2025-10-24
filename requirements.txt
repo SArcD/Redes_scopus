@@ -15,5 +15,5 @@ imageio
 nltk
 deep-translator
 sentence-transformers
-io
+
 
