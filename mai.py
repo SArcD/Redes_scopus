@@ -1027,7 +1027,7 @@ elif pagina == "Análisis por base":
             showscale=False
         ))
 
-        st.plotly_chart(fig_clusters)
+        #st.plotly_chart(fig_clusters)
         
         import streamlit as st
         import pandas as pd
