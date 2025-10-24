@@ -1027,22 +1027,55 @@ elif pagina == "Análisis por base":
             showscale=False
         ))
 
-
+        # --- Versión Matplotlib (300 dpi) y botón de descarga ---
         import io
-        from PIL import Image
+        import matplotlib.pyplot as plt
+        import numpy as np
 
-        # --- Exportar la figura a PNG (300 dpi equivalente) ---
-        buf = io.BytesIO()
-        fig_clusters.write_image(buf, format="png", scale=3)  # scale=3 ≈ 300 dpi
-        buf.seek(0)
+        # Filtrar solo filas con TSNE y Cluster válidos
+        df_plot = df_ucol.dropna(subset=["TSNE1", "TSNE2", "Cluster"]).copy()
+        df_plot["Cluster"] = df_plot["Cluster"].astype(int)
 
-        # --- Mostrar botón de descarga ---
+        # Paleta de colores (hasta 10 clusters); se extiende si hubiera más
+        palette = plt.cm.get_cmap("tab10")
+        unique_clusters = sorted(df_plot["Cluster"].unique())
+        color_map = {c: palette(i % 10) for i, c in enumerate(unique_clusters)}
+
+        # Figura para mostrar en pantalla (dpi estándar); para descargar usaremos 300 dpi
+        fig, ax = plt.subplots(figsize=(8, 6))  # tamaño en pulgadas
+        for c in unique_clusters:
+            sub = df_plot[df_plot["Cluster"] == c]
+            ax.scatter(
+                sub["TSNE1"], sub["TSNE2"],
+                s=18, alpha=0.75, linewidths=0.2, edgecolors="none",
+                label=f"Cluster {c}", c=[color_map[c]]
+            )
+
+        ax.set_title("t-SNE por clúster (versión Matplotlib)", pad=10)
+        ax.set_xlabel("Componente t-SNE 1")
+        ax.set_ylabel("Componente t-SNE 2")
+        ax.grid(True, linestyle="--", linewidth=0.4, alpha=0.4)
+        ax.legend(frameon=False, ncol=min(len(unique_clusters), 5), loc="best")
+
+        st.pyplot(fig, use_container_width=True)
+
+        # Guardar a 300 dpi en un buffer y ofrecer descarga
+        buf_png = io.BytesIO()
+        fig.savefig(buf_png, format="png", dpi=300, bbox_inches="tight")
+        buf_png.seek(0)
+
         st.download_button(
-            label="📥 Descargar gráfico t-SNE (PNG, alta resolución)",
-            data=buf,
-            file_name="tsne_clusters_ucol.png",
+            label="📥 Descargar t-SNE (PNG 300 dpi, Matplotlib)",
+            data=buf_png,
+            file_name="tsne_clusters_ucol_300dpi.png",
             mime="image/png"
         )
+        
+        plt.close(fig)
+
+
+        
+
 
 
 
