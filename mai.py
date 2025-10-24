@@ -1027,18 +1027,24 @@ elif pagina == "Análisis por base":
             showscale=False
         ))
 
-        st.plotly_chart(fig_clusters)
 
-        # --- Descarga del gráfico en alta resolución ---
         import io
-        img_bytes = fig_clusters.to_image(format="png", scale=3)  # escala ~300 dpi
+        from PIL import Image
 
+        # --- Exportar la figura a PNG (300 dpi equivalente) ---
+        buf = io.BytesIO()
+        fig_clusters.write_image(buf, format="png", scale=3)  # scale=3 ≈ 300 dpi
+        buf.seek(0)
+
+        # --- Mostrar botón de descarga ---
         st.download_button(
             label="📥 Descargar gráfico t-SNE (PNG, alta resolución)",
-            data=img_bytes,
+            data=buf,
             file_name="tsne_clusters_ucol.png",
             mime="image/png"
         )
+
+
 
         
 
