@@ -3132,12 +3132,27 @@ elif pagina == "Análisis por autor":
 
     
 
-    #if uploaded_file:
-    df = load_data(uploaded_file)
+    if uploaded_file:
+        df = load_data(uploaded_file)
 
     # Input para apellido del autor
     author_last_name = st.text_input("Ingresa el apellido del autor")
+    
+    if uploaded_file is not None:
+        df = load_data(uploaded_file)
 
+        # Input para apellido del autor
+        author_last_name = st.text_input("Ingresa el apellido del autor")
+
+        if author_last_name:
+            available_authors = get_author_options(df, author_last_name)
+
+    else:
+        st.info("Carga un archivo CSV para continuar.")
+
+
+
+    
     if author_last_name:
         available_authors = get_author_options(df, author_last_name)
 
