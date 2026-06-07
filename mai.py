@@ -3358,7 +3358,7 @@ elif pagina == "Análisis por autor":
 
     def process_author_data(file):
         #df = pd.read_csv(file, encoding='utf-8')
-        df = load_data(uploaded_file)
+        df = load_data(file)
         df.columns = df.columns.str.strip().str.replace(" ", "_")  # Reemplazar espacios en nombres de columnas
 
         # Verificar la existencia de las columnas necesarias
