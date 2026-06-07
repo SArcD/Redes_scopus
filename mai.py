@@ -146,7 +146,7 @@ elif pagina == "Análisis por base":
     if uploaded_file is not None:
         # Cargar el archivo en un DataFrame
 
-        
+        uploaded_file.seek(0)
         df = pd.read_csv(uploaded_file, encoding='utf-8')
 
         # ✅ Mostrar mensaje de éxito
@@ -2025,7 +2025,7 @@ elif pagina == "Análisis de temas por área":
 
         # Cargar el archivo CSV
         #file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
-        #df = pd.read_csv(file_path, encoding='latin1')
+        #df = file_path, encoding='latin1')
 
         # Diccionario extendido de palabras clave por área temática
         #area_mapping_extended = {
@@ -2346,7 +2346,7 @@ elif pagina == "Análisis de temas por área":
 
     # Cargar los datos
     #file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
-    #df = pd.read_csv(file_path, encoding="utf-8")
+    #df = file_path, encoding="utf-8")
     #df = df[df["Year"].notna()]
     #df["Year"] = df["Year"].astype(int)
 
@@ -2457,7 +2457,7 @@ elif pagina == "Análisis de temas por área":
 
 ## Cargar datos
 ##file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
-##df = pd.read_csv(file_path, encoding="utf-8")
+##df = file_path, encoding="utf-8")
 ##df = df[df["Year"].notna()]
 ##df["Year"] = df["Year"].astype(int)
 
@@ -2592,7 +2592,7 @@ elif pagina == "Análisis de temas por área":
 
     # Cargar los datos
     #file_path = "scopusUdeC con financiamiento 17 feb-2.csv"
-    #df = pd.read_csv(file_path, encoding="utf-8")
+    #df = file_path, encoding="utf-8")
     #df = df[df["Year"].notna()]
     #df["Year"] = df["Year"].astype(int)
 
@@ -2618,7 +2618,7 @@ elif pagina == "Análisis de temas por área":
 # nltk.download("stopwords")
 
 # Cargar los datos
-# df = pd.read_csv("scopusUdeC con financiamiento 17 feb-2.csv", encoding="utf-8")
+# df = "scopusUdeC con financiamiento 17 feb-2.csv", encoding="utf-8")
 # df = df[df["Year"].notna()]
 # df["Year"] = df["Year"].astype(int)
 
@@ -2812,11 +2812,21 @@ elif pagina == "Análisis por autor":
     import re
     import matplotlib.pyplot as plt
 
+    #@st.cache_data
+    #def load_data(file):
+    #    df = pd.read_csv(file, encoding='utf-8')
+    #    return df
+
     @st.cache_data
     def load_data(file):
-        df = pd.read_csv(file, encoding='utf-8')
-        return df
+        if file is None:
+            st.error("No se ha cargado ningún archivo CSV.")
+            st.stop()
 
+        file.seek(0)
+        df = pd.read_csv(file, encoding="utf-8")
+        return df
+    
 
     # Función para obtener autores por apellido
     @st.cache_data
@@ -3581,7 +3591,7 @@ elif pagina == "Análisis por autor":
     st.title("📊 Análisis de Multidisciplinariedad en Publicaciones")
     import streamlit as st
     import pandas as pd
-
+    uploaded_file.seek(0)
     @st.cache_data
     def load_data(file):
         df = pd.read_csv(file, encoding='utf-8')
@@ -4724,6 +4734,7 @@ elif pagina == "Redes de colaboraboración":
     uploaded_file = st.file_uploader("📂 Cargue un archivo CSV con datos de autores", type=["csv"])
 
     if uploaded_file:
+        uploaded_file.seek(0)
         df = pd.read_csv(uploaded_file, encoding='utf-8')  # Cargar datos
         id_to_name = create_id_to_name_mapping(df)  # Crear mapeo ID -> Nombre
         id_to_normalized = create_id_to_normalized_name_mapping(df)  # 👈 agregar esta línea
