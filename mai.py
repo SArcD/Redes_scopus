@@ -3358,7 +3358,8 @@ elif pagina == "Análisis por autor":
 
     def process_author_data(file):
         #df = pd.read_csv(file, encoding='utf-8')
-        df = load_data(file)
+        #df = load_data(file)
+        df = file.copy()
         df.columns = df.columns.str.strip().str.replace(" ", "_")  # Reemplazar espacios en nombres de columnas
 
         # Verificar la existencia de las columnas necesarias
@@ -3445,8 +3446,10 @@ elif pagina == "Análisis por autor":
 
     if uploaded_file:
         #df=load_data(uploaded_file)
-        df = process_author_data(uploaded_file)
-    
+        #df = process_author_data(uploaded_file)
+        uploaded_file.seek(0)
+        df_raw = pd.read_csv(uploaded_file, encoding="utf-8")
+        df = process_author_data(df_raw)
         if df is not None:
             st.success("Datos cargados exitosamente.")
 
